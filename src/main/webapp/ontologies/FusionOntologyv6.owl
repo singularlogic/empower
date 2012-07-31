@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY owl11 "http://www.w3.org/2006/12/owl11#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY owl11xml "http://www.w3.org/2006/12/owl11-xml#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+]>
+
+
+<rdf:RDF xmlns="http://www.imu.iccs.gr/fusion/FusionOntologyv6.owl#"
+     xml:base="http://www.imu.iccs.gr/fusion/FusionOntologyv6.owl"
+
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:owl11="http://www.w3.org/2006/12/owl11#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:owl11xml="http://www.w3.org/2006/12/owl11-xml#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+     
+    <owl:Ontology rdf:about="">
+        <owl:imports rdf:resource="http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl"/>
+        <owl:imports rdf:resource="http://www.imu.iccs.gr/fusion/DataFacetv4.owl"/>
+        <owl:imports rdf:resource="http://www.imu.iccs.gr/fusion/UpperProcessTemplatev4.owl"/>
+        <owl:imports rdf:resource="http://www.imu.iccs.gr/fusion/Taxonomyv2.owl"/>
+        <owl:imports rdf:resource="http://www.imu.iccs.gr/fusion/Statev2.owl"/>
+    </owl:Ontology>
+
+
+</rdf:RDF>

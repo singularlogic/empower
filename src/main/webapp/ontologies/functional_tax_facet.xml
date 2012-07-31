@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tree id="0">
+       <item id="CRMServices" text="CRMServices">
+               <item id="HumanResources" text="HumanResources">
+		      <item id="Opportunity_Management" text="Opportunity_Management">
+		      </item>
+		      <item id="Recruitment" text="Recruitment">
+		      </item>
+		      <item id="Short_Listing" text="Short_Listing">
+		      </item>
+               </item>
+               <item id="Marketing" text="Marketing">
+		      <item id="Campaign_Management" text="Campaign_Management">
+		      </item>
+		      <item id="Lead_Management" text="Lead_Management">
+		      </item>
+		      <item id="Marketing_Resource_Management" text="Marketing_Resource_Management">
+		      </item>
+		      <item id="Segmentation_List_Management"  text="Segmentation_List_Management">
+		      </item>
+		      <item id="Trade_Promotion_Management" text="Trade_Promotion_Management">
+		      </item>
+               </item>
+               <item id="Sales" text="Sales">
+		      <item id="Accounts_Contacts" text="Accounts_Contacts">
+		      </item>
+		      <item id="Incestive_Commission_management" text="Incestive_Commission_management">
+		      </item>
+		      <item id="Opportunity_Management" text="Opportunity_Management">
+		      </item>
+		      <item id="Pricing_Contracts"  text="Pricing_Contracts">
+		      </item>
+		      <item id="Quotation_Order_Management" text="Quotation_Order_Management">
+		      </item>
+		      <item id="Sales_Planning_Forecasting" text="Sales_Planning_Forecasting">
+		      </item>
+		      <item id="Territory_Management" text="Territory_Management">
+		      </item>
+		      <item id="Time_Travel" text="Time_Travel">
+		      </item>
+               </item>
+               <item id="Service" text="Service">
+		      <item id="Case_Management" text="Case_Management">
+		      </item>
+		      <item id="Complaints_Returns" text="Complaints_Returns">
+		      </item>
+		      <item id="In_House_Repair" text="In_House_Repair">
+		      </item>
+		      <item id="Installed_Base_Management" text="Installed_Base_Management">
+		      </item>
+		      <item id="Resource_Planning" text="Resource_Planning">
+		      </item>
+		      <item id="Service_Contact_Management" text="Service_Contact_Management">
+		      </item>
+		      <item id="Service_Order_Management" text="Service_Order_Management">
+		      </item>
+		      <item id="Warranty_Management" text="Warranty_Management">
+		      </item>
+               </item>
+       </item>
+
+       <item id="ERPServices" text="ERPServices">
+               <item id="Analytics" text="Analytics">
+		      <item id="End_User_Service_Delivery" text="End_User_Service_Delivery">
+		      </item>
+		      <item id="Financial_Analytics" text="Financial_Analytics">
+		      </item>
+		      <item id="Operations_Analytics" text="Operations_Analytics">
+		      </item>
+		      <item id="Strategic_Enterprise_Management" text="Strategic_Enterprise_Management">
+		      </item>
+		      <item id="Workforce_Analytics" text="Workforce_Analytics">
+		      </item>
+               </item>
+               <item id="Corporate_Services" text="Corporate_Services">
+		      <item id="Enterprise_Asset_Management" text="Enterprise_Asset_Management">
+		      </item>
+		      <item id="Environment_Health_Safety" text="Environment_Health_Safety">
+		      </item>
+		      <item id="Global_Trade_Services" text="Global_Trade_Services">
+		      </item>
+		      <item id="Portfolio_Management" text="Portfolio_Management">
+		      </item>
+		      <item id="Quality_Management" text="Quality_Management">
+		      </item>
+		      <item id="Real_Estate_Management" text="Real_Estate_Management">
+		      </item>
+		      <item id="Travel_Management" text="Travel_Management">
+		      </item>
+               </item>
+               <item id="Financials" text="Financials">
+		      <item id="Corporate_Governance" text="Corporate_Governance">
+		      </item>
+		      <item id="Financial_Accounting" text="Financial_Accounting">
+		      </item>
+		      <item id="Financial_Supply_Chain_Management" text="Financial_Supply_Chain_Management">
+		      </item>
+		      <item id="Management_Accounting" text="Management_Accounting">
+		      </item>
+	       </item>
+               <item id="Human_Capital_Management" text="Human_Capital_Management">
+		      <item id="Talent_Management" text="Talent_Management">
+		      </item>
+		      <item id="Workforce_Deployment" text="Workforce_Deployment">
+		      </item>
+		      <item id="Workforce_Process_Management" text="Workforce_Process_Management">
+		      </item>
+               </item>
+               <item id="Procurement_Logistics" text="Procurement_Logistics">
+		      <item id="Inbound_Outbound_Logistics" text="Inbound_Outbound_Logistics">
+		      </item>
+		      <item id="Inventory_Warehouse_Management" text="Inventory_Warehouse_Management">
+		      </item>
+		      <item id="Procurement" text="Procurement">
+		      </item>
+		      <item id="Supplier_Collaboration" text="Supplier_Collaboration">
+		      </item>
+		      <item id="Transportation_Management" text="Transportation_Management">
+		      </item>
+               </item>
+               <item id="Product_Development_and_Manufacturing" text="Product_Development_and_Manufacturing">
+		      <item id="LifeCycle_Data_Management" text="LifeCycle_Data_Management">
+		      </item>
+		      <item id="ManufacturingExecution" text="ManufacturingExecution">
+		      </item>
+		      <item id="Product_Development" text="Product_Development">
+		      </item>
+		      <item id="Production_Planning" text="Production_Planning">
+		      </item>
+	       </item>
+               <item id="Sales_Service" text="Sales_Service">
+		      <item id="Aftermarket_Sales_Service" text="Aftermarket_Sales_Service">
+		      </item>
+		      <item id="Professional_Service_Delivery" text="Professional_Service_Delivery">
+		      </item>
+		      <item id="Sales_Order_Management" text="Sales_Order_Management">
+		      </item>
+	       </item>
+       </item>
+
+       <item id="SCMServices" text="SCMServices">
+               <item id="Demand_Supply_Planning" text="Demand_Supply_Planning">
+		      <item id="Demand_Planning_Forecasting" text="Demand_Planning_Forecasting">
+		      </item>
+		      <item id="Distribution_Planning" text="Distribution_Planning">
+		      </item>
+		      <item id="Safety_Stock_Planning" text="Safety_Stock_Planning">
+		      </item>
+		      <item id="Supply_Network_Collaboration" text="Supply_Network_Collaboration">
+		      </item>
+		      <item id="Supply_Network_Planning" text="Supply_Network_Planning">
+		      </item>
+               </item>
+               <item id="Manufacturing" text="Manufacturing">
+		      <item id="Manufacturing_Opearations" text="Manufacturing_Opearations">
+		      </item>
+		      <item id="Production_Planning_Detailed_Scheduling" text="Production_Planning_Detailed_Scheduling">
+		      </item>
+               </item>
+               <item id="Order_Fulfillment" text="Order_Fulfillment">
+		      <item id="Billing" text="Billing">
+		      </item>
+		      <item id="Sales_Order_Processing" text="Sales_Order_Processing">
+		      </item>
+               </item>
+               <item id="scDesign_Analytics" text="scDesign_Analytics">
+		      <item id="Strategic_Supply_Chain_Design" text="Strategic_Supply_Chain_Design">
+		      </item>
+		      <item id="Supply_Chain_Analytics" text="Supply_Chain_Analytics">
+		      </item>
+	       </item>
+               <item id="scProcurement" text="scProcurement">
+		      <item id="Invoicing" text="Invoicing">
+		      </item>
+		      <item id="Purchase_Order_Processing" text="Purchase_Order_Processing">
+		      </item>
+		      <item id="Strategic_Sourcing" text="Strategic_Sourcing">
+		      </item>
+               </item>
+               <item id="Service_Parts_Planning" text="Service_Parts_Planning">
+		      <item id="Parts_Demand_Planning" text="Parts_Demand_Planning">
+		      </item>
+		      <item id="Parts_Distribution_Planning" text="Distribution_Planning">
+		      </item>
+		      <item id="Parts_Inventory_Planning" text="Parts_Inventory_Planning">
+		      </item>
+		      <item id="Parts_Monitoring" text="Parts_Monitoring">
+		      </item>
+		      <item id="Parts_Supply_Planning" text="Parts_Supply_Planning">
+		      </item>
+               </item>
+               <item id="Transportation" text="Transportation">
+		      <item id="Freight_Costing" text="Freight_Costing">
+		      </item>
+		      <item id="Transportation_Execution" text="Transportation_Execution">
+		      </item>
+		      <item id="Transportation_Planning" text="Transportation_Planning">
+		      </item>
+	       </item>
+               <item id="Warehousing" text="Warehousing">
+		      <item id="Cross_Docking" text="Cross_Docking">
+		      </item>
+		      <item id="Inbound_Processing_Receipt_Confirmation" text="Inbound_Processing_Receipt_Confirmation">
+		      </item>
+		      <item id="Outbound_Processing" text="Outbound_Processing">
+		      </item>
+		      <item id="Physical_Inventory" text="Physical_Inventory">
+		      </item>
+		      <item id="Warehousing_Storage" text="Warehousing_Storage">
+		      </item>
+	       </item>
+       </item>
+
+
+</tree>

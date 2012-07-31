@@ -1,0 +1,946 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+]>
+
+
+<rdf:RDF xmlns="http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#"
+     xml:base="http://www.imu.iccs.gr/fusion/Taxonomyv2.owl"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#">
+    <owl:Ontology rdf:about=""/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Accounts_Contacts -->
+
+    <owl:Class rdf:about="#Accounts_Contacts">
+        <rdfs:subClassOf rdf:resource="#Sales"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Aftermarket_Sales_Service -->
+
+    <owl:Class rdf:about="#Aftermarket_Sales_Service">
+        <rdfs:subClassOf rdf:resource="#Sales_Service"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Analytics -->
+
+    <owl:Class rdf:about="#Analytics">
+        <rdfs:subClassOf rdf:resource="#ERPServices"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Billing -->
+
+    <owl:Class rdf:about="#Billing">
+        <rdfs:subClassOf rdf:resource="#Order_Fulfillment"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#CRMServices -->
+
+    <owl:Class rdf:about="#CRMServices">
+        <rdfs:subClassOf rdf:resource="#TaxonomyEntity"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Campaign_Management -->
+
+    <owl:Class rdf:about="#Campaign_Management">
+        <rdfs:subClassOf rdf:resource="#Marketing"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Case_Management -->
+
+    <owl:Class rdf:about="#Case_Management">
+        <rdfs:subClassOf rdf:resource="#Service"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Complaints_Returns -->
+
+    <owl:Class rdf:about="#Complaints_Returns">
+        <rdfs:subClassOf rdf:resource="#Service"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Corporate_Governance -->
+
+    <owl:Class rdf:about="#Corporate_Governance">
+        <rdfs:subClassOf rdf:resource="#Financials"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Corporate_Services -->
+
+    <owl:Class rdf:about="#Corporate_Services">
+        <rdfs:subClassOf rdf:resource="#ERPServices"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Cross_Docking -->
+
+    <owl:Class rdf:about="#Cross_Docking">
+        <rdfs:subClassOf rdf:resource="#Warehousing"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Demand_Planning_Forecasting -->
+
+    <owl:Class rdf:about="#Demand_Planning_Forecasting">
+        <rdfs:subClassOf rdf:resource="#Demand_Supply_Planning"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Demand_Supply_Planning -->
+
+    <owl:Class rdf:about="#Demand_Supply_Planning">
+        <rdfs:subClassOf rdf:resource="#SCMServices"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Distribution_Planning -->
+
+    <owl:Class rdf:about="#Distribution_Planning">
+        <rdfs:subClassOf rdf:resource="#Demand_Supply_Planning"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#ERPServices -->
+
+    <owl:Class rdf:about="#ERPServices">
+        <rdfs:subClassOf rdf:resource="#TaxonomyEntity"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#End_User_Service_Delivery -->
+
+    <owl:Class rdf:about="#End_User_Service_Delivery">
+        <rdfs:subClassOf rdf:resource="#Analytics"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Enterprise_Asset_Management -->
+
+    <owl:Class rdf:about="#Enterprise_Asset_Management">
+        <rdfs:subClassOf rdf:resource="#Corporate_Services"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Environment_Health_Safety -->
+
+    <owl:Class rdf:about="#Environment_Health_Safety">
+        <rdfs:subClassOf rdf:resource="#Corporate_Services"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Financial_Accounting -->
+
+    <owl:Class rdf:about="#Financial_Accounting">
+        <rdfs:subClassOf rdf:resource="#Financials"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Financial_Analytics -->
+
+    <owl:Class rdf:about="#Financial_Analytics">
+        <rdfs:subClassOf rdf:resource="#Analytics"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Financial_Supply_Chain_Management -->
+
+    <owl:Class rdf:about="#Financial_Supply_Chain_Management">
+        <rdfs:subClassOf rdf:resource="#Financials"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Financials -->
+
+    <owl:Class rdf:about="#Financials">
+        <rdfs:subClassOf rdf:resource="#ERPServices"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Freight_Costing -->
+
+    <owl:Class rdf:about="#Freight_Costing">
+        <rdfs:subClassOf rdf:resource="#Transportation"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Global_Trade_Services -->
+
+    <owl:Class rdf:about="#Global_Trade_Services">
+        <rdfs:subClassOf rdf:resource="#Corporate_Services"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Human_Capital_Management -->
+
+    <owl:Class rdf:about="#Human_Capital_Management">
+        <rdfs:subClassOf rdf:resource="#ERPServices"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#In_House_Repair -->
+
+    <owl:Class rdf:about="#In_House_Repair">
+        <rdfs:subClassOf rdf:resource="#Service"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Inbound_Outbound_Logistics -->
+
+    <owl:Class rdf:about="#Inbound_Outbound_Logistics">
+        <rdfs:subClassOf rdf:resource="#Procurement_Logistics"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Inbound_Processing_Receipt_Confirmation -->
+
+    <owl:Class rdf:about="#Inbound_Processing_Receipt_Confirmation">
+        <rdfs:subClassOf rdf:resource="#Warehousing"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Incestive_Commission_Management -->
+
+    <owl:Class rdf:about="#Incestive_Commission_Management">
+        <rdfs:subClassOf rdf:resource="#Sales"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Intalled_Base_Management -->
+
+    <owl:Class rdf:about="#Intalled_Base_Management">
+        <rdfs:subClassOf rdf:resource="#Service"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Inventory_Warehouse_Management -->
+
+    <owl:Class rdf:about="#Inventory_Warehouse_Management">
+        <rdfs:subClassOf rdf:resource="#Procurement_Logistics"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Invoicing -->
+
+    <owl:Class rdf:about="#Invoicing">
+        <rdfs:subClassOf rdf:resource="#scProcurement"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Lead_Management -->
+
+    <owl:Class rdf:about="#Lead_Management">
+        <rdfs:subClassOf rdf:resource="#Marketing"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#LifeCycle_Data_Management -->
+
+    <owl:Class rdf:about="#LifeCycle_Data_Management">
+        <rdfs:subClassOf rdf:resource="#Product_Development_and_Manufacturing"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Management_Accounting -->
+
+    <owl:Class rdf:about="#Management_Accounting">
+        <rdfs:subClassOf rdf:resource="#Financials"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Manufacturing -->
+
+    <owl:Class rdf:about="#Manufacturing">
+        <rdfs:subClassOf rdf:resource="#SCMServices"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#ManufacturingExecution -->
+
+    <owl:Class rdf:about="#ManufacturingExecution">
+        <rdfs:subClassOf rdf:resource="#Product_Development_and_Manufacturing"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Manufacturing_Operations -->
+
+    <owl:Class rdf:about="#Manufacturing_Operations">
+        <rdfs:subClassOf rdf:resource="#Manufacturing"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Marketing -->
+
+    <owl:Class rdf:about="#Marketing">
+        <rdfs:subClassOf rdf:resource="#CRMServices"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Marketing_Resource_Management -->
+
+    <owl:Class rdf:about="#Marketing_Resource_Management">
+        <rdfs:subClassOf rdf:resource="#Marketing"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Operations_Analytics -->
+
+    <owl:Class rdf:about="#Operations_Analytics">
+        <rdfs:subClassOf rdf:resource="#Analytics"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Opportunity_Management -->
+
+    <owl:Class rdf:about="#Opportunity_Management">
+        <rdfs:subClassOf rdf:resource="#Sales"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Order_Fulfillment -->
+
+    <owl:Class rdf:about="#Order_Fulfillment">
+        <rdfs:subClassOf rdf:resource="#SCMServices"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Outbound_Processing -->
+
+    <owl:Class rdf:about="#Outbound_Processing">
+        <rdfs:subClassOf rdf:resource="#Warehousing"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Parts_Demand_Planning -->
+
+    <owl:Class rdf:about="#Parts_Demand_Planning">
+        <rdfs:subClassOf rdf:resource="#Service_Parts_Planning"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Parts_Distribution_Planning -->
+
+    <owl:Class rdf:about="#Parts_Distribution_Planning">
+        <rdfs:subClassOf rdf:resource="#Service_Parts_Planning"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Parts_Inventory_Planning -->
+
+    <owl:Class rdf:about="#Parts_Inventory_Planning">
+        <rdfs:subClassOf rdf:resource="#Service_Parts_Planning"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Parts_Monitoring -->
+
+    <owl:Class rdf:about="#Parts_Monitoring">
+        <rdfs:subClassOf rdf:resource="#Service_Parts_Planning"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Parts_Supply_Planning -->
+
+    <owl:Class rdf:about="#Parts_Supply_Planning">
+        <rdfs:subClassOf rdf:resource="#Service_Parts_Planning"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Physical_Inventory -->
+
+    <owl:Class rdf:about="#Physical_Inventory">
+        <rdfs:subClassOf rdf:resource="#Warehousing"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Portfolio_Management -->
+
+    <owl:Class rdf:about="#Portfolio_Management">
+        <rdfs:subClassOf rdf:resource="#Corporate_Services"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Pricing_Contracts -->
+
+    <owl:Class rdf:about="#Pricing_Contracts">
+        <rdfs:subClassOf rdf:resource="#Sales"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Procurement -->
+
+    <owl:Class rdf:about="#Procurement">
+        <rdfs:subClassOf rdf:resource="#Procurement_Logistics"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Procurement_Logistics -->
+
+    <owl:Class rdf:about="#Procurement_Logistics">
+        <rdfs:subClassOf rdf:resource="#ERPServices"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Product_Development -->
+
+    <owl:Class rdf:about="#Product_Development">
+        <rdfs:subClassOf rdf:resource="#Product_Development_and_Manufacturing"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Product_Development_and_Manufacturing -->
+
+    <owl:Class rdf:about="#Product_Development_and_Manufacturing">
+        <rdfs:subClassOf rdf:resource="#ERPServices"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Production_Planning -->
+
+    <owl:Class rdf:about="#Production_Planning">
+        <rdfs:subClassOf rdf:resource="#Product_Development_and_Manufacturing"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Production_Planning_Detailed_Sceduling -->
+
+    <owl:Class rdf:about="#Production_Planning_Detailed_Sceduling">
+        <rdfs:subClassOf rdf:resource="#Manufacturing"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Professional_Service_Delivery -->
+
+    <owl:Class rdf:about="#Professional_Service_Delivery">
+        <rdfs:subClassOf rdf:resource="#Sales_Service"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Purchase_Order_Processing -->
+
+    <owl:Class rdf:about="#Purchase_Order_Processing">
+        <rdfs:subClassOf rdf:resource="#scProcurement"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Quality_Management -->
+
+    <owl:Class rdf:about="#Quality_Management">
+        <rdfs:subClassOf rdf:resource="#Corporate_Services"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Quotation_Order_Management -->
+
+    <owl:Class rdf:about="#Quotation_Order_Management">
+        <rdfs:subClassOf rdf:resource="#Sales"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Real_Estate_Management -->
+
+    <owl:Class rdf:about="#Real_Estate_Management">
+        <rdfs:subClassOf rdf:resource="#Corporate_Services"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Resource_Planning -->
+
+    <owl:Class rdf:about="#Resource_Planning">
+        <rdfs:subClassOf rdf:resource="#Service"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#SCMServices -->
+
+    <owl:Class rdf:about="#SCMServices">
+        <rdfs:subClassOf rdf:resource="#TaxonomyEntity"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Safety_Stock_Planning -->
+
+    <owl:Class rdf:about="#Safety_Stock_Planning">
+        <rdfs:subClassOf rdf:resource="#Demand_Supply_Planning"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Sales -->
+
+    <owl:Class rdf:about="#Sales">
+        <rdfs:subClassOf rdf:resource="#CRMServices"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Sales_Order_Management -->
+
+    <owl:Class rdf:about="#Sales_Order_Management">
+        <rdfs:subClassOf rdf:resource="#Sales_Service"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Sales_Order_Processing -->
+
+    <owl:Class rdf:about="#Sales_Order_Processing">
+        <rdfs:subClassOf rdf:resource="#Order_Fulfillment"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Sales_Planning_Forecasting -->
+
+    <owl:Class rdf:about="#Sales_Planning_Forecasting">
+        <rdfs:subClassOf rdf:resource="#Sales"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Sales_Service -->
+
+    <owl:Class rdf:about="#Sales_Service">
+        <rdfs:subClassOf rdf:resource="#ERPServices"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Segmentation_List_Management -->
+
+    <owl:Class rdf:about="#Segmentation_List_Management">
+        <rdfs:subClassOf rdf:resource="#Marketing"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Service -->
+
+    <owl:Class rdf:about="#Service">
+        <rdfs:subClassOf rdf:resource="#CRMServices"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Service_Contract_Management -->
+
+    <owl:Class rdf:about="#Service_Contract_Management">
+        <rdfs:subClassOf rdf:resource="#Service"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Service_Order_Management -->
+
+    <owl:Class rdf:about="#Service_Order_Management">
+        <rdfs:subClassOf rdf:resource="#Service"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Service_Parts_Planning -->
+
+    <owl:Class rdf:about="#Service_Parts_Planning">
+        <rdfs:subClassOf rdf:resource="#SCMServices"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Strategic_Enterprise_Management -->
+
+    <owl:Class rdf:about="#Strategic_Enterprise_Management">
+        <rdfs:subClassOf rdf:resource="#Analytics"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Strategic_Sourcing -->
+
+    <owl:Class rdf:about="#Strategic_Sourcing">
+        <rdfs:subClassOf rdf:resource="#scProcurement"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Strategic_Supply_Chain_Design -->
+
+    <owl:Class rdf:about="#Strategic_Supply_Chain_Design">
+        <rdfs:subClassOf rdf:resource="#scDesign_Analytics"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Supplier_Collaboration -->
+
+    <owl:Class rdf:about="#Supplier_Collaboration">
+        <rdfs:subClassOf rdf:resource="#Procurement_Logistics"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Supply_Chain_Analytics -->
+
+    <owl:Class rdf:about="#Supply_Chain_Analytics">
+        <rdfs:subClassOf rdf:resource="#scDesign_Analytics"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Supply_Network_Collaboration -->
+
+    <owl:Class rdf:about="#Supply_Network_Collaboration">
+        <rdfs:subClassOf rdf:resource="#Demand_Supply_Planning"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Supply_Network_Planning -->
+
+    <owl:Class rdf:about="#Supply_Network_Planning">
+        <rdfs:subClassOf rdf:resource="#Demand_Supply_Planning"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Talent_Management -->
+
+    <owl:Class rdf:about="#Talent_Management">
+        <rdfs:subClassOf rdf:resource="#Human_Capital_Management"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#TaxonomyEntity -->
+
+    <owl:Class rdf:about="#TaxonomyEntity"/>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Territory_Management -->
+
+    <owl:Class rdf:about="#Territory_Management">
+        <rdfs:subClassOf rdf:resource="#Sales"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Time_Travel -->
+
+    <owl:Class rdf:about="#Time_Travel">
+        <rdfs:subClassOf rdf:resource="#Sales"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Trade_Promotion_Management -->
+
+    <owl:Class rdf:about="#Trade_Promotion_Management">
+        <rdfs:subClassOf rdf:resource="#Marketing"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Transportaion_Management -->
+
+    <owl:Class rdf:about="#Transportaion_Management">
+        <rdfs:subClassOf rdf:resource="#Procurement_Logistics"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Transportation -->
+
+    <owl:Class rdf:about="#Transportation">
+        <rdfs:subClassOf rdf:resource="#SCMServices"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Transportation_Execution -->
+
+    <owl:Class rdf:about="#Transportation_Execution">
+        <rdfs:subClassOf rdf:resource="#Transportation"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Transportation_Planning -->
+
+    <owl:Class rdf:about="#Transportation_Planning">
+        <rdfs:subClassOf rdf:resource="#Transportation"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Travel_Management -->
+
+    <owl:Class rdf:about="#Travel_Management">
+        <rdfs:subClassOf rdf:resource="#Corporate_Services"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Warehousing -->
+
+    <owl:Class rdf:about="#Warehousing">
+        <rdfs:subClassOf rdf:resource="#SCMServices"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Warehousing_Storage -->
+
+    <owl:Class rdf:about="#Warehousing_Storage">
+        <rdfs:subClassOf rdf:resource="#Warehousing"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Warranty_Management -->
+
+    <owl:Class rdf:about="#Warranty_Management">
+        <rdfs:subClassOf rdf:resource="#Service"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Workforce_Analytics -->
+
+    <owl:Class rdf:about="#Workforce_Analytics">
+        <rdfs:subClassOf rdf:resource="#Analytics"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Workforce_Depolyment -->
+
+    <owl:Class rdf:about="#Workforce_Depolyment">
+        <rdfs:subClassOf rdf:resource="#Human_Capital_Management"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Workforce_Process_Management -->
+
+    <owl:Class rdf:about="#Workforce_Process_Management">
+        <rdfs:subClassOf rdf:resource="#Human_Capital_Management"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#scDesign_Analytics -->
+
+    <owl:Class rdf:about="#scDesign_Analytics">
+        <rdfs:subClassOf rdf:resource="#SCMServices"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#scProcurement -->
+
+    <owl:Class rdf:about="#scProcurement">
+        <rdfs:subClassOf rdf:resource="#SCMServices"/>
+    </owl:Class>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Extensions by Andras CAS
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->	
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#HumanResources -->
+
+    <owl:Class rdf:about="#HumanResources">
+        <rdfs:subClassOf rdf:resource="#CRMServices"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Opportunity_Management -->
+
+    <owl:Class rdf:about="#Opportunity_Management">
+        <rdfs:subClassOf rdf:resource="#HumanResources"/>
+        <rdfs:comment rdf:datatype="&xsd;string"
+            >tasks regarding a candidate</rdfs:comment>
+    </owl:Class>
+    
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Recruitment -->
+
+    <owl:Class rdf:about="#Recruitment">
+        <rdfs:subClassOf rdf:resource="#HumanResources"/>
+        <rdfs:comment rdf:datatype="&xsd;string"
+            >tasks regarding recruitment (search)</rdfs:comment>
+    </owl:Class>
+    
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Short_Listing -->
+
+    <owl:Class rdf:about="#Short_Listing">
+        <rdfs:subClassOf rdf:resource="#HumanResources"/>
+        <rdfs:comment rdf:datatype="&xsd;string"
+            >HR information services</rdfs:comment>
+    </owl:Class>
+    
+    
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // END OF Extensions by Andras CAS
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->	
+     
+     
+
+
+
+
+
+
+
+
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Extensions by Dimitris SEERC 
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->	
+
+    <!-- Taxonomy Part  -->
+
+    
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Customer_Record_Management -->
+
+    <owl:Class rdf:about="#Customer_Record_Management">
+        <rdfs:subClassOf rdf:resource="#Service_Contract_Management"/>
+    </owl:Class>
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#Student_Record_Management -->
+
+    <owl:Class rdf:about="#Student_Record_Management">
+        <rdfs:subClassOf rdf:resource="#Service_Contract_Management"/>
+
+    </owl:Class>
+
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // END OF Extensions by Dimitris SEERC 
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->	
+
+
+</rdf:RDF>

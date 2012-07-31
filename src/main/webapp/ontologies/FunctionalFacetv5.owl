@@ -1,0 +1,1192 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+    <!ENTITY Taxonomy "http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#" >
+    <!ENTITY DataFacetv4 "http://www.imu.iccs.gr/fusion/DataFacetv4.owl#" >
+    <!ENTITY FunctionalFacetv5 "http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#" >
+]>
+
+
+<rdf:RDF xmlns="http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#"
+     xml:base="http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl"
+     xmlns:Taxonomy="http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#"
+     xmlns:DataFacetv4="http://www.imu.iccs.gr/fusion/DataFacetv4.owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:FunctionalFacetv5="http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#">
+    <owl:Ontology rdf:about="">
+
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#hasCategory -->
+
+    <owl:ObjectProperty rdf:about="#hasCategory">
+        <rdfs:range rdf:resource="&Taxonomy;TaxonomyEntity"/>
+        <rdfs:domain rdf:resource="#FunctionalFacetEntity"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#hasDataParameter -->
+
+    <owl:ObjectProperty rdf:about="#hasDataParameter">
+        <rdfs:range rdf:resource="&DataFacetv4;DataFacetEntity"/>
+        <rdfs:domain rdf:resource="#DataSet"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#hasInput -->
+
+    <owl:ObjectProperty rdf:about="#hasInput">
+        <rdfs:domain rdf:resource="#FunctionalFacetEntity"/>
+        <rdfs:range rdf:resource="#InputDataSet"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#hasOutput -->
+
+    <owl:ObjectProperty rdf:about="#hasOutput">
+        <rdfs:domain rdf:resource="#FunctionalFacetEntity"/>
+        <rdfs:range rdf:resource="#OutputDataSet"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/DataFacetv4.owl#DataFacetEntity -->
+
+    <owl:Class rdf:about="&DataFacetv4;DataFacetEntity"/>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#AdvertisementFunctionalProfile -->
+
+    <owl:Class rdf:about="#AdvertisementFunctionalProfile">
+        <rdfs:subClassOf rdf:resource="#FunctionalFacetEntity"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#DataSet -->
+
+    <owl:Class rdf:about="#DataSet">
+        <rdfs:subClassOf rdf:resource="&owl;Thing"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#FunctionalFacetEntity -->
+
+    <owl:Class rdf:about="#FunctionalFacetEntity">
+        <rdfs:subClassOf rdf:resource="&owl;Thing"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="#hasCategory"/>
+                <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#InputDataSet -->
+
+    <owl:Class rdf:about="#InputDataSet">
+        <rdfs:subClassOf rdf:resource="#DataSet"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#OutputDataSet -->
+
+    <owl:Class rdf:about="#OutputDataSet">
+        <rdfs:subClassOf rdf:resource="#DataSet"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#RequestFunctionalProfile -->
+
+    <owl:Class rdf:about="#RequestFunctionalProfile">
+        <rdfs:subClassOf rdf:resource="#FunctionalFacetEntity"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#TaxonomyEntity -->
+
+    <owl:Class rdf:about="&Taxonomy;TaxonomyEntity"/>
+    
+
+
+    <!-- http://www.w3.org/2002/07/owl#Thing -->
+
+    <owl:Class rdf:about="&owl;Thing"/>
+
+
+
+
+
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // ANDRAS
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#AddCandidateProfile -->
+
+    <owl:Class rdf:about="#AddCandidateProfile">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasInput"/>
+                        <owl:allValuesFrom rdf:resource="#AddCandidateProfileRFPInputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasCategory"/>
+                        <owl:someValuesFrom rdf:resource="#HumanResources"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasInput"/>
+                        <owl:someValuesFrom rdf:resource="#AddCandidateProfileRFPInputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasCategory"/>
+                        <owl:allValuesFrom rdf:resource="#HumanResources"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasOutput"/>
+                        <owl:allValuesFrom rdf:resource="#AddCandidateProfileRFPOutputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasOutput"/>
+                        <owl:someValuesFrom rdf:resource="#AddCandidateProfileRFPOutputSet"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;RequestFunctionalProfile"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#AddCandidateProfileRFPInputSet -->
+
+    <owl:Class rdf:about="#AddCandidateProfileRFPInputSet">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#CandidateProfile"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:allValuesFrom rdf:resource="#CandidateProfile"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;InputDataSet"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#AddCandidateProfileRFPOutputSet -->
+
+    <owl:Class rdf:about="#AddCandidateProfileRFPOutputSet">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#Failure"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#OK"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;OutputDataSet"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#AddCandidateProfileToHRPool -->
+
+    <owl:Class rdf:about="#AddCandidateProfileToHRPool">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasCategory"/>
+                        <owl:someValuesFrom rdf:resource="#Opportunity_Management"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasCategory"/>
+                        <owl:allValuesFrom rdf:resource="#Opportunity_Management"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasOutput"/>
+                        <owl:someValuesFrom rdf:resource="#AddCandidateProfileToHRPoolRFPOutputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasInput"/>
+                        <owl:someValuesFrom rdf:resource="#AddCandidateProfileToHRPoolRFPInputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasInput"/>
+                        <owl:allValuesFrom rdf:resource="#AddCandidateProfileToHRPoolRFPInputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasOutput"/>
+                        <owl:allValuesFrom rdf:resource="#AddCandidateProfileToHRPoolRFPOutputSet"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;RequestFunctionalProfile"/>
+    </owl:Class>
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#AddCandidateProfileToHRPoolRFPInputSet -->
+
+    <owl:Class rdf:about="#AddCandidateProfileToHRPoolRFPInputSet">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#CandidateProfile"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:allValuesFrom rdf:resource="#CandidateProfile"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;InputDataSet"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#AddCandidateProfileToHRPoolRFPOutputSet -->
+
+    <owl:Class rdf:about="#AddCandidateProfileToHRPoolRFPOutputSet">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#Failure"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#OK"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;OutputDataSet"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#AddCandidateProfileToOwnSystem -->
+
+    <owl:Class rdf:about="#AddCandidateProfileToOwnSystem">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasOutput"/>
+                        <owl:allValuesFrom rdf:resource="#AddCandidateProfileToOwnSystemRFPOutputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasCategory"/>
+                        <owl:someValuesFrom rdf:resource="#Opportunity_Management"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasInput"/>
+                        <owl:someValuesFrom rdf:resource="#AddCandidateProfileToOwnSystemRFPInputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasCategory"/>
+                        <owl:allValuesFrom rdf:resource="#Opportunity_Management"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasOutput"/>
+                        <owl:someValuesFrom rdf:resource="#AddCandidateProfileToOwnSystemRFPOutputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasInput"/>
+                        <owl:allValuesFrom rdf:resource="#AddCandidateProfileToOwnSystemRFPInputSet"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;RequestFunctionalProfile"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#AddCandidateProfileToOwnSystemRFPInputSet -->
+
+    <owl:Class rdf:about="#AddCandidateProfileToOwnSystemRFPInputSet">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#CandidateProfile"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:allValuesFrom rdf:resource="#CandidateProfile"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;InputDataSet"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#AddCandidateProfileToOwnSystemRFPOutputSet -->
+
+    <owl:Class rdf:about="#AddCandidateProfileToOwnSystemRFPOutputSet">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#Failure"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#OK"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;OutputDataSet"/>
+    </owl:Class>
+    
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#AddJobDescriptionToOwnSystem -->
+
+    <owl:Class rdf:about="#AddJobDescriptionToOwnSystem">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasInput"/>
+                        <owl:someValuesFrom rdf:resource="#AddJobDescriptionToOwnSystemRFPInputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasCategory"/>
+                        <owl:allValuesFrom rdf:resource="#Recruitment"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasInput"/>
+                        <owl:allValuesFrom rdf:resource="#AddJobDescriptionToOwnSystemRFPInputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasOutput"/>
+                        <owl:allValuesFrom rdf:resource="#AddJobDescriptionToOwnSystemRFPOutputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasCategory"/>
+                        <owl:someValuesFrom rdf:resource="#Recruitment"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasOutput"/>
+                        <owl:someValuesFrom rdf:resource="#AddJobDescriptionToOwnSystemRFPOutputSet"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;RequestFunctionalProfile"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#AddJobDescriptionToOwnSystemRFPInputSet -->
+
+    <owl:Class rdf:about="#AddJobDescriptionToOwnSystemRFPInputSet">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#JobDescription"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:allValuesFrom rdf:resource="#JobDescription"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;InputDataSet"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#AddJobDescriptionToOwnSystemRFPOutputSet -->
+
+    <owl:Class rdf:about="#AddJobDescriptionToOwnSystemRFPOutputSet">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#JobDescription"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#Failure"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;OutputDataSet"/>
+    </owl:Class>
+    
+
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#LinkAnonymProfileListToJobDescription -->
+
+    <owl:Class rdf:about="#LinkAnonymProfileListToJobDescription">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasCategory"/>
+                        <owl:someValuesFrom rdf:resource="#Recruitment"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasInput"/>
+                        <owl:allValuesFrom rdf:resource="#LinkAnonymProfileListToJobDescriptionRFPInputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasOutput"/>
+                        <owl:someValuesFrom rdf:resource="#LinkAnonymProfileListToJobDescriptionRFPOutputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasInput"/>
+                        <owl:someValuesFrom rdf:resource="#LinkAnonymProfileListToJobDescriptionRFPInputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasCategory"/>
+                        <owl:allValuesFrom rdf:resource="#Recruitment"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasOutput"/>
+                        <owl:allValuesFrom rdf:resource="#LinkAnonymProfileListToJobDescriptionRFPOutputSet"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;RequestFunctionalProfile"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#LinkAnonymProfileListToJobDescriptionRFPInputSet -->
+
+    <owl:Class rdf:about="#LinkAnonymProfileListToJobDescriptionRFPInputSet">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#CandidateProfileList"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#JobDescription"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:allValuesFrom>
+                            <owl:Class>
+                                <owl:unionOf rdf:parseType="Collection">
+                                    <rdf:Description rdf:about="#JobDescription"/>
+                                    <rdf:Description rdf:about="#CandidateProfileList"/>
+                                </owl:unionOf>
+                            </owl:Class>
+                        </owl:allValuesFrom>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;InputDataSet"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#LinkAnonymProfileListToJobDescriptionRFPOutputSet -->
+
+    <owl:Class rdf:about="#LinkAnonymProfileListToJobDescriptionRFPOutputSet">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#Failure"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#OK"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;OutputDataSet"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#LinkOwnProfileListToJobDescription -->
+
+    <owl:Class rdf:about="#LinkOwnProfileListToJobDescription">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasCategory"/>
+                        <owl:allValuesFrom>
+                            <owl:Class>
+                                <owl:unionOf rdf:parseType="Collection">
+                                    <rdf:Description rdf:about="&FunctionalFacetv5;Recruitment"/>
+                                </owl:unionOf>
+                            </owl:Class>
+                        </owl:allValuesFrom>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasCategory"/>
+                        <owl:someValuesFrom rdf:resource="&FunctionalFacetv5;Recruitment"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasInput"/>
+                        <owl:allValuesFrom>
+                            <owl:Class>
+                                <owl:unionOf rdf:parseType="Collection">
+                                    <rdf:Description rdf:about="#LinkOwnProfileListToJobDescriptionRFPInputSet"/>
+                                </owl:unionOf>
+                            </owl:Class>
+                        </owl:allValuesFrom>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasOutput"/>
+                        <owl:someValuesFrom rdf:resource="#LinkOwnProfileListToJobDescriptionRFPOutputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasOutput"/>
+                        <owl:allValuesFrom>
+                            <owl:Class>
+                                <owl:unionOf rdf:parseType="Collection">
+                                    <rdf:Description rdf:about="#LinkOwnProfileListToJobDescriptionRFPOutputSet"/>
+                                </owl:unionOf>
+                            </owl:Class>
+                        </owl:allValuesFrom>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasInput"/>
+                        <owl:someValuesFrom rdf:resource="#LinkOwnProfileListToJobDescriptionRFPInputSet"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;RequestFunctionalProfile"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#LinkOwnProfileListToJobDescriptionRFPInputSet -->
+
+    <owl:Class rdf:about="#LinkOwnProfileListToJobDescriptionRFPInputSet">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:allValuesFrom>
+                            <owl:Class>
+                                <owl:unionOf rdf:parseType="Collection">
+                                    <rdf:Description rdf:about="&FunctionalFacetv5;CandidateProfileList"/>
+                                    <rdf:Description rdf:about="&FunctionalFacetv5;JobDescription"/>
+                                </owl:unionOf>
+                            </owl:Class>
+                        </owl:allValuesFrom>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="&FunctionalFacetv5;JobDescription"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="&FunctionalFacetv5;CandidateProfileList"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;InputDataSet"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#LinkOwnProfileListToJobDescriptionRFPOutputSet -->
+
+    <owl:Class rdf:about="#LinkOwnProfileListToJobDescriptionRFPOutputSet">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="&FunctionalFacetv5;OK"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="&FunctionalFacetv5;Failure"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;OutputDataSet"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#MatchWithOtherCandidateProfiles -->
+
+    <owl:Class rdf:about="#MatchWithOtherCandidateProfiles">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasCategory"/>
+                        <owl:someValuesFrom rdf:resource="#Short_Listing"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasOutput"/>
+                        <owl:someValuesFrom rdf:resource="#MatchWithOtherCandidateProfilesRFPOutputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasInput"/>
+                        <owl:allValuesFrom rdf:resource="#MatchWithOtherCandidateProfilesRFPInputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasInput"/>
+                        <owl:someValuesFrom rdf:resource="#MatchWithOtherCandidateProfilesRFPInputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasOutput"/>
+                        <owl:allValuesFrom rdf:resource="#MatchWithOtherCandidateProfilesRFPOutputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasCategory"/>
+                        <owl:allValuesFrom rdf:resource="#Short_Listing"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;RequestFunctionalProfile"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#MatchWithOtherCandidateProfilesRFPInputSet -->
+
+    <owl:Class rdf:about="#MatchWithOtherCandidateProfilesRFPInputSet">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#JobDescription"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:allValuesFrom rdf:resource="#JobDescription"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;InputDataSet"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#MatchWithOtherCandidateProfilesRFPOutputSet -->
+
+    <owl:Class rdf:about="#MatchWithOtherCandidateProfilesRFPOutputSet">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#CandidateProfileList"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#Failure"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;OutputDataSet"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#MatchWithOwnCandidateProfiles -->
+
+    <owl:Class rdf:about="#MatchWithOwnCandidateProfiles">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasCategory"/>
+                        <owl:allValuesFrom rdf:resource="#Short_Listing"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasOutput"/>
+                        <owl:someValuesFrom rdf:resource="#MatchWithOwnCandidateProfilesRFPOutputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasCategory"/>
+                        <owl:someValuesFrom rdf:resource="#Short_Listing"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasOutput"/>
+                        <owl:allValuesFrom rdf:resource="#MatchWithOwnCandidateProfilesRFPOutputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasInput"/>
+                        <owl:allValuesFrom rdf:resource="#MatchWithOwnCandidateProfilesRFPInputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasInput"/>
+                        <owl:someValuesFrom rdf:resource="#MatchWithOwnCandidateProfilesRFPInputSet"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;RequestFunctionalProfile"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#MatchWithOwnCandidateProfilesRFPInputSet -->
+
+    <owl:Class rdf:about="#MatchWithOwnCandidateProfilesRFPInputSet">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#JobDescription"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:allValuesFrom rdf:resource="#JobDescription"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;InputDataSet"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#MatchWithOwnCandidateProfilesRFPOutputSet -->
+
+    <owl:Class rdf:about="#MatchWithOwnCandidateProfilesRFPOutputSet">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#CandidateProfileList"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#Failure"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;OutputDataSet"/>
+    </owl:Class>
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#SetPlacementInHRPool -->
+
+    <owl:Class rdf:about="#SetPlacementInHRPool">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasInput"/>
+                        <owl:someValuesFrom rdf:resource="#SetPlacementInHRPoolRFPInputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasCategory"/>
+                        <owl:allValuesFrom rdf:resource="#Recruitment"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasOutput"/>
+                        <owl:someValuesFrom rdf:resource="#SetPlacementInHRPoolRFPOutputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasCategory"/>
+                        <owl:someValuesFrom rdf:resource="#Recruitment"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasInput"/>
+                        <owl:allValuesFrom rdf:resource="#SetPlacementInHRPoolRFPInputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasOutput"/>
+                        <owl:allValuesFrom rdf:resource="#SetPlacementInHRPoolRFPOutputSet"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;RequestFunctionalProfile"/>
+    </owl:Class>
+    
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#SetPlacementInHRPoolRFPInputSet -->
+
+    <owl:Class rdf:about="#SetPlacementInHRPoolRFPInputSet">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#CandidateProfile"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:allValuesFrom rdf:resource="#CandidateProfile"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;InputDataSet"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#SetPlacementInHRPoolRFPOutputSet -->
+
+    <owl:Class rdf:about="#SetPlacementInHRPoolRFPOutputSet">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#Failure"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#OK"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;OutputDataSet"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#SearchCandidates -->
+
+    <owl:Class rdf:about="#SearchCandidates">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasOutput"/>
+                        <owl:allValuesFrom rdf:resource="#SearchCandidatesRFPOutputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasInput"/>
+                        <owl:someValuesFrom rdf:resource="#SearchCandidatesRFPInputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasInput"/>
+                        <owl:allValuesFrom rdf:resource="#SearchCandidatesRFPInputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasCategory"/>
+                        <owl:allValuesFrom rdf:resource="#HumanResources"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasCategory"/>
+                        <owl:someValuesFrom rdf:resource="#HumanResources"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasOutput"/>
+                        <owl:someValuesFrom rdf:resource="#SearchCandidatesRFPOutputSet"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;RequestFunctionalProfile"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#SearchCandidatesRFPInputSet -->
+
+    <owl:Class rdf:about="#SearchCandidatesRFPInputSet">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#JobDescription"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:allValuesFrom rdf:resource="#JobDescription"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;InputDataSet"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#SearchCandidatesRFPOutputSet -->
+
+    <owl:Class rdf:about="#SearchCandidatesRFPOutputSet">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#Failure"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#OK"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;OutputDataSet"/>
+    </owl:Class>
+
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#SetPlacementInLocalSystem -->
+
+    <owl:Class rdf:about="#SetPlacementInLocalSystem">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasInput"/>
+                        <owl:someValuesFrom rdf:resource="#SetPlacementInLocalSystemRFPInputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasCategory"/>
+                        <owl:someValuesFrom rdf:resource="#Opportunity_Management"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasInput"/>
+                        <owl:allValuesFrom rdf:resource="#SetPlacementInLocalSystemRFPInputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasCategory"/>
+                        <owl:allValuesFrom rdf:resource="#Opportunity_Management"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasOutput"/>
+                        <owl:allValuesFrom rdf:resource="#SetPlacementInLocalSystemRFPOutputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasOutput"/>
+                        <owl:someValuesFrom rdf:resource="#SetPlacementInLocalSystemRFPOutputSet"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;RequestFunctionalProfile"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#SetPlacementInLocalSystemRFPInputSet -->
+
+    <owl:Class rdf:about="#SetPlacementInLocalSystemRFPInputSet">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#CandidateProfile"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:allValuesFrom rdf:resource="#CandidateProfile"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;InputDataSet"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#SetPlacementInLocalSystemRFPOutputSet -->
+
+    <owl:Class rdf:about="#SetPlacementInLocalSystemRFPOutputSet">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#Failure"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#OK"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;OutputDataSet"/>
+    </owl:Class>
+    
+	
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#SetPlacement -->
+
+    <owl:Class rdf:about="#SetPlacement">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasInput"/>
+                        <owl:someValuesFrom rdf:resource="#SetPlacementRFPInputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasInput"/>
+                        <owl:allValuesFrom rdf:resource="#SetPlacementRFPInputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasCategory"/>
+                        <owl:allValuesFrom rdf:resource="#HumanResources"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasCategory"/>
+                        <owl:someValuesFrom rdf:resource="#HumanResources"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasOutput"/>
+                        <owl:someValuesFrom rdf:resource="#SetPlacementRFPOutputSet"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasOutput"/>
+                        <owl:allValuesFrom rdf:resource="#SetPlacementRFPOutputSet"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;RequestFunctionalProfile"/>
+    </owl:Class>
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#SetPlacementRFPInputSet -->
+
+    <owl:Class rdf:about="#SetPlacementRFPInputSet">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#CandidateProfile"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:allValuesFrom rdf:resource="#CandidateProfile"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;InputDataSet"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#SetPlacementRFPOutputSet -->
+
+    <owl:Class rdf:about="#SetPlacementRFPOutputSet">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#Failure"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&FunctionalFacetv5;hasDataParameter"/>
+                        <owl:someValuesFrom rdf:resource="#OK"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&FunctionalFacetv5;OutputDataSet"/>
+    </owl:Class>
+
+
+
+
+
+
+</rdf:RDF>

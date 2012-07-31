@@ -1,0 +1,276 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+]>
+
+
+<rdf:RDF xmlns="http://www.imu.iccs.gr/fusion/Statev2.owl#"
+     xml:base="http://www.imu.iccs.gr/fusion/Statev2.owl"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#">
+    <owl:Ontology rdf:about=""/>
+    
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Ported Part by Panagiotis ICCS 
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+  <owl:Class rdf:ID="UpdateRetailFailure">
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="StockReplenishmentFinal"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+
+
+  <owl:Class rdf:ID="AggregatedStock">
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="StockReplenishmentIntermediate"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+
+
+  <owl:Class rdf:ID="AggregatedStockFailure">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#StockReplenishmentFinal"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+
+  <owl:Class rdf:ID="StockReplenishmentRequestInitial">
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="StockReplenishmentInitial"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+
+  <owl:Class rdf:ID="StoreStockAssignment">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#StockReplenishmentIntermediate"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+
+  <owl:Class rdf:ID="StockReplenishmentRequestFailed">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#StockReplenishmentFinal"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+
+  <owl:Class rdf:ID="AssignedQuantity">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#StockReplenishmentIntermediate"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+
+
+  <owl:Class rdf:ID="RestockRequestFailed">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="#StockReplenishmentFinal"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+
+  <owl:Class rdf:about="#StockReplenishmentFinal">
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="Final"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  
+  <owl:Class rdf:about="#StockReplenishmentIntermediate">
+    <rdfs:subClassOf rdf:resource="#Intermediate"/>
+  </owl:Class>
+  
+  <owl:Class rdf:ID="StoreStockAssignmentFailure">
+    <rdfs:subClassOf rdf:resource="#StockReplenishmentFinal"/>
+  </owl:Class>
+ 
+  <owl:Class rdf:ID="AssignedQuantityFailure">
+    <rdfs:subClassOf rdf:resource="#StockReplenishmentFinal"/>
+  </owl:Class>
+ 
+  <owl:Class rdf:ID="ItemStockAssignment">
+    <rdfs:subClassOf rdf:resource="#StockReplenishmentIntermediate"/>
+  </owl:Class>
+ 
+  <owl:Class rdf:ID="UpdateRetailSuccess">
+    <rdfs:subClassOf rdf:resource="#StockReplenishmentFinal"/>
+  </owl:Class>
+
+  <owl:Class rdf:about="#StockReplenishmentInitial">
+    <rdfs:subClassOf>
+      <owl:Class rdf:ID="Initial"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Ported Part by Dimitris SEERC 
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <!-- STATE PART  -->	
+
+    <!-- http://www.imu.iccs.gr/fusion/Statev2.owl#RegisterStudentFailure -->
+
+    <owl:Class rdf:about="#RegisterStudentFailure">
+        <rdfs:subClassOf rdf:resource="#Final"/>
+    </owl:Class>
+
+    <!-- http://www.imu.iccs.gr/fusion/Statev2.owl#RegisterStudentInitial -->
+
+    <owl:Class rdf:about="#RegisterStudentInitial">
+        <rdfs:subClassOf rdf:resource="#Initial"/>
+    </owl:Class>
+
+    <!-- http://www.imu.iccs.gr/fusion/Statev2.owl#RegisterStudentProcessing -->
+
+    <owl:Class rdf:about="#RegisterStudentProcessing">
+        <rdfs:subClassOf rdf:resource="#Intermediate"/>
+    </owl:Class>
+
+    <!-- http://www.imu.iccs.gr/fusion/Statev2.owl#RegisterStudentSuccess -->
+
+    <owl:Class rdf:about="#RegisterStudentSuccess">
+        <rdfs:subClassOf rdf:resource="#Final"/>
+    </owl:Class>
+
+    <!-- http://www.imu.iccs.gr/fusion/Statev2.owl#TransferCustomerEnrollmentFailure -->
+
+    <owl:Class rdf:about="#TransferCustomerEnrollmentFailure">
+        <rdfs:subClassOf rdf:resource="#Final"/>
+    </owl:Class>
+
+    <!-- http://www.imu.iccs.gr/fusion/Statev2.owl#TransferCustomerEnrollmentInitial -->
+
+    <owl:Class rdf:about="#TransferCustomerEnrollmentInitial">
+        <rdfs:subClassOf rdf:resource="#Initial"/>
+    </owl:Class>
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Statev2.owl#TransferCustomerEnrollmentProcessing -->
+
+    <owl:Class rdf:about="#TransferCustomerEnrollmentProcessing">
+        <rdfs:subClassOf rdf:resource="#Intermediate"/>
+    </owl:Class>
+
+    <!-- http://www.imu.iccs.gr/fusion/Statev2.owl#TransferCustomerEnrollmentSuccess -->
+
+    <owl:Class rdf:about="#TransferCustomerEnrollmentSuccess">
+        <rdfs:subClassOf rdf:resource="#Final"/>
+    </owl:Class>
+
+    <!-- http://www.imu.iccs.gr/fusion/Statev2.owl#TransferCustomerEnrollmentWaiting -->
+
+    <owl:Class rdf:about="#TransferCustomerEnrollmentWaiting">
+        <rdfs:subClassOf rdf:resource="#Intermediate"/>
+    </owl:Class>
+
+    <!-- http://www.imu.iccs.gr/fusion/Statev2.owl#TransferStudentFailure -->
+
+    <owl:Class rdf:about="#TransferStudentFailure">
+        <rdfs:subClassOf rdf:resource="#Final"/>
+    </owl:Class>
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Statev2.owl#TransferStudentInitial -->
+
+    <owl:Class rdf:about="#TransferStudentInitial">
+        <rdfs:subClassOf rdf:resource="#Initial"/>
+    </owl:Class>
+
+    <!-- http://www.imu.iccs.gr/fusion/Statev2.owl#TransferStudentProcessing -->
+
+    <owl:Class rdf:about="#TransferStudentProcessing">
+        <rdfs:subClassOf rdf:resource="#Intermediate"/>
+    </owl:Class>
+
+    <!-- http://www.imu.iccs.gr/fusion/Statev2.owl#TransferStudentSuccess -->
+
+    <owl:Class rdf:about="#TransferStudentSuccess">
+        <rdfs:subClassOf rdf:resource="#Final"/>
+    </owl:Class>
+
+    <!-- http://www.imu.iccs.gr/fusion/Statev2.owl#UnregisterStudentFailure -->
+
+    <owl:Class rdf:about="#UnregisterStudentFailure">
+        <rdfs:subClassOf rdf:resource="#Final"/>
+    </owl:Class>
+
+    <!-- http://www.imu.iccs.gr/fusion/Statev2.owl#UnregisterStudentInitial -->
+
+    <owl:Class rdf:about="#UnregisterStudentInitial">
+        <rdfs:subClassOf rdf:resource="#Initial"/>
+    </owl:Class>
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Statev2.owl#UnregisterStudentProcessing -->
+
+    <owl:Class rdf:about="#UnregisterStudentProcessing">
+        <rdfs:subClassOf rdf:resource="#Intermediate"/>
+    </owl:Class>
+
+    <!-- http://www.imu.iccs.gr/fusion/Statev2.owl#UnregisterStudentSuccess -->
+
+    <owl:Class rdf:about="#UnregisterStudentSuccess">
+        <rdfs:subClassOf rdf:resource="#Final"/>
+    </owl:Class>
+
+    <!-- http://www.imu.iccs.gr/fusion/Statev2.owl#UnregisterStudentWaiting -->
+
+    <owl:Class rdf:about="#UnregisterStudentWaiting">
+        <rdfs:subClassOf rdf:resource="#Intermediate"/>
+    </owl:Class>
+
+
+
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Statev2.owl#Final -->
+
+    <owl:Class rdf:about="#Final">
+        <rdfs:subClassOf rdf:resource="#State"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Statev2.owl#Initial -->
+
+    <owl:Class rdf:about="#Initial">
+        <rdfs:subClassOf rdf:resource="#State"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Statev2.owl#Intermediate -->
+
+    <owl:Class rdf:about="#Intermediate">
+        <rdfs:subClassOf rdf:resource="#State"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Statev2.owl#State -->
+
+    <owl:Class rdf:about="#State"/>
+</rdf:RDF>

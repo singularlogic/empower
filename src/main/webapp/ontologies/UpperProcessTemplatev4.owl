@@ -1,0 +1,161 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+    <!ENTITY Taxonomy "http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#" >
+    <!ENTITY FunctionalFacetv5 "http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#" >
+    <!ENTITY UpperProcessTemplatev4 "http://www.imu.iccs.gr/fusion/UpperProcessTemplatev4.owl#" >
+]>
+
+
+<rdf:RDF xmlns="http://www.imu.iccs.gr/fusion/UpperProcessTemplatev4.owl#"
+     xml:base="http://www.imu.iccs.gr/fusion/UpperProcessTemplatev4.owl"
+     xmlns:FunctionalFacetv5="http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#"
+     xmlns:Taxonomy="http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:UpperProcessTemplatev4="http://www.imu.iccs.gr/fusion/UpperProcessTemplatev4.owl#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#">
+    <owl:Ontology rdf:about="">
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/UpperProcessTemplatev4.owl#containsProcess -->
+
+    <owl:ObjectProperty rdf:about="#containsProcess">
+        <rdfs:range rdf:resource="#Public_Process"/>
+        <rdfs:domain rdf:resource="#Collaborative_Process"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/UpperProcessTemplatev4.owl#hasCategory -->
+
+    <owl:ObjectProperty rdf:about="#hasCategory">
+        <rdfs:domain rdf:resource="#Process"/>
+        <rdfs:range rdf:resource="&Taxonomy;TaxonomyEntity"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/UpperProcessTemplatev4.owl#hasFunctionalProfile -->
+
+    <owl:ObjectProperty rdf:about="#hasFunctionalProfile">
+        <rdfs:domain rdf:resource="#Public_Process"/>
+        <rdfs:range rdf:resource="&FunctionalFacetv5;RequestFunctionalProfile"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/UpperProcessTemplatev4.owl#hasInitiatorProcess -->
+
+    <owl:ObjectProperty rdf:about="#hasInitiatorProcess">
+        <rdfs:range rdf:resource="#Public_Process"/>
+        <rdfs:domain rdf:resource="#Collaborative_Process"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/UpperProcessTemplatev4.owl#hasRole -->
+
+    <owl:ObjectProperty rdf:about="#hasRole">
+        <rdfs:domain rdf:resource="#Public_Process"/>
+        <rdfs:range rdf:resource="#Role"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/FunctionalFacetv5.owl#RequestFunctionalProfile -->
+
+    <owl:Class rdf:about="&FunctionalFacetv5;RequestFunctionalProfile"/>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/Taxonomyv2.owl#TaxonomyEntity -->
+
+    <owl:Class rdf:about="&Taxonomy;TaxonomyEntity"/>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/UpperProcessTemplatev4.owl#Collaborative_Process -->
+
+    <owl:Class rdf:about="#Collaborative_Process">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="#hasInitiatorProcess"/>
+                <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:cardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="#containsProcess"/>
+                <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">2</owl:minCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf rdf:resource="#Process"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/UpperProcessTemplatev4.owl#Process -->
+
+    <owl:Class rdf:about="#Process">
+        <rdfs:subClassOf rdf:resource="&owl;Thing"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/UpperProcessTemplatev4.owl#Public_Process -->
+
+    <owl:Class rdf:about="#Public_Process">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="#hasRole"/>
+                <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:cardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf rdf:resource="#Process"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imu.iccs.gr/fusion/UpperProcessTemplatev4.owl#Role -->
+
+    <owl:Class rdf:about="#Role">
+        <rdfs:subClassOf rdf:resource="&owl;Thing"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.w3.org/2002/07/owl#Thing -->
+
+    <owl:Class rdf:about="&owl;Thing"/>
+</rdf:RDF>

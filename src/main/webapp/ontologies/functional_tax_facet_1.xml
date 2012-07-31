@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tree id="0">
+	<item id="TaxonomyEntity" text="TaxonomyEntity">
+		<item id="Services" text="Services">
+			<item id="Management" text="Management">
+				<item id="Campaign_Management" text="Campaign_Management"></item>
+                                <item id="Lead_Management" text="Lead_Management"></item>
+                                <item id="Marketing_Resource_Management" text="Marketing_Resource_Management"></item>
+                                <item id="Segmenation_List_Management" text="Segmenation_List_Management"></item>
+                                <item id="Trade_Promotion_Management" text="Trade_Promotion_Management"></item>
+			</item>
+		</item>
+	</item>
+</tree>
