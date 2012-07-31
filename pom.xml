@@ -60,35 +60,20 @@
           <version>2.10.0</version>
       </dependency>
 
+      <!-- MySQL -->
+      <dependency>
+          <groupId>mysql</groupId>
+          <artifactId>mysql-connector-java</artifactId>
+          <version>5.1.21</version>
+      </dependency>
+
   </dependencies>
 
     <build>
-        <finalName>bqi</finalName>
-
+        <finalName>empower</finalName>
 
 
         <plugins>
-            <!-- JAXB Plugin -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>jaxb2-maven-plugin</artifactId>
-                <version>1.4</version>
-                <executions>
-                    <execution>
-                        <id>schema1-xjc</id>
-                        <goals>
-                            <goal>xjc</goal>
-                        </goals>
-                        <configuration>
-                            <schemaFiles>sparqlresult.xsd</schemaFiles>
-                            <packageName>eu.granatum.xsd</packageName>
-                            <schemaDirectory>${project.basedir}/src/main/resources</schemaDirectory>
-                            <outputDirectory>${project.basedir}/src/main/java</outputDirectory>
-                            <clearOutputDir>false</clearOutputDir>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
 
             <!-- Test plugin -->
             <plugin>

@@ -2,10 +2,10 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <link rel="stylesheet" type="text/css" href="http://localhost:8080/DIEmpower/style/menu_style.css"/>
-        <link rel="stylesheet" type="text/css" href="http://localhost:8080/DIEmpower/style/layout4_setup.css"/>        
-        <link rel="stylesheet" type="text/css" href="http://localhost:8080/DIEmpower/style/layout4_text.css"/>        
-        <link rel="stylesheet" type="text/css" href="http://localhost:8080/DIEmpower/style/container.css"/>
+        <link rel="stylesheet" type="text/css" href="../style/menu_style.css"/>
+        <link rel="stylesheet" type="text/css" href="../style/layout4_setup.css"/>
+        <link rel="stylesheet" type="text/css" href="../style/layout4_text.css"/>
+        <link rel="stylesheet" type="text/css" href="../style/container.css"/>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">        
         <title>Service registration</title>
     </head>
@@ -50,7 +50,7 @@
             <div class="main-content">
             <br><h2><b>Register service details</b></h2>
             <br>
-                    <form method="POST" action="http://localhost:8080/DIEmpower/DIController?op=xsd_reg" name="ws_registration" enctype="multipart/form-data">
+                    <form method="POST" action="../DIController?op=xsd_reg" name="ws_registration" enctype="multipart/form-data">
                         <input type='hidden' name='software_id' value='<%= request.getParameter("software_id") %>'>
                         <table>
                             <tbody>

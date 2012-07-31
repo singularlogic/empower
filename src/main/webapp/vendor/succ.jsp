@@ -9,13 +9,13 @@
         }
 </script>
 <title>Information</title>
-        <link rel="stylesheet" type="text/css" href="http://localhost:8080/DIEmpower/style/menu_style.css"/>
-        <link rel="stylesheet" type="text/css" href="http://localhost:8080/DIEmpower/style/layout4_setup.css"/>        
-        <link rel="stylesheet" type="text/css" href="http://localhost:8080/DIEmpower/style/layout4_text.css"/>
-        <link rel="stylesheet" type="text/css" href="http://localhost:8080/DIEmpower/style/container.css"/>
-	<link rel="stylesheet" type="text/css" href="http://localhost:8080/DIEmpower/js/dhtmlxSuite/dhtmlxTree/codebase/dhtmlxtree.css">
-	<script src="http://localhost:8080/DIEmpower/js/dhtmlxSuite/dhtmlxTree/codebase/dhtmlxcommon.js"></script>
-	<script src="http://localhost:8080/DIEmpower/js/dhtmlxSuite/dhtmlxTree/codebase/dhtmlxtree.js"></script>
+        <link rel="stylesheet" type="text/css" href="../style/menu_style.css"/>
+        <link rel="stylesheet" type="text/css" href="../style/layout4_setup.css"/>
+        <link rel="stylesheet" type="text/css" href="../style/layout4_text.css"/>
+        <link rel="stylesheet" type="text/css" href="../style/container.css"/>
+	<link rel="stylesheet" type="text/css" href="../js/dhtmlxSuite/dhtmlxTree/codebase/dhtmlxtree.css">
+	<script src="../js/dhtmlxSuite/dhtmlxTree/codebase/dhtmlxcommon.js"></script>
+	<script src="../js/dhtmlxSuite/dhtmlxTree/codebase/dhtmlxtree.js"></script>
 </head> 
     <body class="yui-skin-sam">
     <center>

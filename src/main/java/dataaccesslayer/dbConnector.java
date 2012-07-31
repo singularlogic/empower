@@ -22,11 +22,11 @@ public class dbConnector {
 	throws ClassNotFoundException, SQLException,
         InstantiationException, IllegalAccessException
 	{                   
-                String url = "jdbc:mysql://localhost:3306/";
-                String dbName = "empower_database";
+                String url = "jdbc:mysql://127.0.0.1:3306/";
+                String dbName = "empower";
                 String driver = "com.mysql.jdbc.Driver";
-                String userName = "root"; 
-                String password = "ego";
+                String userName = "empower";
+                String password = "!empower!";
   
                 Class.forName(driver).newInstance();
                 dbConnection = DriverManager.getConnection(url+dbName,userName,password);

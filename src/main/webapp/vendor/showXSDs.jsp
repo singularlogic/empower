@@ -2,16 +2,16 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <link rel="stylesheet" type="text/css" href="http://localhost:8080/DIEmpower/style/menu_style.css"/>
-        <link rel="stylesheet" type="text/css" href="http://localhost:8080/DIEmpower/style/layout4_setup.css"/>        
-        <link rel="stylesheet" type="text/css" href="http://localhost:8080/DIEmpower/style/layout4_text_simple.css"/>        
-        <link rel="stylesheet" type="text/css" href="http://localhost:8080/DIEmpower/style/container.css"/>
-	<link rel="stylesheet" type="text/css" href="http://localhost:8080/DIEmpower/js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgrid.css">
-	<link rel="stylesheet" type="text/css" href="http://localhost:8080/DIEmpower/js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgrid_skins.css">
-        <script src="http://localhost:8080/DIEmpower/js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxcommon.js"></script>
-	<script src="http://localhost:8080/DIEmpower/js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgrid.js"></script>
-        <script src="http://localhost:8080/DIEmpower/js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgridcell.js"></script>
-        <script src="http://localhost:8080/DIEmpower/js/dhtmlxSuite/dhtmlxGrid/codebase/excells/dhtmlxgrid_excell_link.js"></script>        
+        <link rel="stylesheet" type="text/css" href="../style/menu_style.css"/>
+        <link rel="stylesheet" type="text/css" href="../style/layout4_setup.css"/>
+        <link rel="stylesheet" type="text/css" href="../style/layout4_text_simple.css"/>
+        <link rel="stylesheet" type="text/css" href="../style/container.css"/>
+	<link rel="stylesheet" type="text/css" href="../js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgrid.css">
+	<link rel="stylesheet" type="text/css" href="../js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgrid_skins.css">
+        <script src="../js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxcommon.js"></script>
+	<script src="../js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgrid.js"></script>
+        <script src="../js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgridcell.js"></script>
+        <script src="../js/dhtmlxSuite/dhtmlxGrid/codebase/excells/dhtmlxgrid_excell_link.js"></script>
 
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">        
         <title>Vendor Menu</title>
@@ -59,7 +59,7 @@
             <div id="box_grid" style="width:600px; height:200px"></div>
                 <script>
                         grid = new dhtmlXGridObject("box_grid");
-                        grid.setImagePath("http://localhost:8080/DIEmpower/js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");
+                        grid.setImagePath("js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");
                         grid.setHeader("Service name,Action, ");//set column names
                         grid.setColTypes("ro,link,link");
 

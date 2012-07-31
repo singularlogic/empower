@@ -3,10 +3,10 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <link rel="stylesheet" type="text/css" href="http://localhost:8080/DIEmpower/style/menu_style.css"/>
-        <link rel="stylesheet" type="text/css" href="http://localhost:8080/DIEmpower/style/layout4_setup.css"/>        
-        <link rel="stylesheet" type="text/css" href="http://localhost:8080/DIEmpower/style/layout4_text.css"/>        
-        <link rel="stylesheet" type="text/css" href="http://localhost:8080/DIEmpower/style/container.css"/>
+        <link rel="stylesheet" type="text/css" href="../style/menu_style.css"/>
+        <link rel="stylesheet" type="text/css" href="../style/layout4_setup.css"/>
+        <link rel="stylesheet" type="text/css" href="../style/layout4_text.css"/>
+        <link rel="stylesheet" type="text/css" href="../style/container.css"/>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">        
         <title>Vendor Menu</title>
     </head>
@@ -64,7 +64,7 @@
                     if(softwareVersion==null)
                         softwareVersion = new String("");
                 %>
-                <form method="POST" action='http://localhost:8080/DIEmpower/<%= operation.toString() %>' name="soft_registration">
+                <form method="POST" action='../<%= operation.toString() %>' name="soft_registration">
                     <table>
                         <tbody>
                             <tr>
