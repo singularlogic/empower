@@ -4,28 +4,26 @@
  */
 package vendorports;
 
+import dataaccesslayer.Operation;
 import dataaccesslayer.SoftwareComponent;
-import dataaccesslayer.XSD;
+import dataaccesslayer.Schema;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.swing.text.Document;
-import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.xerces.parsers.DOMParser;
-import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -60,20 +58,27 @@ public class VendorManager extends HttpServlet {
 
         try {
             if (operation != null) {
-                if (operation.equals("software_reg")) 
+                if (operation.equals("software_reg")) {
                     this.registerSoftware(request, response, session);
-                 else if (operation.equals("show_components")) 
+                } else if (operation.equals("show_components")) {
                     this.showComponents(request, response, session);
-                 else if (operation.equals("xsd_reg")) 
-                    this.registerXSD(request, response, session);
-                 else if (operation.equals("show_xsds")) 
-                    this.showXSDs(request, response, session);
-                 else if(operation.equals("load_software_reg"))
-                    this.loadSoftwareReg(request, response, session); 
-                else if(operation.equals("update_software"))
-                     this.updateSoftware(request, response, session);
-                else if(operation.equals("delete_software"))
-                     this.deleteSoftware(request, response, session);
+                } else if (operation.equals("schema_reg")) {
+                    this.registerSchema(request, response, session);
+                } else if (operation.equals("show_schemas")) {
+                    this.showSchemas(request, response, session);
+                } else if (operation.equals("load_software_reg")) {
+                    this.loadSoftwareReg(request, response, session);
+                } else if (operation.equals("update_software")) {
+                    this.updateSoftware(request, response, session);
+                } else if (operation.equals("delete_software")) {
+                    this.deleteSoftware(request, response, session);
+                } else if (operation.equals("present_service_operations")) {
+                    this.presentServiceOperationsTree(request, response, session);
+                }else if(operation.equals("annotate_operations"))
+                     this.annotateOperations(request, response, session);
+
+
+
             }
         } catch (Throwable t) {
             t.printStackTrace();
@@ -105,32 +110,30 @@ public class VendorManager extends HttpServlet {
         software_id = vendorDBConnector.insertSoftwareInfo((String) session.getAttribute("name"), softwareName, version);
         this.forwardToPage("/vendor/succ.jsp", request, response);
     }
-    
-    protected void updateSoftware(HttpServletRequest request,HttpServletResponse response,HttpSession session)
-    throws IOException, ServletException
-    {
-        String softwareID = (String)request.getParameter("software_id");
-        String softwareName = (String)request.getParameter("software_name");
-        String version = (String)request.getParameter("software_version");
-        
+
+    protected void updateSoftware(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws IOException, ServletException {
+        String softwareID = (String) request.getParameter("software_id");
+        String softwareName = (String) request.getParameter("software_name");
+        String version = (String) request.getParameter("software_version");
+
         VendorDBConnector vendorDBConnector = new VendorDBConnector();
         vendorDBConnector.updateSoftware(softwareID, softwareName, version);
-        
+
         this.forwardToPage("/vendor/succ.jsp", request, response);
-        
+
         return;
-    } 
-    
-        protected void deleteSoftware(HttpServletRequest request,HttpServletResponse response,HttpSession session)
-    throws IOException, ServletException
-    {
-        String softwareID = (String)request.getParameter("software_id");
+    }
+
+    protected void deleteSoftware(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws IOException, ServletException {
+        String softwareID = (String) request.getParameter("software_id");
 
         VendorDBConnector vendorDBConnector = new VendorDBConnector();
         vendorDBConnector.deleteSoftware(softwareID);
-        
+
         this.forwardToPage("/vendor/succ.jsp", request, response);
-        
+
         return;
     }
 
@@ -162,37 +165,38 @@ public class VendorManager extends HttpServlet {
                     + "^_self</cell><cell>Update^../VendorManager?op=load_software_reg&amp;software_id=" + comp.getSoftwareID()
                     + "&amp;software_name=" + comp.getName() + "&amp;software_version=" + comp.getVersion()
                     + "^_self</cell>"
-                    + "<cell>XSDs^../DIController?op=show_xsd&amp;xsd=" + rowID + "_" + comp.getNum_xsds()
+                    + "<cell>Schemas^../DIController?op=show_schema&amp;xsd=" + rowID + "_" + comp.getNum_xsds()
                     + "_" + comp.getSoftwareID() + "^_self</cell>" + "</row>");
         }
 
         out.write("</rows>");
         out.flush();
     }
-    
-    
-     protected void loadSoftwareReg(HttpServletRequest request,HttpServletResponse response,HttpSession session)
-    throws IOException, ServletException
-    {
-        String softwareID = (String)request.getParameter("software_id");
-        String softwareName = (String)request.getParameter("software_name");
-        String version = (String)request.getParameter("software_version");
-        
-        this.forwardToPage("/vendor/softwareReg.jsp?operation=VendorManager%3Fop=update_software&software_name=" +
-                           softwareName + "&software_version=" + version + "&software_id=" + softwareID, request, response);
-        
-        return;
-    } 
 
-    protected void registerXSD(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+    protected void loadSoftwareReg(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws IOException, ServletException {
+        String softwareID = (String) request.getParameter("software_id");
+        String softwareName = (String) request.getParameter("software_name");
+        String version = (String) request.getParameter("software_version");
+
+        this.forwardToPage("/vendor/softwareReg.jsp?operation=VendorManager%3Fop=update_software&software_name="
+                + softwareName + "&software_version=" + version + "&software_id=" + softwareID, request, response);
+
+        return;
+    }
+
+    protected void registerSchema(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws IOException, ServletException, FileUploadException, Exception {
         // Check that we have a file upload request
 
-        String XSDFilename = null;
-        String XSDName = null;
+        String web_service_name = null;
+        String operation_name = null;
+        String schemaFilename = null;
+        String schemaName = null;
+        String inputoutput = null;
         int software_id = 0;
         String namespace = null;
-        int xsd_id = 0;
+        int schema_id = 0;
 
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
 
@@ -215,33 +219,48 @@ public class VendorManager extends HttpServlet {
             FileItem item = (FileItem) iter.next();
 
             if (item.isFormField()) {
+
+                System.out.println("Here we have: ");
+
                 if (item.getFieldName().equals("software_id")) {
                     software_id = Integer.parseInt(item.getString());
-                } else if (item.getFieldName().equals("xsd_name")) {
-                    XSDName = new String(item.getString());
+                    System.out.println("software_id " + software_id);
+                } else if (item.getFieldName().equals("schema_name")) {
+                    schemaName = new String(item.getString());
+                    System.out.println("schema_name " + schemaName);
+                } else if (item.getFieldName().equals("web_service_name")) {
+                    web_service_name = new String(item.getString());
+                } else if (item.getFieldName().equals("operation_name")) {
+                    operation_name = new String(item.getString());
+                } else if (item.getFieldName().equals("inputoutput")) {
+                    inputoutput = new String(item.getString());
                 }
+
             } else {
-                XSDFilename = new String(this.xml_rep_path + "/xsd/" + software_id + "_" + XSDName + "_" + ((int) (100000 * Math.random())) + ".xsd");
-                File uploadedFile = new File(XSDFilename);
+                System.out.println("Here we put the file ");
+
+                schemaFilename = new String(this.xml_rep_path + "/xsd/" + software_id + "_" + schemaName + "_" + ((int) (100000 * Math.random())) + ".xsd");
+                System.out.println("schemaFilename: " + schemaFilename);
+                File uploadedFile = new File(schemaFilename);
                 item.write(uploadedFile);
             }
         }
 
         VendorDBConnector vendorDBConnector = new VendorDBConnector();
-        xsd_id = vendorDBConnector.insertXSDInfo(software_id, XSDName, XSDFilename, xml_rep_path);
+        schema_id = vendorDBConnector.insertSchemaInfo(software_id, schemaName, schemaFilename, xml_rep_path, web_service_name, operation_name, inputoutput);
 
 
 
         this.forwardToPage("/vendor/succ.jsp", request, response);
     }
 
-    protected void showXSDs(HttpServletRequest request,HttpServletResponse response,HttpSession session)
+    protected void showSchemas(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws IOException, ServletException {
         Iterator XSDIterator;
         int rowID = 1;
 
         VendorDBConnector vendorDBConnector = new VendorDBConnector();
-        XSDIterator = vendorDBConnector.getXSDs((String) request.getParameter("software_id")).iterator();
+        XSDIterator = vendorDBConnector.getSchemas((String) request.getParameter("software_id")).iterator();
 
         response.setContentType("text/xml; charset=UTF-8");
         PrintWriter out = response.getWriter();
@@ -249,13 +268,12 @@ public class VendorManager extends HttpServlet {
         out.write("<rows>");
 
         while (XSDIterator.hasNext()) {
-            XSD xsd = (XSD) XSDIterator.next();
-            out.write("<row id=\"" + xsd.getXsd_id() + "\"><cell>" + xsd.getName() + "</cell>"
-                    +"<cell> Annotate Data of XSD^./vendor/presentXSDTree.jsp?xsd_id=" + xsd.getXsd_id()+"^_self</cell>"
-                    + "<cell>Annotate Data^./vendor/presentServiceTree.jsp?service_id=" + xsd.getXsd_id()
-                    + "^_self</cell>"
-                    + "<cell>Annotate Functions^./vendor/presentServiceFunctionTree.jsp?service_id=" + xsd.getXsd_id()
-                    + "^_self</cell>"
+            Schema schema = (Schema) XSDIterator.next();
+            out.write("<row id=\"" + schema.getSchema_id() + "\"><cell>" + schema.getName() + "</cell>"
+                    + "<cell> Annotate Data of Schema^./vendor/presentXSDTree.jsp?xsd_id=" + schema.getSchema_id() + "^_self</cell>"
+                    + "<cell> Annotate Operations^./vendor/presentOperationTree.jsp?schema_id=" + schema.getSchema_id() + "^_self</cell>"
+                    //+ "<cell>Annotate Data^./vendor/presentServiceTree.jsp?service_id=" + schema.getSchema_id()+ "^_self</cell>"
+                    //+ "<cell>Annotate Functions^./vendor/presentServiceFunctionTree.jsp?service_id=" + schema.getSchema_id()+ "^_self</cell>"
                     + "</row>");
         }
 
@@ -264,28 +282,114 @@ public class VendorManager extends HttpServlet {
 
         return;
     }
-    
-      protected void presentServiceTree(HttpServletRequest request,HttpServletResponse response, HttpSession session)
-    throws IOException, ServletException
-    {
-        /*
-        int serviceID = Integer.parseInt(request.getParameter("service_id"));
-        
+
+    protected void presentServiceOperationsTree(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws IOException, ServletException {
+
+        int schema_id = Integer.parseInt(request.getParameter("schema_id"));
+
         VendorDBConnector vendorDBConnector = new VendorDBConnector();
-        Service service = vendorDBConnector.getService(serviceID);
+        LinkedList<Operation> operations = vendorDBConnector.getOperationsBySchema(schema_id);
         response.setContentType("text/xml; charset=UTF-8");
-        
-        WSDLParser wsdlParser = new WSDLParser(service.getWsdl(),
-                                               service.getNamespace());
-        wsdlParser.loadService(service.getName());
-        wsdlParser.outputToXML(response.getWriter());
-        
-       SAXParser saxparser=  new SAXParser();
-        */
 
+        this.outputOperationsToXML(response.getWriter(), operations);
 
+        //WSDLParser wsdlParser = new WSDLParser(service.getWsdl(),service.getNamespace());
+        //wsdlParser.loadService(service.getName());
+        //wsdlParser.outputFunctionsToXML(response.getWriter());
+    }
+
+    protected void presentServiceTree(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws IOException, ServletException {
+        /*
+         * int serviceID = Integer.parseInt(request.getParameter("service_id"));
+         *
+         * VendorDBConnector vendorDBConnector = new VendorDBConnector();
+         * Service service = vendorDBConnector.getService(serviceID);
+         * response.setContentType("text/xml; charset=UTF-8");
+         *
+         * WSDLParser wsdlParser = new WSDLParser(service.getWsdl(),
+         * service.getNamespace()); wsdlParser.loadService(service.getName());
+         * wsdlParser.outputToXML(response.getWriter());
+         *
+         * SAXParser saxparser= new SAXParser();
+         */
         //this.forwardToPage("/vendormenu.jsp", request, response);
     }
+
+    public void outputOperationsToXML(PrintWriter out, LinkedList<Operation> operations) {
+        try {
+            //work with collection. get services
+            Map<Integer, String> services = new HashMap<Integer, String>();
+
+            System.out.println("operations size " + operations.size());
+
+            Iterator<Operation> op_it = operations.iterator();
+
+            while (op_it.hasNext() == true) {
+
+                int service_id = op_it.next().getService_id();
+                String web_service_name = op_it.next().getWeb_service_name();
+                if (!services.containsKey(service_id)) {
+                    services.put(service_id, web_service_name);
+                }
+
+            }
+
+            out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+
+            out.write("<tree id=\"0\">");
+
+            //Get Map in Set interface to get key and value
+            Iterator it = services.entrySet().iterator();
+
+            while (it.hasNext()) {
+                Map.Entry m = (Map.Entry) it.next();
+                int key = (Integer) m.getKey();
+                String value = (String) m.getValue();
+
+
+                out.write("<item text=\"" + value
+                        + "\" id=\"" + key + "\" nocheckbox=\"true\">");
+
+                op_it = operations.iterator();
+                while (op_it.hasNext()) {
+
+                    Operation op = op_it.next();
+                    if (op.getService_id() == key) {
+                        out.write("<item text=\"" + op.getOperation_name() + "\" id=\"" + op.getOperation_id() + "\"/>");
+                    }
+                }
+                out.write("</item>");
+            }
+
+            out.write("</tree>");
+            out.close();
+
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    }
+    
+    
+    protected void annotateOperations(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+    throws IOException, ServletException, ParserConfigurationException, SAXException, XPathExpressionException
+    {
+        int schema_id = Integer.parseInt((String)request.getParameter("schema_id"));
+        int operation_id = Integer.parseInt((String)request.getParameter("selections"));
+        String funcSelections = request.getParameter("funcselections");
+        String name = (String)session.getAttribute("name");
+
+        System.out.println(funcSelections + " " + schema_id +" "+ operation_id +" "+ name);
+        
+        VendorDBConnector vendorDBConnector = new VendorDBConnector();
+        
+        vendorDBConnector.insertTaxonomyToOperation(operation_id, funcSelections);
+      
+        //vendorDBConnector.insertCVPFunction(funcSelections, serviceID, selections, name);
+      
+        this.forwardToPage("/vendor/annotationResult.jsp?schema_id="+schema_id, request, response);        
+   }  
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**

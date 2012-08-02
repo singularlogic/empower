@@ -55,10 +55,10 @@ public class DIController extends HttpServlet {
                     this.manageVendorSoftwareReg(request, response, session);
                  else if (operation.equals("show_components")) 
                     this.manageShowComponents(request, response, session);
-                else if (operation.equals("show_xsd"))
-                    this.manageShowXSD(request, response, session);
-                else if (operation.equals("xsd_reg"))
-                this.manageVendorXSDReg(request, response, session);
+                else if (operation.equals("show_schema"))
+                    this.manageShowSchema(request, response, session);
+                else if (operation.equals("schema_reg"))
+                this.manageVendorSchemaReg(request, response, session);
                 else if (operation.equals("fileupload")) {
                     System.out.println("I am iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiin!!!");
                     this.managefileUpload(request, response, session);
@@ -171,7 +171,7 @@ public class DIController extends HttpServlet {
             this.forwardToPage("/error/generic_error.jsp?errormsg=op_not_supported_for_you", request, response);
     }
       
-    protected void manageShowXSD(HttpServletRequest request,HttpServletResponse response,HttpSession session)
+    protected void manageShowSchema(HttpServletRequest request,HttpServletResponse response,HttpSession session)
     throws ServletException, IOException
     {    
         String xsd_num  = ((String)request.getParameter("xsd")).split("_")[1];
@@ -182,9 +182,9 @@ public class DIController extends HttpServlet {
         {    
             // if software component without an xsd
             if(xsd_num.equals("0"))
-                this.forwardToPage("/vendor/XSDReg.jsp?software_id=" + software_id, request, response);
+                this.forwardToPage("/vendor/SchemaReg.jsp?software_id=" + software_id, request, response);
             else
-                this.forwardToPage("/vendor/showXSDs.jsp?software_id=" + software_id, request, response);
+                this.forwardToPage("/vendor/showSchemas.jsp?software_id=" + software_id, request, response);
         }
         
         if(verifyUser("organization",session))
@@ -193,16 +193,14 @@ public class DIController extends HttpServlet {
         }    
     } 
     
-     protected void manageVendorXSDReg(HttpServletRequest request,
-                                      HttpServletResponse response,
-                                      HttpSession session)
+     protected void manageVendorSchemaReg(HttpServletRequest request,HttpServletResponse response,HttpSession session)
     throws ServletException, IOException
     {    
         if(verifyUser("vendor", session))
         {
             String softwareID = request.getParameter("software_id");
 
-            this.forwardToPage("/VendorManager?op=xsd_reg&software_id=" + softwareID, request, response);
+            this.forwardToPage("/VendorManager?op=schema_reg&software_id=" + softwareID, request, response);
         }
         else
             this.forwardToPage("/error/generic_error.jsp?errormsg=op_not_supported_for_you", request, response);

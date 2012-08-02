@@ -2,10 +2,10 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <link rel="stylesheet" type="text/css" href="../style/menu_style.css"/>
-        <link rel="stylesheet" type="text/css" href="../style/layout4_setup.css"/>
-        <link rel="stylesheet" type="text/css" href="../style/layout4_text.css"/>
-        <link rel="stylesheet" type="text/css" href="../style/container.css"/>
+        <link rel="stylesheet" type="text/css" href="./style/menu_style.css"/>
+        <link rel="stylesheet" type="text/css" href="./style/layout4_setup.css"/>
+        <link rel="stylesheet" type="text/css" href="./style/layout4_text.css"/>
+        <link rel="stylesheet" type="text/css" href="./style/container.css"/>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">        
         <title>Service registration</title>
     </head>
@@ -37,33 +37,54 @@
             <div class='glossymenu'>
                 <a class='menuitem submenuheader1'>Vendor Menu</a>
                     <div class='submenu1'>
-                        <a class='menuitem' href='softwareReg.jsp'>Register new software</a>
+                        <a class='menuitem' href='vendor/softwareReg.jsp'>Register new software</a>
                     </div><!--submenuENDdiv-->
                     <div class='submenu1'>
-                        <a class='menuitem' href='showSoftwareComponent.jsp'>Show software components</a>
+                        <a class='menuitem' href='vendor/showSoftwareComponent.jsp'>Show software components</a>
                     </div><!--submenuENDdiv-->                
                     <div class='submenu1'>
-                        <a class='menuitem' href='Controller?op=signout'>Logout</a>
+                        <a class='menuitem' href='/DIController?op=signout'>Logout</a>
                     </div><!--submenuENDdiv--> 
             </div>
         </div>
             <div class="main-content">
             <br><h2><b>Register service details</b></h2>
             <br>
-                    <form method="POST" action="../DIController?op=xsd_reg" name="ws_registration" enctype="multipart/form-data">
+                    <form method="POST" action="./DIController?op=schema_reg" name="ws_registration" enctype="multipart/form-data">
                         <input type='hidden' name='software_id' value='<%= request.getParameter("software_id") %>'>
                         <table>
                             <tbody>
                                 <tr>
-                                    <td align="right">Name:</td>
+                                    <td align="right">Web Service Description:</td>
                                     <td align="left">
-                                        <input type="text" name="xsd_name" size="20">
+                                        <input type="text" name="web_service_name" size="20">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="right">Operation Description:</td>
+                                    <td align="left">
+                                        <input type="text" name="operation_name" size="20">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="right">Choose accion:</td>
+                                    <td align="left">
+                                        <select name="inputoutput" size="2">
+                                            <option>input</option>
+                                            <option>output</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="right">Schema Name:</td>
+                                    <td align="left">
+                                        <input type="text" name="schema_name" size="20">
                                     </td>
                                 </tr>
                                 <tr>
                                     <td align="right">File:</td>
                                     <td align="left">
-                                        <input type="file" name="xsd_file" size="20">
+                                        <input type="file" name="schema_file" size="20">
                                     </td>
                                 </tr>
                                 <tr>

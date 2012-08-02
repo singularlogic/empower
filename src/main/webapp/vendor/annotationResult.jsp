@@ -2,15 +2,10 @@
 <!DOCTYPE html>
 <html>
 <head>    
-<script>
-        function replaceValue()
-        {
-            document.forms['annotationf'].elements['selections'].value = tree.getAllChecked();            
-        }
-</script>
-<title>Information</title>
+
+<title>Annotation result</title>
         <link rel="stylesheet" type="text/css" href="./style/menu_style.css"/>
-        <link rel="stylesheet" type="text/css" href="./style/layout4_setup.css"/>
+        <link rel="stylesheet" type="text/css" href="./style/layout4_setup.css"/>        
         <link rel="stylesheet" type="text/css" href="./style/layout4_text.css"/>
         <link rel="stylesheet" type="text/css" href="./style/container.css"/>
 	<link rel="stylesheet" type="text/css" href="./js/dhtmlxSuite/dhtmlxTree/codebase/dhtmlxtree.css">
@@ -32,7 +27,7 @@
                     </ul>
                 </div>
             </div><!-- A.2 HEADER MIDDLE -->
-            <div class="header-middle"><!-- Site message --><div class="sitemessage"><h1 style="float:right">Empower PROJECT</h1><h2 style="width:450px">A Empower Service-Oriented Enterprise Application Integration Middleware Addressing the Needs of the European SMEs</h2></div></div>                                    
+            <div class="header-middle"><!-- Site message --><div class="sitemessage"><h1 style="float:right">Empower PROJECT</h1><h2 style="width:450px">A Semantic Service-Oriented Enterprise Application Integration Middleware Addressing the Needs of the European SMEs</h2></div></div>                                    
             <div class="header-bottom"><!-- Navigation Level 2 (Drop-down menus) --><div class="nav2"><ul><li id="current" class="last"><a href="actions.jsp?action=tabSelect&amp;tabIndex=0&amp;menuitemId=tabA">Home</a></li></ul></div></div>
             <div class="header-breadcrumbs"><ul></ul></div>
         </div>   
@@ -56,9 +51,10 @@
         </div>    
             <div class="main-content">
                 <br>
-                <p><h2>Information</h2>
+                <p><h2>Action was successful</h2>
                 <br>
-                <p>Action was successful.
+                <p>Annotation for service operation was successful. 
+                <p>Return back to <a href='DIController?op=show_schema&xsd=<%= ((String)session.getAttribute("xsd")).toString() %>'>schema</a>                    
             </div>
     </div>
             <div class="footer"><p>Copyright &copy; 2012 Empower Consortium | All Rights Reserved</p></div>

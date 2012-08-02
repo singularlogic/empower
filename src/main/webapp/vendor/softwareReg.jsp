@@ -7,6 +7,11 @@
         <link rel="stylesheet" type="text/css" href="../style/layout4_setup.css"/>
         <link rel="stylesheet" type="text/css" href="../style/layout4_text.css"/>
         <link rel="stylesheet" type="text/css" href="../style/container.css"/>
+        
+        <link rel="stylesheet" type="text/css" href="./style/menu_style.css"/>
+        <link rel="stylesheet" type="text/css" href="./style/layout4_setup.css"/>
+        <link rel="stylesheet" type="text/css" href="./style/layout4_text.css"/>
+        <link rel="stylesheet" type="text/css" href="./style/container.css"/>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">        
         <title>Vendor Menu</title>
     </head>
@@ -43,7 +48,7 @@
                         <a class='menuitem' href='./showSoftwareComponent.jsp'>Show software components</a>
                     </div><!--submenuENDdiv-->                
                     <div class='submenu1'>
-                        <a class='menuitem' href='/Controller?op=signout'>Logout</a>
+                        <a class='menuitem' href='/DIController?op=signout'>Logout</a>
                     </div><!--submenuENDdiv--> 
             </div>
             </div>
@@ -64,7 +69,7 @@
                     if(softwareVersion==null)
                         softwareVersion = new String("");
                 %>
-                <form method="POST" action='../<%= operation.toString() %>' name="soft_registration">
+                <form method="POST" action='/empower/<%= operation.toString() %>' name="soft_registration">
                     <table>
                         <tbody>
                             <tr>

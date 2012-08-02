@@ -1,73 +1,78 @@
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>core.empower</groupId>
-  <artifactId>empower</artifactId>
-  <packaging>war</packaging>
-  <version>0.0.1-SNAPSHOT</version>
-  <name>Empower core</name>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>core.empower</groupId>
+    <artifactId>empower</artifactId>
+    <packaging>war</packaging>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>Empower core</name>
 
-  <url>http://maven.apache.org</url>
+    <url>http://maven.apache.org</url>
 
-  <dependencies>
+    <dependencies>
 
     <!-- JUnit -->
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.8</version>
-    </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8</version>
+        </dependency>
 
       <!-- SL4J Abstraction -->
-      <dependency>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-api</artifactId>
-          <version>1.6.5</version>
-      </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.6.5</version>
+        </dependency>
 
     <!-- SL4J-log4j Bridge-->
-      <dependency>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-log4j12</artifactId>
-          <version>1.6.5</version>
-      </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.6.5</version>
+        </dependency>
 
       <!-- Servlet -->
 
-      <dependency>
-          <groupId>javax.servlet</groupId>
-          <artifactId>servlet-api</artifactId>
-          <version>2.5</version>
-          <scope>provided</scope>
-      </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+            <scope>provided</scope>
+        </dependency>
 
-      <dependency>
-          <groupId>javax</groupId>
-          <artifactId>javaee-api</artifactId>
-          <version>6.0</version>
-      </dependency>
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+            <version>6.0</version>
+        </dependency>
 
-      <dependency>
-          <groupId>commons-fileupload</groupId>
-          <artifactId>commons-fileupload</artifactId>
-          <version>1.2.2</version>
-      </dependency>
-
-      <dependency>
-          <groupId>xerces</groupId>
-          <artifactId>xercesImpl</artifactId>
-          <version>2.10.0</version>
-      </dependency>
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>1.2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>1.4</version>
+        </dependency>
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>2.10.0</version>
+        </dependency>
 
       <!-- MySQL -->
-      <dependency>
-          <groupId>mysql</groupId>
-          <artifactId>mysql-connector-java</artifactId>
-          <version>5.1.21</version>
-      </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.21</version>
+        </dependency>
 
-  </dependencies>
+    </dependencies>
 
     <build>
         <finalName>empower</finalName>
@@ -112,7 +117,7 @@
                             <goal>deploy</goal>
                         </goals>
 
-                        <!-- patroklos configuration  -->
+                        <!-- patroklos configuration  
                         <configuration>
                             <hostname>192.168.1.201</hostname>
                             <port>9999</port>
@@ -120,14 +125,15 @@
                             <password>jboss</password>
                             <filename>empower.war</filename>
                         </configuration>
-
+                        -->
                         <!-- Local configuration -->
-                        <!--<configuration>
+                        <configuration>
                             <hostname>127.0.0.1</hostname>
                             <port>9999</port>
-                            <filename>bqi.war</filename>
+                            <username>jboss</username>
+                            <password>ego</password>
                         </configuration>
-                        -->
+                        
 
                     </execution>
                 </executions>
@@ -139,7 +145,7 @@
     </build>
 
 
-   <distributionManagement>
+    <distributionManagement>
         <repository>
             <uniqueVersion>true</uniqueVersion>
             <id>ubitech-releases</id>

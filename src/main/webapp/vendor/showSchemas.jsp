@@ -2,16 +2,16 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <link rel="stylesheet" type="text/css" href="../style/menu_style.css"/>
-        <link rel="stylesheet" type="text/css" href="../style/layout4_setup.css"/>
-        <link rel="stylesheet" type="text/css" href="../style/layout4_text_simple.css"/>
-        <link rel="stylesheet" type="text/css" href="../style/container.css"/>
-	<link rel="stylesheet" type="text/css" href="../js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgrid.css">
-	<link rel="stylesheet" type="text/css" href="../js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgrid_skins.css">
-        <script src="../js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxcommon.js"></script>
-	<script src="../js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgrid.js"></script>
-        <script src="../js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgridcell.js"></script>
-        <script src="../js/dhtmlxSuite/dhtmlxGrid/codebase/excells/dhtmlxgrid_excell_link.js"></script>
+        <link rel="stylesheet" type="text/css" href="./style/menu_style.css"/>
+        <link rel="stylesheet" type="text/css" href="./style/layout4_setup.css"/>
+        <link rel="stylesheet" type="text/css" href="./style/layout4_text_simple.css"/>
+        <link rel="stylesheet" type="text/css" href="./style/container.css"/>
+	<link rel="stylesheet" type="text/css" href="./js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgrid.css">
+	<link rel="stylesheet" type="text/css" href="./js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgrid_skins.css">
+        <script src="./js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxcommon.js"></script>
+	<script src="./js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgrid.js"></script>
+        <script src="./js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgridcell.js"></script>
+        <script src="./js/dhtmlxSuite/dhtmlxGrid/codebase/excells/dhtmlxgrid_excell_link.js"></script>
 
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">        
         <title>Vendor Menu</title>
@@ -66,11 +66,11 @@
                 //        grid.attachEvent("onRowSelect", doOnRowSelected);
                         grid.setSkin("light");//set grid skin
                         grid.init();//initialize grid
-                        grid.loadXML('VendorManager?op=show_xsds&software_id=<%= request.getParameter("software_id") %>');
+                        grid.loadXML('VendorManager?op=show_schemas&software_id=<%= request.getParameter("software_id") %>');
 
                 </script>
                 <br>
-                <p><a href='./vendor/serviceReg.jsp?software_name=<%= request.getParameter("software_name") %>'>Add new service</a>
+                <!--<p><a href='./vendor/serviceReg.jsp?software_name=< %= request.getParameter("software_name") %>'>Add new service</a>-->
             </div>
         </div>
             <div class="footer"><p>Copyright &copy; 2012 Empower Consortium | All Rights Reserved</p></div>

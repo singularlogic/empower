@@ -8,19 +8,20 @@ package dataaccesslayer;
  *
  * @author eleni
  */
-public class XSD {
+public class Schema {
 
-    public XSD(int xsd_id, String name) {
-        this.xsd_id = xsd_id;
-        this.name = name;
-    }
-    
-    int xsd_id;
+    int schema_id;
     String name;
     String location;
     int software_id;
- 
     
+    
+    
+    public Schema(int schema_id, String name) {
+        this.schema_id = schema_id;
+        this.name = name;
+    }
+        
 
     public String getLocation() {
         return location;
@@ -46,12 +47,12 @@ public class XSD {
         this.software_id = software_id;
     }
 
-    public int getXsd_id() {
-        return xsd_id;
+    public int getSchema_id() {
+        return schema_id;
     }
 
-    public void setXsd_id(int xsd_id) {
-        this.xsd_id = xsd_id;
+    public void setSchema_id(int xsd_id) {
+        this.schema_id = schema_id;
     }
    
 }

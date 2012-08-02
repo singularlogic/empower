@@ -24,9 +24,13 @@ public class dbConnector {
 	{                   
                 String url = "jdbc:mysql://127.0.0.1:3306/";
                 String dbName = "empower";
+                //String dbName = "empower_database";
                 String driver = "com.mysql.jdbc.Driver";
                 String userName = "empower";
                 String password = "!empower!";
+                //String userName = "root";
+                //String password = "ego";
+  
   
                 Class.forName(driver).newInstance();
                 dbConnection = DriverManager.getConnection(url+dbName,userName,password);

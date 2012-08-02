@@ -4,8 +4,9 @@
  */
 package vendorports;
 
+import dataaccesslayer.Operation;
 import dataaccesslayer.SoftwareComponent;
-import dataaccesslayer.XSD;
+import dataaccesslayer.Schema;
 import dataaccesslayer.dbConnector;
 import java.sql.ResultSet;
 import java.util.Collection;
@@ -105,8 +106,9 @@ public class VendorDBConnector {
 
             if (rs != null) {
                 while (rs.next()) {
-                    rsServ = dbHand.dbQuery("select count(xsd_id) as rows from softwarecomponent a,"
-                            + " xsd b, vendor c where c.name='" + vendor + "' and a.vendor_id=c.vendor_id and a.software_id=b.software_id;");
+                   
+                    rsServ = dbHand.dbQuery("select count(s.schema_id) as rows from operation o LEFT JOIN web_service ws on o.service_id=ws.service_id LEFT JOIN operation_schema os  on o.operation_id = os.operation_id LEFT JOIN schema_xsd  s  on os.schema_id = s.schema_id where ws.software_id="+rs.getString("software_id"));
+                                       
                     rsServ.next();
                     compList.add(new SoftwareComponent(rs.getString("name"),
                             rs.getString("version"),
@@ -127,43 +129,55 @@ public class VendorDBConnector {
         return compList;
     }
 
-    public int insertXSDInfo(int software_id, String XSDName, String XSDFilename, String xmlRepPath) {
-        int xsd_id= -1;
+    public int insertSchemaInfo(int software_id, String XSDName, String XSDFilename, String xmlRepPath,String web_service_name,String operation_name,String inputoutput ) {
+        int schema_id= -1, service_id = -1, operation_id= -1 ,operation_schema_id= -1;
         String version = new String("");
         String filename = null;
 
         try {
             this.dbHandler.dbOpen();
 
-            xsd_id = this.dbHandler.dbUpdate("insert into xsd(location,name,software_id) values('"
-                    + XSDFilename + "','" + XSDName + "'," + software_id + ");");
+            service_id = this.dbHandler.dbUpdate("INSERT INTO web_service(name,software_id) VALUES ('"+web_service_name+"',"+software_id+")");
+             System.out.println("service_id" +service_id);
+
+            operation_id = this.dbHandler.dbUpdate("INSERT INTO operation(name,service_id,taxonomy_id) VALUES ('"+operation_name+"',"+service_id+",1)");
+             System.out.println("operation_id" +operation_id);
+           
+             schema_id = this.dbHandler.dbUpdate("INSERT INTO schema_xsd(location,name) VALUES ('"+XSDFilename+"','"+XSDName+"')");
+             System.out.println("schema_id" +schema_id);
+            
+            operation_schema_id= this.dbHandler.dbUpdate("INSERT INTO operation_schema(operation_id, schema_id, inputoutput) VALUES ("+operation_id+","+schema_id+",'"+inputoutput+"')");
+             System.out.println("operation_schema_id" +operation_schema_id);
 
             this.dbHandler.dbClose();
         } catch (Throwable t) {
             t.printStackTrace();
-            System.out.println("Insert XSD " + t);
+            System.out.println("Insert Schema " + t);
 
         }
 
-        return xsd_id;
+        return schema_id;
     }
     
     
-      public Collection getXSDs(String software_id)
+      public Collection getSchemas(String software_id)
     {
         ResultSet rs;
-        LinkedList<XSD> XSDList = new LinkedList<XSD>();
+        LinkedList<Schema> XSDList = new LinkedList<Schema>();
         
 	try{
             
             this.dbHandler.dbOpen();
-            rs = this.dbHandler.dbQuery("select a.name, a.xsd_id from xsd a, softwarecomponent b where " 
-                                        + "b.software_id='" + software_id +"' and b.software_id=a.software_id;");
+            
+            rs= this.dbHandler.dbQuery("select s.schema_id as schema_id,s.name as schema_name from operation o LEFT JOIN web_service ws on o.service_id=ws.service_id LEFT JOIN operation_schema os  on o.operation_id = os.operation_id LEFT JOIN schema_xsd  s  on os.schema_id = s.schema_id where ws.software_id="+software_id);
+           
+            // rs = this.dbHandler.dbQuery("select a.name, a.xsd_id from xsd a, softwarecomponent b where " 
+           //                             + "b.software_id='" + software_id +"' and b.software_id=a.software_id;");
 
             if(rs != null)
             {
                 while(rs.next())
-                    XSDList.add(new XSD(rs.getInt("xsd_id"), rs.getString("name") ));
+                    XSDList.add(new Schema(rs.getInt("schema_id"), rs.getString("schema_name") ));
             }
             
             rs.close();
@@ -177,4 +191,52 @@ public class VendorDBConnector {
 
         return XSDList;
     }
+      
+      
+       public LinkedList<Operation> getOperationsBySchema(int schema_id)
+    {
+        ResultSet rs;
+        LinkedList<Operation> OperationList = new LinkedList<Operation>();
+        
+	try{
+            
+            this.dbHandler.dbOpen();
+            
+            rs= this.dbHandler.dbQuery("select ws.service_id as service_id,ws.name as web_service_name ,o.operation_id as operation_id ,o.name as operation_name, s.schema_id as schema_id from schema_xsd s LEFT JOIN operation_schema os  on s.schema_id = os.schema_id LEFT JOIN operation o  on o.operation_id = os.operation_id LEFT JOIN web_service ws  on ws.service_id = o.service_id where s.schema_id="+schema_id);
+           
+            
+            if(rs != null)
+            {
+                while(rs.next())
+                    OperationList.add(new Operation(rs.getInt("operation_id"), rs.getString("operation_name"),rs.getInt("service_id"),rs.getString("web_service_name"),rs.getInt("schema_id") ));
+            }
+            
+            rs.close();
+            
+            this.dbHandler.dbClose();
+	}
+	catch(Throwable t)
+	{
+		t.printStackTrace(); 
+	}
+
+        return OperationList;
+    }
+       
+       
+       
+       
+       public void insertTaxonomyToOperation (int operation_id, String funcSelections){
+       
+       try {
+            this.dbHandler.dbOpen();
+
+            this.dbHandler.dbUpdate("update operation set taxonomy_id='" + funcSelections + "' where operation_id=" + operation_id);           
+            this.dbHandler.dbClose();
+        } catch (Throwable t) {
+            t.printStackTrace();
+            System.out.println("Insert Taxonomy " + t);
+
+        }
+       }
 }
