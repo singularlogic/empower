@@ -117,7 +117,7 @@
                             <goal>deploy</goal>
                         </goals>
 
-                        <!-- patroklos configuration  
+                        <!-- patroklos configuration  -->
                         <configuration>
                             <hostname>192.168.1.201</hostname>
                             <port>9999</port>
@@ -125,15 +125,15 @@
                             <password>jboss</password>
                             <filename>empower.war</filename>
                         </configuration>
-                        -->
-                        <!-- Local configuration -->
+                        
+                        <!-- Local configuration 
                         <configuration>
                             <hostname>127.0.0.1</hostname>
                             <port>9999</port>
                             <username>jboss</username>
                             <password>ego</password>
                         </configuration>
-                        
+                        -->
 
                     </execution>
                 </executions>
