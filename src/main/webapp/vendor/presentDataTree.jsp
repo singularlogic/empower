@@ -62,28 +62,17 @@
             </div>
         </div>
             <div class="main-content">
-                <p><h2>Function Taxonomy</h2>
-                <br>
-                <div id="box_tree_func" style="width:500px; height:300px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;"/>
-                <script>
-                        treeFunc = new dhtmlXTreeObject("box_tree_func", "100%", "100%", 0);
-                        treeFunc.setImagePath("http://localhost:8080/Semantix/js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
-                        treeFunc.enableCheckBoxes(true, false);
-                        treeFunc.loadXML('../ontologies/functional_tax_facet.xml', null);
-//                        treeFunc.loadXML('../VendorManager?op=present_ftaxonomy', null);
-//                        tree.loadXML('ManageServices?op=show_serv_bind&software_name=<%= request.getParameter("software_name") %>', null);
-                </script>
-                </div>
                 <br>
                 <p><h2>Service messages</h2>
                 <br>
                 <div id="box_tree" style="width:500px; height:400px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;"/>
                 <script>
                         tree = new dhtmlXTreeObject("box_tree", "100%", "100%", 0);
-                        tree.setImagePath("js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
+                        tree.setImagePath("../js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
                         tree.enableCheckBoxes(true, false);
-                        tree.loadXML('../VendorManager?op=present_service&service_id=<%= request.getParameter("service_id") %>', null);
-//                        tree.loadXML('ManageServices?op=show_serv_bind&software_name=<%= request.getParameter("software_name") %>', null);
+                        tree.loadXML('../VendorManager?op=present_service_schema&schema_id=<%= request.getParameter("schema_id") %>', null);
+
+                       // tree.loadXML('../VendorManager?op=present_service&service_id=<%= request.getParameter("service_id") %>', null);
                 </script>
                 </div>
                 <br>
@@ -92,15 +81,15 @@
                 <div id="central_tree" style="width:500px; height:200px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;"/>
                 <script>
                     centralTree = new dhtmlXTreeObject("central_tree", "100%", "100%", 0);
-                    centralTree.setImagePath("js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
+                    centralTree.setImagePath("../js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
                     centralTree.enableCheckBoxes(true, false);
                     centralTree.loadXML('../VendorManager?op=present_central_trees', null);
                 </script>                
                 </div>                
                 <br>
                 <form method="post" name="annotationf" action="../VendorManager?op=annotate" onClick="replaceValue();">
-                    <input type='hidden' name='service_id' value='<%= request.getParameter("service_id") %>'>
-                    <input type='hidden' name='exposed'  value='<%= request.getParameter("exposed") %>'>
+                    <input type='hidden' name='schema_id' value='<%= request.getParameter("schema_id") %>'>
+                    <!--<input type='hidden' name='exposed'  value='< %= request.getParameter("exposed") %>'>-->
                     <input type='hidden' name='selections'  value='null'>
                     <input type='hidden' name='centraltree'  value='null'>                                        
                     <input type="submit" value="Annotate" name="annotate_button">

@@ -7,6 +7,7 @@ package vendorports;
 import dataaccesslayer.Operation;
 import dataaccesslayer.SoftwareComponent;
 import dataaccesslayer.Schema;
+import dataaccesslayer.Service;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -24,6 +25,7 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.xml.sax.SAXException;
+import xml.XSDParser;
 
 /**
  *
@@ -32,7 +34,6 @@ import org.xml.sax.SAXException;
 public class VendorManager extends HttpServlet {
 
     private PrintWriter out;
-    private boolean isInputMessageType = false;
     private static String xml_rep_path = "/home/eleni/Documents/ubi/empower/empower-deliverable-september/empower";
 
     /**
@@ -74,10 +75,18 @@ public class VendorManager extends HttpServlet {
                     this.deleteSoftware(request, response, session);
                 } else if (operation.equals("present_service_operations")) {
                     this.presentServiceOperationsTree(request, response, session);
-                }else if(operation.equals("annotate_operations"))
-                     this.annotateOperations(request, response, session);
-
-
+                } else if (operation.equals("annotate_operations")) {
+                    this.annotateOperations(request, response, session);
+                } else if (operation.equals("present_central_trees")) {
+                    this.presentOptionTrees(request, response, session);
+                } else if (operation.equals("present_service_schema")) {
+                    this.presentServiceSchemaTree(request, response, session);
+                } else if(operation.equals("annotate"))
+                {
+                 System.out.println("gamisouuuuuuuuuuuuuuuu");   
+                 this.annotate(request, response, session);
+                }
+                     
 
             }
         } catch (Throwable t) {
@@ -270,8 +279,8 @@ public class VendorManager extends HttpServlet {
         while (XSDIterator.hasNext()) {
             Schema schema = (Schema) XSDIterator.next();
             out.write("<row id=\"" + schema.getSchema_id() + "\"><cell>" + schema.getName() + "</cell>"
-                    + "<cell> Annotate Data of Schema^./vendor/presentXSDTree.jsp?xsd_id=" + schema.getSchema_id() + "^_self</cell>"
                     + "<cell> Annotate Operations^./vendor/presentOperationTree.jsp?schema_id=" + schema.getSchema_id() + "^_self</cell>"
+                    + "<cell> Annotate Data^./vendor/presentDataTree.jsp?schema_id=" + schema.getSchema_id() + "^_self</cell>"
                     //+ "<cell>Annotate Data^./vendor/presentServiceTree.jsp?service_id=" + schema.getSchema_id()+ "^_self</cell>"
                     //+ "<cell>Annotate Functions^./vendor/presentServiceFunctionTree.jsp?service_id=" + schema.getSchema_id()+ "^_self</cell>"
                     + "</row>");
@@ -299,22 +308,22 @@ public class VendorManager extends HttpServlet {
         //wsdlParser.outputFunctionsToXML(response.getWriter());
     }
 
-    protected void presentServiceTree(HttpServletRequest request, HttpServletResponse response, HttpSession session)
-            throws IOException, ServletException {
-        /*
-         * int serviceID = Integer.parseInt(request.getParameter("service_id"));
-         *
-         * VendorDBConnector vendorDBConnector = new VendorDBConnector();
-         * Service service = vendorDBConnector.getService(serviceID);
-         * response.setContentType("text/xml; charset=UTF-8");
-         *
-         * WSDLParser wsdlParser = new WSDLParser(service.getWsdl(),
-         * service.getNamespace()); wsdlParser.loadService(service.getName());
-         * wsdlParser.outputToXML(response.getWriter());
-         *
-         * SAXParser saxparser= new SAXParser();
-         */
-        //this.forwardToPage("/vendormenu.jsp", request, response);
+    protected void presentServiceSchemaTree(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws IOException, ServletException, ParserConfigurationException, SAXException {
+
+        int schema_id = Integer.parseInt(request.getParameter("schema_id"));
+
+        VendorDBConnector vendorDBConnector = new VendorDBConnector();
+        Schema schema = vendorDBConnector.getSchema(schema_id);
+        System.out.println("schema location: "+ schema.getLocation());
+
+        XSDParser p = new XSDParser(schema);
+        String xml_string = p.convertSchemaToXML();
+        System.out.println("xml_string: "+ xml_string);
+
+        response.setContentType("text/xml; charset=UTF-8");
+        PrintWriter out = response.getWriter();
+        out.write(xml_string);
     }
 
     public void outputOperationsToXML(PrintWriter out, LinkedList<Operation> operations) {
@@ -370,26 +379,86 @@ public class VendorManager extends HttpServlet {
             t.printStackTrace();
         }
     }
-    
-    
+
     protected void annotateOperations(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws IOException, ServletException, ParserConfigurationException, SAXException, XPathExpressionException {
+        int schema_id = Integer.parseInt((String) request.getParameter("schema_id"));
+        int operation_id = Integer.parseInt((String) request.getParameter("selections"));
+        String funcSelections = request.getParameter("funcselections");
+        String name = (String) session.getAttribute("name");
+
+        System.out.println(funcSelections + " " + schema_id + " " + operation_id + " " + name);
+
+        VendorDBConnector vendorDBConnector = new VendorDBConnector();
+
+        vendorDBConnector.insertTaxonomyToOperation(operation_id, funcSelections);
+
+        //vendorDBConnector.insertCVPFunction(funcSelections, serviceID, selections, name);
+
+        this.forwardToPage("/vendor/annotationResult.jsp?schema_id=" + schema_id, request, response);
+    }
+
+    protected void presentOptionTrees(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws IOException, ServletException {
+        response.setContentType("text/xml; charset=UTF-8");
+        PrintWriter out = response.getWriter();
+
+        out.write("<?xml version='1.0' encoding='UTF-8'?><tree id='0'><item text='accountingEntriesComplexType' id='accountingEntriesComplexType'>"+
+		"<item text='documentInfo' id='documentInfo'/><item text='entityInformation' id='entityInformation'/><item text='entryHeader' id='entryHeader\'>"+
+	        "<item text='entryDetail' id='entryDetail'/></item></item></tree>");
+
+        out.flush();
+        out.close();
+        
+    }
+    
+    
+        protected void annotate(HttpServletRequest request, HttpServletResponse response, HttpSession session)
     throws IOException, ServletException, ParserConfigurationException, SAXException, XPathExpressionException
     {
-        int schema_id = Integer.parseInt((String)request.getParameter("schema_id"));
-        int operation_id = Integer.parseInt((String)request.getParameter("selections"));
-        String funcSelections = request.getParameter("funcselections");
-        String name = (String)session.getAttribute("name");
 
-        System.out.println(funcSelections + " " + schema_id +" "+ operation_id +" "+ name);
+        System.out.println("Eimai mesa ston annotate1 ");
+        int schema_id = Integer.parseInt((String)request.getParameter("schema_id"));
+        System.out.println("schema_id "+schema_id);
+        System.out.println("schema_id "+(String)request.getParameter("selections"));
+        String schema_data = ((String)request.getParameter("selections")).split("--")[0];
+         System.out.println("schema_data "+schema_data);
+        String inputoutput = ((String)request.getParameter("selections")).split("--")[1];
+        System.out.println("inputoutput "+inputoutput);
+        String centralTree = request.getParameter("centraltree");
+        System.out.println("centralTree "+centralTree);
+        String mapping = null;
         
-        VendorDBConnector vendorDBConnector = new VendorDBConnector();
+       System.out.println("Eimai mesa ston annotate ");
+ 
+       VendorDBConnector vendorDBConnector = new VendorDBConnector();
+       Schema schema = vendorDBConnector.getSchema(schema_id);
+       System.out.println("location "+schema.getLocation());
+       String filename = ((String)schema.getLocation()).split("/xsd/")[1];
+       
+       System.out.println("filename "+filename);
+
         
-        vendorDBConnector.insertTaxonomyToOperation(operation_id, funcSelections);
-      
-        //vendorDBConnector.insertCVPFunction(funcSelections, serviceID, selections, name);
-      
-        this.forwardToPage("/vendor/annotationResult.jsp?schema_id="+schema_id, request, response);        
-   }  
+         if(inputoutput=="output")
+             
+            response.sendRedirect(response.encodeRedirectURL("http://127.0.0.1:8080/annotator?input=xsd/XBRL-GL-PR-2010-04-12/plt/case-c-b-m/gl-cor-content-2010-04-12.xsd&output=xsd/" + filename + "&schema_id=" + schema_id + "&map_type=cvp&outputType=" + schema_data +"&inputType=" + centralTree+mapping));
+        else
+            response.sendRedirect(response.encodeRedirectURL("http://127.0.0.1:8080/annotator?input=xsd/" + filename + "&output=xsd/XBRL-GL-PR-2010-04-12/plt/case-c-b-m/gl-cor-content-2010-04-12.xsd&schema_id=" + schema_id + "&map_type=cvp&outputType=" + centralTree + "&inputType=" + schema_data));
+
+/*
+        mapping = vendorDBConnector.getMapping(selections, serviceID);
+        if(mapping!=null)
+        {
+            mapping = new String(mapping.replace("\\", "%5C%5C%5C%5C"));
+            mapping = new String("&mapping=" + mapping.replace("\"", "%5C%22"));
+            System.out.println(" ============ mapping=" + mapping);
+        }
+        else
+            mapping = new String("");
+  */      
+       
+    } 
+
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**

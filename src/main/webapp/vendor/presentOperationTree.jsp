@@ -56,20 +56,7 @@
                     </div><!--submenuENDdiv--> 
             </div>
         </div>    
-            <div class="main-content">
-                <br>
-                <p><h2>Operations Taxonomy</h2>
-                <br>
-                <div id="box_tree_func" style="width:500px; height:300px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;"/>
-                <script>
-                        treeFunc = new dhtmlXTreeObject("box_tree_func", "100%", "100%", 0);
-                        treeFunc.setImagePath("../js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
-                        treeFunc.enableCheckBoxes(true, false);
-                        treeFunc.loadXML('../ontologies/functional_tax_facet.xml', null);                        
-//                        treeFunc.loadXML('../VendorManager?op=present_ftaxonomy', null);
-//                        tree.loadXML('ManageServices?op=show_serv_bind&software_name=<%= request.getParameter("software_name") %>', null);
-                </script>
-                </div>     
+            <div class="main-content"> 
                 <br>
                 <p><h2>Operations</h2>
                 
@@ -83,6 +70,20 @@
                         tree.loadXML('../VendorManager?op=present_service_operations&schema_id=<%= request.getParameter("schema_id") %>', null);
                 </script>
                 </div>
+                
+                <br>
+                <p><h2>Operations Taxonomy</h2>
+                <br>
+                <div id="box_tree_func" style="width:500px; height:300px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;"/>
+                <script>
+                        treeFunc = new dhtmlXTreeObject("box_tree_func", "100%", "100%", 0);
+                        treeFunc.setImagePath("../js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
+                        treeFunc.enableCheckBoxes(true, false);
+                        treeFunc.loadXML('../ontologies/functional_tax_facet.xml', null);                        
+//                        treeFunc.loadXML('../VendorManager?op=present_ftaxonomy', null);
+//                        tree.loadXML('ManageServices?op=show_serv_bind&software_name=<%= request.getParameter("software_name") %>', null);
+                </script>
+                </div>     
 
                 <br><br>
                 <form method="post" name="annotationf" action="../VendorManager?op=annotate_operations" onClick="replaceValue();">

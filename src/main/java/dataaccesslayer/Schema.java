@@ -14,12 +14,46 @@ public class Schema {
     String name;
     String location;
     int software_id;
+    String operation;
+    String service;
+    String inputoutput;
     
     
-    
-    public Schema(int schema_id, String name) {
+     public Schema(int schema_id, String name) {
         this.schema_id = schema_id;
         this.name = name;
+    }
+
+    public Schema() {
+    }
+    
+    public Schema(int schema_id, String name,String location) {
+        this.schema_id = schema_id;
+        this.name = name;
+    }
+
+    public String getInputoutput() {
+        return inputoutput;
+    }
+
+    public void setInputoutput(String inputoutput) {
+        this.inputoutput = inputoutput;
+    }
+
+    public String getOperation() {
+        return operation;
+    }
+
+    public void setOperation(String operation) {
+        this.operation = operation;
+    }
+
+    public String getService() {
+        return service;
+    }
+
+    public void setService(String service) {
+        this.service = service;
     }
         
 

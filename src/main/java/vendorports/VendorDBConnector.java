@@ -239,4 +239,39 @@ public class VendorDBConnector {
 
         }
        }
+       
+       
+       public Schema getSchema(int schema_id)
+       {
+           ResultSet rs;
+           Schema schema = new Schema();
+           
+           try{
+            this.dbHandler.dbOpen();
+            
+            rs= this.dbHandler.dbQuery("select ws.service_id as service_id,ws.name as web_service_name ,o.operation_id as operation_id ,o.name as operation_name, s.schema_id as schema_id , s.location as schema_location, s.name as schema_name, os.inputoutput as inputoutput from schema_xsd s LEFT JOIN operation_schema os  on s.schema_id = os.schema_id LEFT JOIN operation o  on o.operation_id = os.operation_id LEFT JOIN web_service ws  on ws.service_id = o.service_id where s.schema_id="+schema_id);
+           
+            
+            if(rs != null)
+            {
+                
+                while(rs.next())
+                {
+                    schema.setSchema_id(rs.getInt("schema_id"));
+                    schema.setName(rs.getString("schema_name"));
+                    schema.setLocation(rs.getString("schema_location"));
+                    schema.setService(rs.getString("web_service_name"));
+                    schema.setOperation(rs.getString("operation_name"));
+                    schema.setInputoutput(rs.getString("inputoutput"));
+                }
+            }
+            
+            rs.close();
+            
+            this.dbHandler.dbClose();
+           }catch(Throwable t){
+           }
+           
+           return schema;
+       }
 }
