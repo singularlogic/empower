@@ -6,14 +6,13 @@ package maincontrol;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import vendorports.VendorDBConnector;
 
 /**
  *
@@ -59,6 +58,8 @@ public class DIController extends HttpServlet {
                     this.manageShowSchema(request, response, session);
                 else if (operation.equals("schema_reg"))
                 this.manageVendorSchemaReg(request, response, session);
+                else if (operation.equals("post_mappings"))
+                    this.managePostMappings(request, response, session);
                 else if (operation.equals("fileupload")) {
                     System.out.println("I am iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiin!!!");
                     this.managefileUpload(request, response, session);
@@ -205,6 +206,61 @@ public class DIController extends HttpServlet {
         else
             this.forwardToPage("/error/generic_error.jsp?errormsg=op_not_supported_for_you", request, response);
     }  
+     
+       protected void managePostMappings(HttpServletRequest request,HttpServletResponse response,HttpSession session)
+    throws IOException, ServletException
+    {
+        String json = request.getParameter("json");
+        
+        String xml  = request.getParameter("xml");
+        String mapType = request.getParameter("map_type");
+        int schema_id = Integer.parseInt(request.getParameter("service_id"));
+        //String redirectionURL = new String("/vendor/annotationResult.jsp");
+        String name = (String) request.getSession().getAttribute("name");
+
+        
+        String selections = request.getParameter("selections");
+        //String service = (String)session.getAttribute("service");
+        //String userType = (String) request.getSession().getAttribute("userType");
+        
+        VendorDBConnector vendorDBConnector = new VendorDBConnector();
+        //System.out.println("XML=" + xml + "\n\njson=" + json);
+        
+        if(mapType.equals("cvp"))
+        {
+        
+         Integer cvpID = new Integer(vendorDBConnector.insertCVP(xml, schema_id, name, json,selections)); 
+         this.forwardToPage("/vendor/annotationResult.jsp?schema_id=" + schema_id+"&dataannotation='true'", request, response);
+         } 
+        /*
+            System.out.println("isfullymatched " + vendorDBConnector.isFullyMatched(0, serviceID, cvpID));
+            if(vendorDBConnector.isFullyMatched(0, serviceID, cvpID))
+                this.forwardToPage("/SemanticPublish?op=publish&service_id="+ serviceID + "&cvp_id=" + cvpID, request, response);
+            else
+                this.forwardToPage(redirectionURL, request, response);              
+        
+       
+        else if(mapType.equals("cpp"))
+        {
+            System.out.println(" POST " + selections + " //// " + name);
+            Integer cvpID = (Integer)request.getSession().getAttribute("cvp_id");
+            System.out.println(" POST " + selections + " //// " + name + cvpID);            
+            int cpp = vendorDBConnector.insertCPP(xml, serviceID, selections, name, cvpID);
+            System.out.println(" POST  //// " + cpp);            
+       
+            if(vendorDBConnector.isFullyMatched(cpp, serviceID, cvpID))
+                this.forwardToPage("/SemanticPublish?op=publish&service_id="+ serviceID + "&cpp_id=" + cpp, request, response);
+            else
+                this.forwardToPage(redirectionURL, request, response);        
+        }
+        else if(mapType.equals("functions"))
+        {
+            vendorDBConnector.insertCVPFunction(xml, serviceID, selections, name);
+            this.forwardToPage(redirectionURL, request, response);        
+        }*/
+
+    } 
+    
 
     protected void managefileUpload(HttpServletRequest request,
             HttpServletResponse response,

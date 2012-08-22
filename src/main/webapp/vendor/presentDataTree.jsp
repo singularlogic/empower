@@ -1,7 +1,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
-<head>    
+<head>  
 <script>
         function replaceValue()
         {
@@ -14,6 +14,9 @@
         {
             alert(centralTree.getAllChecked());
         }
+        
+       
+        
 </script>
 <title>Presenting service in tree form</title>
         <link rel="stylesheet" type="text/css" href="../style/menu_style.css"/>
@@ -87,6 +90,7 @@
                 </script>                
                 </div>                
                 <br>
+                
                 <form method="post" name="annotationf" action="../VendorManager?op=annotate" onClick="replaceValue();">
                     <input type='hidden' name='schema_id' value='<%= request.getParameter("schema_id") %>'>
                     <!--<input type='hidden' name='exposed'  value='< %= request.getParameter("exposed") %>'>-->
@@ -94,7 +98,6 @@
                     <input type='hidden' name='centraltree'  value='null'>                                        
                     <input type="submit" value="Annotate" name="annotate_button">
                 </form>
-
             </div>
     </div>
             <div class="footer"><p>Copyright &copy; 2012 Empower Consortium | All Rights Reserved</p></div>

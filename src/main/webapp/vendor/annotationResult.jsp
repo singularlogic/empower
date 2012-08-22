@@ -53,7 +53,11 @@
                 <br>
                 <p><h2>Action was successful</h2>
                 <br>
+                <% if (((String)session.getAttribute("xsd")).toString() == "true") {%>
+                <p>Annotation for the data of the schema was successful. 
+                <% } else { %>
                 <p>Annotation for service operation was successful. 
+                <% } %>
                 <p>Return back to <a href='DIController?op=show_schema&xsd=<%= ((String)session.getAttribute("xsd")).toString() %>'>schema</a>                    
             </div>
     </div>
