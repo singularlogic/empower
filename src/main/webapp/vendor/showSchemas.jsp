@@ -60,7 +60,7 @@
                 <script>
                         grid = new dhtmlXGridObject("box_grid");
                         grid.setImagePath("js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");
-                        grid.setHeader("Service name,Action, ");//set column names
+                        grid.setHeader("Schema name,Action, ");//set column names
                         grid.setColTypes("ro,link,link");
 
                 //        grid.attachEvent("onRowSelect", doOnRowSelected);
@@ -71,7 +71,9 @@
                 </script>
                 <br>
                 <!--<p><a href='./vendor/serviceReg.jsp?software_name=< %= request.getParameter("software_name") %>'>Add new service</a>-->
-            </div>
+                <p><a href='./vendor/SchemaReg.jsp?software_id=<%= request.getParameter("software_id")%>&jsp=true'>Add new schema to the current Software Component</a>
+            
+        </div>
         </div>
             <div class="footer"><p>Copyright &copy; 2012 Empower Consortium | All Rights Reserved</p></div>
     </center>

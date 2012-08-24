@@ -4,14 +4,18 @@
  */
 package maincontrol;
 
+import dataaccesslayer.Service;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Iterator;
+import java.util.LinkedList;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import net.sf.json.JSONObject;
 import vendorports.VendorDBConnector;
 
 /**
@@ -60,6 +64,8 @@ public class DIController extends HttpServlet {
                 this.manageVendorSchemaReg(request, response, session);
                 else if (operation.equals("post_mappings"))
                     this.managePostMappings(request, response, session);
+                else if (operation.equals("show_bridging_schemas"))
+                    this.manageBridgingSchemas(request, response, session);
                 else if (operation.equals("fileupload")) {
                     System.out.println("I am iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiin!!!");
                     this.managefileUpload(request, response, session);
@@ -179,11 +185,31 @@ public class DIController extends HttpServlet {
         String software_id = ((String)request.getParameter("xsd")).split("_")[2];
         session.setAttribute("xsd", (String)request.getParameter("xsd"));
         
+        
+        MainControlDB mainControlDB = new MainControlDB();
+        LinkedList<Service>  services = (LinkedList<Service>) mainControlDB.getServices(software_id);
+        System.out.println("services: "+ services + "lenght: "+ services.size());
+        if (services.size()>0){
+             System.out.println("giati mpaino mesa?");
+       
+            JSONObject json_services = new JSONObject();
+            Iterator serv_iterator = services.iterator();
+            while(serv_iterator.hasNext())
+                {
+            Service serv = (Service)   serv_iterator.next();
+            json_services.put(serv.getService_id(), serv.getName());
+            }
+            session.setAttribute("services", json_services);
+        }else{
+         System.out.println("eimai ekso");
+         session.setAttribute("services", "");
+        }
+        
         if(verifyUser("vendor", session))
         {    
             // if software component without an xsd
             if(xsd_num.equals("0"))
-                this.forwardToPage("/vendor/SchemaReg.jsp?software_id=" + software_id, request, response);
+                this.forwardToPage("/vendor/SchemaReg.jsp?software_id=" + software_id+"&jsp=false", request, response);
             else
                 this.forwardToPage("/vendor/showSchemas.jsp?software_id=" + software_id, request, response);
         }
@@ -260,6 +286,18 @@ public class DIController extends HttpServlet {
         }*/
 
     } 
+       
+    protected void   manageBridgingSchemas(HttpServletRequest request,HttpServletResponse response,HttpSession session)
+            throws ServletException, IOException {
+       
+        String software_id = request.getParameter("software_id");
+        
+        if(verifyUser("organization", session))
+        {
+        this.forwardToPage("/organization/showAvailableSources.jsp?software_id=" + software_id, request, response);
+    
+        }
+    }
     
 
     protected void managefileUpload(HttpServletRequest request,

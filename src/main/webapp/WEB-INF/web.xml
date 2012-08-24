@@ -16,6 +16,10 @@
         <servlet-name>VendorManager</servlet-name>
         <servlet-class>vendorports.VendorManager</servlet-class>
     </servlet>
+     <servlet>
+        <servlet-name>OrganizationManager</servlet-name>
+        <servlet-class>orgports.OrganizationManager</servlet-class>
+    </servlet>
     <servlet>
         <servlet-name>registration</servlet-name>
         <jsp-file>/WEB-INF/vendor/software_reg.jsp</jsp-file>
@@ -40,6 +44,10 @@
     <servlet-mapping>
         <servlet-name>VendorManager</servlet-name>
         <url-pattern>/VendorManager</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>OrganizationManager</servlet-name>
+        <url-pattern>/OrganizationManager</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

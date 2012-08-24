@@ -14,15 +14,35 @@ public class Schema {
     String name;
     String location;
     int software_id;
+    int operation_id;
     String operation;
+    String op_taxonomy_id;
+    int service_id;
     String service;
     String inputoutput;
     
-    
-     public Schema(int schema_id, String name) {
+   
+    public Schema(int service_id , String ws_name, int operation_id,String operation_name,String op_taxonomy_id,String inputoutput,int schema_id,String schema_location, String name) {
+        this.service_id = service_id;
+        this.service = ws_name;
+        this.operation_id = operation_id;
+        this.operation = operation_name;
+        this.op_taxonomy_id = op_taxonomy_id;
+        this.inputoutput = inputoutput;
+        this.schema_id = schema_id;
+        this.location = schema_location;
+        this.name = name;
+    }
+
+   
+            
+            
+    public Schema(int schema_id, String name) {
         this.schema_id = schema_id;
         this.name = name;
     }
+     
+    
 
     public Schema() {
     }
@@ -30,6 +50,30 @@ public class Schema {
     public Schema(int schema_id, String name,String location) {
         this.schema_id = schema_id;
         this.name = name;
+    }
+    
+     public String getOp_taxonomy_id() {
+        return op_taxonomy_id;
+    }
+
+    public void setOp_taxonomy_id(String op_taxonomy_id) {
+        this.op_taxonomy_id = op_taxonomy_id;
+    }
+    
+    public int getService_id() {
+        return service_id;
+    }
+
+    public void setService_id(int service_id) {
+        this.service_id = service_id;
+    }
+    
+     public int getOperation_id() {
+        return operation_id;
+    }
+
+    public void setOperation_id(int operation_id) {
+        this.operation_id = operation_id;
     }
 
     public String getInputoutput() {

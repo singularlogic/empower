@@ -2,10 +2,10 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <link rel="stylesheet" type="text/css" href="../style/menu_style.css"/>
-        <link rel="stylesheet" type="text/css" href="../style/layout4_setup.css"/>
-        <link rel="stylesheet" type="text/css" href="../style/layout4_text.css"/>
-        <link rel="stylesheet" type="text/css" href="../style/container.css"/>
+        <link rel="stylesheet" type="text/css" href="style/menu_style.css"/>
+        <link rel="stylesheet" type="text/css" href="style/layout4_setup.css"/>
+        <link rel="stylesheet" type="text/css" href="style/layout4_text.css"/>
+        <link rel="stylesheet" type="text/css" href="style/container.css"/>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">        
         <title>Organization Menu</title>
     </head>
@@ -42,10 +42,7 @@
 
                     <div class='submenu1'>
                         <a class='menuitem' href='organization/presentAvailableProcesses.jsp'>Show Available Processes</a>
-                    </div><!--submenuENDdiv-->                                          
-                    <div class='submenu1'>
-                        <a class='menuitem' href='organization/bpelEditor.jsp'>Compose a BPEL</a>
-                    </div><!--submenuENDdiv-->                      
+                    </div><!--submenuENDdiv-->                                                               
                     <div class='submenu1'>      
                         <a class='menuitem' href='DIController?op=signout'>Logout</a>
                     </div><!--submenuENDdiv-->                     

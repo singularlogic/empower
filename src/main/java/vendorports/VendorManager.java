@@ -200,6 +200,7 @@ public class VendorManager extends HttpServlet {
         // Check that we have a file upload request
 
         String web_service_name = null;
+        String new_web_service_name = null;
         String operation_name = null;
         String schemaFilename = null;
         String schemaName = null;
@@ -240,7 +241,11 @@ public class VendorManager extends HttpServlet {
                     System.out.println("schema_name " + schemaName);
                 } else if (item.getFieldName().equals("web_service_name")) {
                     web_service_name = new String(item.getString());
-                } else if (item.getFieldName().equals("operation_name")) {
+                     System.out.println("web_service_name: " + web_service_name); 
+                }else if (item.getFieldName().equals("new_web_service_name")) {
+                    new_web_service_name = new String(item.getString());
+                     System.out.println("new_web_service_name: " + new_web_service_name); 
+                }else if (item.getFieldName().equals("operation_name")) {
                     operation_name = new String(item.getString());
                 } else if (item.getFieldName().equals("inputoutput")) {
                     inputoutput = new String(item.getString());
@@ -257,7 +262,8 @@ public class VendorManager extends HttpServlet {
         }
 
         VendorDBConnector vendorDBConnector = new VendorDBConnector();
-        schema_id = vendorDBConnector.insertSchemaInfo(software_id, schemaName, schemaFilename, xml_rep_path, web_service_name, operation_name, inputoutput);
+  
+        schema_id = vendorDBConnector.insertSchemaInfo(software_id, schemaName, schemaFilename, xml_rep_path, new_web_service_name , web_service_name, operation_name, inputoutput);
 
 
 
@@ -435,8 +441,8 @@ public class VendorManager extends HttpServlet {
         Schema schema = vendorDBConnector.getSchema(schema_id);
         String filename = ((String) schema.getLocation()).split("/xsd/")[1];
 
-
-        mapping = vendorDBConnector.getMapping(schema_id, schema_data + "$" + centralTree);
+        if (inputoutput.equals("output")) mapping = vendorDBConnector.getMapping(schema_id, centralTree + "$" + schema_data);
+        else  mapping = vendorDBConnector.getMapping(schema_id, schema_data + "$" + centralTree);
 
         if (mapping != null) {
             mapping = new String(mapping.replace("\"", "\\\""));

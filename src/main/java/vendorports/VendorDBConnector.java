@@ -117,7 +117,7 @@ public class VendorDBConnector {
         return compList;
     }
 
-    public int insertSchemaInfo(int software_id, String XSDName, String XSDFilename, String xmlRepPath, String web_service_name, String operation_name, String inputoutput) {
+    public int insertSchemaInfo(int software_id, String XSDName, String XSDFilename, String xmlRepPath, String new_web_service_name,String web_service, String operation_name, String inputoutput) {
         int schema_id = -1, service_id = -1, operation_id = -1, operation_schema_id = -1;
         String version = new String("");
         String filename = null;
@@ -125,8 +125,12 @@ public class VendorDBConnector {
         try {
             this.dbHandler.dbOpen();
 
-            service_id = this.dbHandler.dbUpdate("INSERT INTO web_service(name,software_id) VALUES ('" + web_service_name + "'," + software_id + ")");
-            System.out.println("service_id" + service_id);
+            
+            if (new_web_service_name.equalsIgnoreCase("")){
+            System.out.println("Hola");    
+            service_id = Integer.parseInt(web_service);
+            }else service_id = this.dbHandler.dbUpdate("INSERT INTO web_service(name,software_id) VALUES ('" + new_web_service_name + "'," + software_id + ")");
+            
 
             operation_id = this.dbHandler.dbUpdate("INSERT INTO operation(name,service_id,taxonomy_id) VALUES ('" + operation_name + "'," + service_id + ",1)");
             System.out.println("operation_id" + operation_id);

@@ -4,8 +4,11 @@
  */
 package maincontrol;
 
+import dataaccesslayer.Service;
 import dataaccesslayer.dbConnector;
 import java.sql.ResultSet;
+import java.util.Collection;
+import java.util.LinkedList;
 
 /**
  *
@@ -67,4 +70,35 @@ public class MainControlDB {
             t.printStackTrace();
         }
     }
+
+  public Collection getServices(String software_id) {
+        ResultSet rs;
+        LinkedList<Service> compList = new LinkedList<Service>();
+
+        try {
+
+            this.dbHandler.dbOpen();
+            rs = this.dbHandler.dbQuery("SELECT ws.service_id , ws.name FROM web_service ws where software_id="+software_id);
+
+            dbConnector dbHand = new dbConnector();
+
+            dbHand.dbOpen();
+
+
+            if (rs != null) {
+                while (rs.next()) {
+                    compList.add(new Service(rs.getInt("service_id"),rs.getString("name")));   
+                }
+            }
+
+            rs.close();
+
+            this.dbHandler.dbClose();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+
+        return compList;
+    }
+
 }

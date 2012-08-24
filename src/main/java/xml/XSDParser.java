@@ -32,9 +32,9 @@ public class XSDParser  {
         
          File x = new File(schema.getLocation());
          SAXParserFactory f = SAXParserFactory.newInstance();
-         System.out.println(f.toString());
+         //System.out.println(f.toString());
          SAXParser p = f.newSAXParser();
-         System.out.println(p.toString());
+         //System.out.println(p.toString());
          myParser handler = new myParser();
          p.parse(x, handler);
             
@@ -76,7 +76,7 @@ public class XSDParser  {
 
             if (attributes != null) {
                 for (int i = 0; i < attributes.getLength(); i++) {
-                    xmlToReturn.add("<item text='" + attributes.getValue(i)+"("+schema.getInputoutput()+")" + "' id='" + attributes.getValue(i) +"--"+schema.getInputoutput()+ "' >");
+                    xmlToReturn.add("<item text='" + attributes.getValue(i)+"("+schema.getInputoutput()+")" + "' id='" + attributes.getValue(i) +"--"+schema.getInputoutput()+"--"+ schema.getOperation_id()+"--"+schema.getOp_taxonomy_id()+"' >");
                 }
             }
         }
@@ -90,7 +90,7 @@ public class XSDParser  {
         
         if (qName.equals("xs:schema")) {
             xmlToReturn.add("</item></item></item></tree>");
-           System.out.println(xmlToReturn);
+           //System.out.println(xmlToReturn);
 
         }
         
