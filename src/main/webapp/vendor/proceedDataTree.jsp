@@ -45,10 +45,10 @@
                 <div class='glossymenu'>
                     <a class='menuitem submenuheader1'>Vendor Menu</a>
                     <div class='submenu1'>
-                        <a class='menuitem' href='softwareReg.jsp'>Register new software</a>
+                        <a class='menuitem' href='./vendor/softwareReg.jsp'>Register new software</a>
                     </div><!--submenuENDdiv-->
                     <div class='submenu1'>
-                        <a class='menuitem' href='showSoftwareComponent.jsp'>Show software components</a>
+                        <a class='menuitem' href='./vendor/showSoftwareComponent.jsp'>Show software components</a>
                     </div><!--submenuENDdiv-->
                     <div class='submenu1'>
                         <a class='menuitem' href='./DIController?op=signout'>Logout</a>

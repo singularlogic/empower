@@ -47,7 +47,7 @@
                         <a class='menuitem' href='showSoftwareComponent.jsp'>Show software components</a>
                     </div>
                     <div class='submenu1'>
-                        <a class='menuitem' href='../Controller?op=signout'>Logout</a>
+                        <a class='menuitem' href='./DIController?op=signout'>Logout</a>
                     </div>
             </div>
 

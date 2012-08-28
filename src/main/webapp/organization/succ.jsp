@@ -42,20 +42,25 @@
             <div class="round-border-topright"></div>
             <h1 class="first">Menu</h1>
             <div class='glossymenu'>
-                <a class='menuitem submenuheader1'>Vendor Menu</a>
+                <a class='menuitem submenuheader1'>Organization Menu</a>
                     <div class='submenu1'>
-                        <a class='menuitem' href='./vendor/showSoftwareComponent.jsp'>Show software components</a>
-                    </div><!--submenuENDdiv-->                
+                        <a class='menuitem' href='organization/showSoftwareComponent.jsp'>Show software components</a>
+                    </div><!--submenuENDdiv-->   
+                     <div class='submenu1'>
+                        <a class='menuitem' href='organization/showMyBridges.jsp'>Show My Bridges</a>
+                    </div><!--submenuENDdiv-->  
                     <div class='submenu1'>
-                        <a class='menuitem' href='./DIController?op=signout'>Logout</a>
+                        <a class='menuitem' href='DIController?op=signout'>Logout</a>
                     </div><!--submenuENDdiv--> 
             </div>
         </div>    
             <div class="main-content">
                 <br>
-                <p><h2>Information</h2>
+                <p><h2>Information</h2></p>
                 <br>
-                <p>Action was successful.
+                <p>Action was successful.</p>
+                <p><%=session.getAttribute("message") %></p>
+                <p>Use the bridging <a href='DIController?op=doBridging&cpa_id=<%=request.getParameter("cpa_id") %>'>here</a></p>
             </div>
     </div>
             <div class="footer"><p>Copyright &copy; 2012 Empower Consortium | All Rights Reserved</p></div>

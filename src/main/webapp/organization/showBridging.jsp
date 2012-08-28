@@ -5,15 +5,19 @@
  <script type="text/javascript" src="./js/jquery.js"></script>  
  <script type="text/javascript">                                          
   $(document).ready(function() {
-   $("#get_target_schemas").click(function() {
-
-     $.getJSON('./OrganizationManager?op=showPossibleTargets&selections='+tree.getAllChecked(), function(data) {
+   $("#dobridging").click(function() {
+           
+    alert("hola");
+    
+     $.getJSON('./OrganizationManager?op=doBridging='+$('#fileinput').val(), function(data) {
       //alert(data.selections);
        target_tree = new dhtmlXTreeObject("target_box_tree", "100%", "100%", 0);
        target_tree.setImagePath("./js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
        target_tree.enableCheckBoxes(true, false);
        //target_tree.loadXMLString("<?xml version='1.0' encoding='UTF-8'?><tree id='0'><item text='accountingEntriesComplexType' id='accountingEntriesComplexType'><item text='documentInfoComplexType' id='documentInfoComplexType'/><item text='entityInformationComplexType' id='entityInformationComplexType'/><item text='entryHeaderComplexType' id='entryHeaderComplexType\'><item text='entryDetailComplexType' id='entryDetailComplexType'/></item></item></tree>", null);               
-       target_tree.loadXMLString(data.tree, null);               
+       target_tree.loadXMLString(data.tree, null);   
+       
+       alert(data.target_xml);
    
     });
 
@@ -21,32 +25,17 @@
    });
  });
   
- </script>    
-<script>
-        function replaceValue()
-        {
-            document.forms['annotationf'].elements['selections'].value  = tree.getAllChecked();
-            document.forms['annotationf'].elements['centraltree'].value = centralTree.getAllChecked();                
-        }
-        
-        function assign_selections()
-        {
-            document.forms['create_bridge'].elements['selections_source'].value  = tree.getAllChecked();
-            document.forms['create_bridge'].elements['selections_target'].value = target_tree.getAllChecked();                
-        }
-    
-        function msg()
-        {
-            alert(centralTree.getAllChecked());
-        }
-</script>
+ </script>     
 <title>Presenting service in tree form</title>
         <link rel="stylesheet" type="text/css" href="./style/menu_style.css"/>
         <link rel="stylesheet" type="text/css" href="./style/layout4_setup.css"/>
         <link rel="stylesheet" type="text/css" href="./style/container.css"/>
 	<link rel="stylesheet" type="text/css" href="./js/dhtmlxSuite/dhtmlxTree/codebase/dhtmlxtree.css">
-	<script src="./js/dhtmlxSuite/dhtmlxTree/codebase/dhtmlxcommon.js"></script>
+	<link rel="stylesheet" type="text/css" href="./style/XMLDisplay.css"/>
+        <script src="./js/dhtmlxSuite/dhtmlxTree/codebase/dhtmlxcommon.js"></script>
 	<script src="./js/dhtmlxSuite/dhtmlxTree/codebase/dhtmlxtree.js"></script>
+        <script src="./js/XMLDisplay.js"></script>
+        
 </head>
     <body class="yui-skin-sam">
     <center>
@@ -88,35 +77,30 @@
         </div>
             <div class="main-content" style="width:550px;">
                 <br>
-                <p><h2>Available Source Schemas for the x software component</h2>
-                <br>
-                <div id="box_tree" style="float:left;width:250px; height:400px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;"/>
-                <script>
-                        tree = new dhtmlXTreeObject("box_tree", "100%", "100%", 0);
-                        tree.setImagePath("./js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
-                        tree.enableCheckBoxes(true, false);
-                        tree.loadXML('./OrganizationManager?op=show_bridging_schemas&software_id=<%=request.getParameter("software_id") %>', null);
-                </script>
-                </div>   
+                <p><h2>Do Bridging</h2>
                 
-                <div id="target_box_tree" style="width:250px; height:400px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;"/>
-                </div>
-                <!--
-                <form method="post" name="annotationf" action="../OrganizationManager?op=showPossibleTargets" onClick="replaceValue();">
-                    <input type='hidden' name='selections'  value='null'>
-                    <input type='hidden' name='centraltree'  value='null'>                                        
-                    <input type="submit" value="Get Sematically coherent Target Schemas" name="annotate_button">
+                 
+                <div id="sourcee_xml" style="float:left;width:250px; height:400px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;"/>
+                <p><h2>Source XML</h2>
+                 <script>
+                    LoadXMLString('sourcee_xml', <%=session.getAttribute("source_xml")%>);
+                </script> 
+                </div>  
+                
+                
+                <div id="target_xml" style="float:left;width:250px; height:400px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;"/>
+                <p><h2>Target XML</h2>
+                 <script>
+                    LoadXMLString('target_xml', '<%=session.getAttribute("target_xml")%>');
+                </script> 
+                </div>  
+                <br><br><br><br>
+                <form method="post" name="do_bridge" action="./OrganizationManager?op=doBridging&cpa_id=<%=request.getParameter("cpa_id")%>" enctype="multipart/form-data">
+                    <input type="file" name="source_xml" value="" id="fileinput"/>
+                    <input type="submit" value="Show target xml"  id="do_bridging"/>
                 </form>
-                -->
-                <input type="submit" value="Get Semantically coherent Target Schemas" name="get_target_schemas" id="get_target_schemas"/>
                 <br>
-                <br>
-                <form method="post" name="create_bridge" action="./OrganizationManager?op=createBridging" onclick="assign_selections();">
-                <input type='hidden' name='selections_source'  value='null'>
-                <input type='hidden' name='selections_target'  value='null'>
-                <input type="submit" value="Create Bridging" name="create_bridging" id="create_bridging"/>
-                </form>
-            </div>
+            </div> 
     </div>
             <div class="footer"><p>Copyright &copy; 2012 Empower Consortium | All Rights Reserved</p></div>
     </center>                

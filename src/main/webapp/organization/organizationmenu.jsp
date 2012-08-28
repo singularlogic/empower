@@ -41,7 +41,7 @@
                     </div><!--submenuENDdiv-->  
 
                     <div class='submenu1'>
-                        <a class='menuitem' href='organization/presentAvailableProcesses.jsp'>Show Available Processes</a>
+                        <a class='menuitem' href='organization/showMyBridges.jsp'>Show My Bridges</a>
                     </div><!--submenuENDdiv-->                                                               
                     <div class='submenu1'>      
                         <a class='menuitem' href='DIController?op=signout'>Logout</a>

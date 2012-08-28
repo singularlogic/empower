@@ -66,6 +66,8 @@ public class DIController extends HttpServlet {
                     this.managePostMappings(request, response, session);
                 else if (operation.equals("show_bridging_schemas"))
                     this.manageBridgingSchemas(request, response, session);
+                else if (operation.equals("doBridging"))
+                    this.doBridging(request, response, session);
                 else if (operation.equals("fileupload")) {
                     System.out.println("I am iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiin!!!");
                     this.managefileUpload(request, response, session);
@@ -298,6 +300,20 @@ public class DIController extends HttpServlet {
     
         }
     }
+    
+    protected void   doBridging(HttpServletRequest request,HttpServletResponse response,HttpSession session)
+            throws ServletException, IOException {
+        
+       String cpa_id = request.getParameter("cpa_id");
+    
+       if(verifyUser("organization", session))
+        {
+        this.forwardToPage("/organization/doBridging.jsp?cpa_id=" + cpa_id, request, response);
+    
+        }
+       
+    }
+            
     
 
     protected void managefileUpload(HttpServletRequest request,

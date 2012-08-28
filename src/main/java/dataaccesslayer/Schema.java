@@ -20,9 +20,10 @@ public class Schema {
     int service_id;
     String service;
     String inputoutput;
-    
-   
-    public Schema(int service_id , String ws_name, int operation_id,String operation_name,String op_taxonomy_id,String inputoutput,int schema_id,String schema_location, String name) {
+    int cvp_id;
+
+      
+    public Schema(int service_id , String ws_name, int operation_id,String operation_name,String op_taxonomy_id,String inputoutput,int schema_id,String schema_location, String name, int cvp_id) {
         this.service_id = service_id;
         this.service = ws_name;
         this.operation_id = operation_id;
@@ -32,6 +33,7 @@ public class Schema {
         this.schema_id = schema_id;
         this.location = schema_location;
         this.name = name;
+        this.cvp_id = cvp_id;
     }
 
    
@@ -50,6 +52,14 @@ public class Schema {
     public Schema(int schema_id, String name,String location) {
         this.schema_id = schema_id;
         this.name = name;
+    }
+    
+    public int getCvp_id() {
+        return cvp_id;
+    }
+
+    public void setCvp_id(int cvp_id) {
+        this.cvp_id = cvp_id;
     }
     
      public String getOp_taxonomy_id() {

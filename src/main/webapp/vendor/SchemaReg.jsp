@@ -83,9 +83,7 @@
                                             <input name="web_service_name" type="radio" value=""/>New Service
                                             <input name="new_web_service_name"  type="text" value="" /><br/>
                                             <%
-                                            System.out.println("holaaaaaaaa");
                                             if (session.getAttribute("services")!=""){ 
-                                            System.out.println("holaaaaaaaa1");   
                                             JSONObject services = (JSONObject) session.getAttribute("services");
                                                 for (Object o : services.keySet()) {
                                                     String key = (String) o;
