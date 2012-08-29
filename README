@@ -1,0 +1,18 @@
+This part of the Empower Project consists of supporting interoperability between the Software products of DISystemer company and implements the Semantic Adaptation Layer (SAL) of the Empower Project.
+
+The user Types of The Empower SAL project are two. The Vendor and Organization.
+
+The Vendor type is responsible of adding the software components , create the web services and operations per software components and finally assign to them the schemas (xsd).
+
+After adding the input and output schemas the vendor can annotate the operations the schemas belong to and the data (ComplexTypes) they contain.
+
+During the operation annotation the vendor defines the semantic taxonomy the operation belongs to. This is necessary so as to help the organization to do bridging between the input / output schemas that belong in the same taxonomy.
+
+During the data annotation is realised an upcasting for the input schema or downcasting for the output schema to the XBRL canonical taxonomy.
+
+After the data and operation annotation is created the cvp and the schemas are then available for bridging.
+
+The organization userType can access all the software components and choose one web service/input operation/schema. When choosing it , he get all the semantically coherent output schemas available for bridging. He chooses the desired one and creates the cpa entity.
+
+Using the cpa's that belong to him he can introduce an xml that respects the input schema and get the target xml.
+
