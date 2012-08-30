@@ -76,7 +76,7 @@ public class XSDParser  {
 
             if (attributes != null) {
                 for (int i = 0; i < attributes.getLength(); i++) {
-                    xmlToReturn.add("<item text='" + attributes.getValue(i)+"("+schema.getInputoutput()+")" + "' id='" + attributes.getValue(i) +"--"+schema.getInputoutput()+"--"+ schema.getOperation_id()+"--"+schema.getOp_taxonomy_id()+"--"+schema.getCvp_id()+"--"+schema.getService_id()+"' >");
+                    xmlToReturn.add("<item text='" + attributes.getValue(i)+"("+schema.getInputoutput()+")" + "' id='" + attributes.getValue(i) +"--"+schema.getInputoutput()+"--"+ schema.getOperation_id()+"--"+schema.getOp_taxonomy_id()+"--"+schema.getCvp_id()+"--"+schema.getService_id()+"--"+schema.getSchema_id()+"' >");
                 }
             }
         }

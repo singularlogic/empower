@@ -5,9 +5,7 @@
 package orgports;
 
 import com.google.gson.Gson;
-import dataaccesslayer.Operation;
-import dataaccesslayer.Schema;
-import dataaccesslayer.SoftwareComponent;
+import dataaccesslayer.*;
 import java.io.*;
 import java.util.*;
 import java.util.logging.Level;
@@ -25,6 +23,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -72,7 +71,9 @@ public class OrganizationManager extends HttpServlet {
                     this.createBridging(request, response, session);
                 } else if (operation.equals("doBridging")) {
                     this.doBridging(request, response, session);
-                }
+                }else if (operation.equals("showMyBridges")) 
+                    this.showMyBridges(request, response, session);
+                 
 
 
 
@@ -191,21 +192,34 @@ public class OrganizationManager extends HttpServlet {
         int cpa_id = -1;
         String selections_source = request.getParameter("selections_source");
         String cvp_source = selections_source.split("--")[4];
-
         System.out.println("cvp_source: " + cvp_source);
 
         String selections_target = request.getParameter("selections_target");
         String cvp_target = selections_target.split("--")[4];
-
         System.out.println("cvp_target: " + cvp_target);
-
-        OrgDBConnector orgDBConnector = new OrgDBConnector();
 
         String organization_name = (String) session.getAttribute("name");
 
-        System.out.println("organization_name: " + organization_name);
+       Map<String, CVP> CVPList = new HashMap<String, CVP>();
 
-        Map<String, Integer> data = orgDBConnector.insertBridging(Integer.parseInt(cvp_source), Integer.parseInt(cvp_target), organization_name);
+        String service_id = selections_source.split("--")[5];
+        String operation_id = selections_source.split("--")[2];
+        String schema_id = selections_source.split("--")[6];
+        String complex_type = selections_source.split("--")[0];
+        CVP cvpinfo_first= new CVP(Integer.parseInt(cvp_source),Integer.parseInt(service_id),Integer.parseInt(operation_id),Integer.parseInt(schema_id), complex_type);
+        
+        service_id = selections_target.split("--")[5];
+        operation_id = selections_target.split("--")[2];
+        schema_id = selections_target.split("--")[6];
+        complex_type = selections_target.split("--")[0];
+        CVP cvpinfo_second= new CVP(Integer.parseInt(cvp_source),Integer.parseInt(service_id),Integer.parseInt(operation_id),Integer.parseInt(schema_id), complex_type);
+        
+        
+        CVPList.put("cvpinfo_first", cvpinfo_first);
+        CVPList.put("cvpinfo_second", cvpinfo_second);
+
+        OrgDBConnector orgDBConnector = new OrgDBConnector();
+        Map<String, Integer> data = orgDBConnector.insertBridging(Integer.parseInt(cvp_source), Integer.parseInt(cvp_target), organization_name,new Gson().toJson(CVPList));
 
 
         if (data.containsKey("new_cpa_id")) {
@@ -219,7 +233,6 @@ public class OrganizationManager extends HttpServlet {
         };
 
         this.forwardToPage("/organization/succ.jsp?cpa_id=" + cpa_id, request, response);
-
     }
 
     protected void doBridging(HttpServletRequest request, HttpServletResponse response, HttpSession session)
@@ -227,16 +240,13 @@ public class OrganizationManager extends HttpServlet {
         
         int  cpa_id =Integer.parseInt(request.getParameter("cpa_id"));
         String data= "";
-        
-        
+   
         OrgDBConnector orgDBConnector = new OrgDBConnector();
         String cpainfo = orgDBConnector.getinfocpa(cpa_id);
         
         int cvp_a = Integer.parseInt(cpainfo.split("--")[0]);
         int cvp_b = Integer.parseInt(cpainfo.split("--")[1]);
-        
-        System.out.println("cpainfo: "+ cpainfo);
-        
+
         // Check that we have a file upload request
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
 
@@ -260,15 +270,9 @@ public class OrganizationManager extends HttpServlet {
             }
         }
         
-        
-        //return(this.transform(90,93,data));
         String target_xml = this.transform(cvp_a,cvp_b,data).toString();
-        
-         
         session.setAttribute("source_xml", data.toString());
         session.setAttribute("target_xml", target_xml);
-       
-      
         this.forwardToPage("/organization/showBridging.jsp", request, response);
 
     }
@@ -317,6 +321,66 @@ public class OrganizationManager extends HttpServlet {
         dis.forward(req, resp);
         return;
     }
+    
+     protected void showMyBridges(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws IOException, ServletException, FileUploadException {
+         
+        String name = (String) request.getSession().getAttribute("name");
+         
+        OrgDBConnector orgDBConnector = new OrgDBConnector();
+        Iterator cpaIterator = (orgDBConnector.getCPAs(name)).iterator();
+
+        response.setContentType("text/xml; charset=UTF-8");
+        PrintWriter out = response.getWriter();
+        out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+        out.write("<rows>");
+
+        while (cpaIterator.hasNext()) {
+            CPA cpa = (CPA) cpaIterator.next();
+            JSONObject o = new JSONObject();
+            o = (JSONObject) JSONSerializer.toJSON(cpa.getCpa_info());     
+            JSONObject o_first = (JSONObject) JSONSerializer.toJSON(o.get("cvpinfo_first"));  
+            JSONObject o_second = (JSONObject) JSONSerializer.toJSON(o.get("cvpinfo_second"));  
+            
+            out.write("<row id=\"" + cpa.getCpa_id() + "1\">"
+                    + "<cell> Web Service:</cell>"
+                    + "<cell>"+o_first.get("service") 
+                    +"</cell>"
+                    + "<cell>"+o_second.get("service") 
+                    +"</cell>"
+                    + "<cell> </cell>"
+                    + "</row>"
+                    +"<row id=\"" + cpa.getCpa_id() + "2\">"
+                    + "<cell>Operation:</cell>"
+                    + "<cell>"+o_first.get("operation")
+                    +"</cell>"
+                     + "<cell>"+o_second.get("operation")
+                    +"</cell>"
+                    + "<cell> </cell>"
+                    + "</row>"
+                    +"<row id=\"" + cpa.getCpa_id() + "3\">"
+                    + "<cell>Schema:</cell>"
+                    + "<cell>"+o_first.get("schema")
+                    +"</cell>"
+                     + "<cell>"+o_second.get("schema")
+                    +"</cell>"
+                    + "<cell> </cell>"
+                    + "</row>"
+                    +"<row id=\"" + cpa.getCpa_id() + "\">"
+                    + "<cell>Elenent:</cell>"
+                    + "<cell>"+o_first.get("schema_complexType")
+                    +"</cell>"
+                    +" <cell>"+o_second.get("schema_complexType")
+                    +"</cell>"
+                    + "<cell> Do Brindging^../DIController?op=doBridging&amp;cpa_id="+ cpa.getCpa_id()+ "^_self</cell>"
+                    + "</row>"
+                    );              
+        }
+
+        out.write("</rows>");
+        out.flush();
+     }
+    
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**

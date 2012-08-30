@@ -5,6 +5,7 @@
 package orgports;
 
 import com.google.gson.Gson;
+import dataaccesslayer.CPA;
 import dataaccesslayer.Schema;
 import dataaccesslayer.SoftwareComponent;
 import dataaccesslayer.dbConnector;
@@ -119,7 +120,7 @@ public class OrgDBConnector {
     }
         
         
-   public Map<String,Integer> insertBridging(int cvp_source , int cvp_target , String organization) {
+   public Map<String,Integer> insertBridging(int cvp_source , int cvp_target , String organization , String json) {
         ResultSet rs,rs1;
         int organization_id = -1, cpa_id = -1, installedbinding= -1;
         Map<String, Integer> data = new HashMap<String, Integer>();
@@ -137,10 +138,13 @@ public class OrgDBConnector {
                     + " WHERE ib.cpa_id=cpa.cpa_id and organization_id="+organization_id+ " and cpa.cpp_id_first="+cvp_source+" and cpa.cpp_id_second="+cvp_target);
             
         
-            if (rs1.next()) data.put("existing",rs1.getInt("cpa_id")); 
+            if (rs1.next()){
+                data.put("existing",rs1.getInt("cpa_id"));
+                 this.dbHandler.dbUpdate("update cpa set cpa_info='"+ json +"' where cpa_id="+rs1.getInt("cpa_id"));
+            } 
             else{
-                cpa_id = this.dbHandler.dbUpdate("insert into cpa(cpp_id_first,cpp_id_second) values('"
-                    + cvp_source + "','" + cvp_target + "');");
+                cpa_id = this.dbHandler.dbUpdate("insert into cpa(cpp_id_first,cpp_id_second,cpa_info) values('"
+                    + cvp_source + "','" + cvp_target + "','"+json+"')");
             
                 installedbinding = this.dbHandler.dbUpdate("insert into installedbinding(organization_id,cpa_id) values("+organization_id+","+cpa_id+")");
                 data.put("new_cpa_id", cpa_id);
@@ -198,6 +202,115 @@ public class OrgDBConnector {
          return cpa;
      
      }
- 
+     
+     
+    public String getServiceName(int service_id)
+    {
+        ResultSet rs;
+        String service_name="";
+        try{
+            this.dbHandler.dbOpen();
+            rs = this.dbHandler.dbQuery("SELECT ws.name as name FROM web_service ws WHERE service_id=" + service_id );
+            
+            if(rs.next())
+                service_name = rs.getString("name");
+
+            this.dbHandler.dbClose();
+	}
+	catch(Throwable t)
+	{
+		t.printStackTrace(); 
+	}
+        return service_name;
+    }
+    
+     public String getOperationName(int operation_id)
+    {
+        ResultSet rs;
+        String operation_name="";
+        try{
+            this.dbHandler.dbOpen();
+            rs = this.dbHandler.dbQuery("SELECT name FROM operation WHERE operation_id=" + operation_id );
+            
+            if(rs.next())
+                operation_name = rs.getString("name");
+
+            this.dbHandler.dbClose();
+	}
+	catch(Throwable t)
+	{
+		t.printStackTrace(); 
+	}
+        return operation_name;
+    }
+     
+      public String getSchemaName(int schema_id)
+    {
+        ResultSet rs;
+        String schema_name="";
+        try{
+            this.dbHandler.dbOpen();
+            rs = this.dbHandler.dbQuery("SELECT name FROM schema_xsd WHERE schema_id=" + schema_id );
+            
+            if(rs.next())
+                schema_name = rs.getString("name");
+
+            this.dbHandler.dbClose();
+	}
+	catch(Throwable t)
+	{
+		t.printStackTrace(); 
+	}
+        return schema_name;
+    }
+      
+      public int getUserID(String organization_name)
+    {
+        ResultSet rs;
+        int organization_id=-1;
+        try{
+            this.dbHandler.dbOpen();
+            rs = this.dbHandler.dbQuery("SELECT organization_id FROM organization WHERE name='" + organization_name+"'" );
+            
+            if(rs.next())
+                organization_id = rs.getInt("organization_id");
+
+            this.dbHandler.dbClose();
+	}
+	catch(Throwable t)
+	{
+		t.printStackTrace(); 
+	}
+        return organization_id;
+    }
+      
+    public LinkedList<CPA> getCPAs(String organization_name){
+    ResultSet rs;
+     LinkedList<CPA> cpaList = new LinkedList<CPA>();
+     int organization_id = this.getUserID(organization_name);
+        
+	try{
+            
+            this.dbHandler.dbOpen();
+            
+            rs = this.dbHandler.dbQuery("select cpa.cpa_id as cpa_id,cpa.cpp_id_first as cpp_id_first,cpa.cpp_id_second as cpp_id_second,cpa.cpa_info as cpa_info,ib.url as url,ib.port as port from installedbinding ib, cpa cpa where ib.cpa_id=cpa.cpa_id and organization_id="+organization_id);
+
+            if(rs != null)
+            {
+                while(rs.next())
+                    cpaList.add(new CPA(rs.getInt("cpa_id"),rs.getInt("cpp_id_first"),rs.getInt("cpp_id_second"),rs.getString("cpa_info"),rs.getString("url"),rs.getString("port")));
+            }
+            rs.close();
+            
+            this.dbHandler.dbClose();
+	}
+	catch(Throwable t)
+	{
+		t.printStackTrace(); 
+	}
+
+        return cpaList;
+    
+    }  
     
 }
