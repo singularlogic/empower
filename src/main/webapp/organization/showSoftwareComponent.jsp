@@ -63,9 +63,9 @@
                 <script>
                         grid = new dhtmlXGridObject("box_grid");
                         grid.setImagePath("/js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");
-                        grid.setHeader("ID,Component name,Version, ");//set column names
+                        grid.setHeader("ID,Component name,Version,Schemas, ");//set column names
 //                        grid.attachEvent("onRowSelect", doOnRowSelected);
-                        grid.setColTypes("ro,link,ro,link");
+                        grid.setColTypes("ro,link,ro,link,link");
                         grid.setSkin("light");//set grid skin
                         grid.init();//initialize grid
                         grid.loadXML("../DIController?op=show_components");

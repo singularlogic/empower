@@ -251,7 +251,8 @@ public class VendorDBConnector {
 
         return schema;
     }
-
+    
+    /*put in MainControlDB
     public int insertCVP(String annotations, int schema_id, String vendorName, String json, String selections) {
         ResultSet rs;
         int cvp = 0, dataannotations_id, vendor_id, cvp_id;
@@ -297,7 +298,9 @@ public class VendorDBConnector {
 
         return cvp;
     }
-
+    */
+    
+   /*put in MainControlDB
     public CVP getCVP(int cvpID) {
         CVP cvp = null;
         ResultSet rs;
@@ -320,7 +323,7 @@ public class VendorDBConnector {
         }
 
         return cvp;
-    }
+    }*/
 
     public int getuserid(String name) {
         ResultSet rs;

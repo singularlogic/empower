@@ -60,31 +60,31 @@ public class VendorManager extends HttpServlet {
 
         try {
             if (operation != null) {
-                if (operation.equals("software_reg")) {
+                if (operation.equals("software_reg")) 
                     this.registerSoftware(request, response, session);
-                } else if (operation.equals("show_components")) {
+                 else if (operation.equals("show_components")) 
                     this.showComponents(request, response, session);
-                } else if (operation.equals("schema_reg")) {
+                 else if (operation.equals("schema_reg")) 
                     this.registerSchema(request, response, session);
-                } else if (operation.equals("show_schemas")) {
-                    this.showSchemas(request, response, session);
-                } else if (operation.equals("load_software_reg")) {
+                 //else if (operation.equals("show_schemas")) 
+                 //   this.showSchemas(request, response, session);
+                 else if (operation.equals("load_software_reg")) 
                     this.loadSoftwareReg(request, response, session);
-                } else if (operation.equals("update_software")) {
+                 else if (operation.equals("update_software")) 
                     this.updateSoftware(request, response, session);
-                } else if (operation.equals("delete_software")) {
+                 else if (operation.equals("delete_software")) 
                     this.deleteSoftware(request, response, session);
-                } else if (operation.equals("present_service_operations")) {
-                    this.presentServiceOperationsTree(request, response, session);
-                } else if (operation.equals("annotate_operations")) {
-                    this.annotateOperations(request, response, session);
-                } else if (operation.equals("present_central_trees")) {
-                    this.presentOptionTrees(request, response, session);
-                } else if (operation.equals("present_service_schema")) {
-                    this.presentServiceSchemaTree(request, response, session);
-                } else if (operation.equals("annotate")) {
-                    this.annotate(request, response, session);
-                }
+                // else if (operation.equals("present_service_operations")) 
+                 //   this.presentServiceOperationsTree(request, response, session);
+                 //else if (operation.equals("annotate_operations")) 
+                 //   this.annotateOperations(request, response, session);
+                // else if (operation.equals("present_central_trees")) 
+                //    this.presentOptionTrees(request, response, session);
+                // else if (operation.equals("present_service_schema")) 
+                //    this.presentServiceSchemaTree(request, response, session);
+                 //else if (operation.equals("annotate")) 
+                  //  this.annotate(request, response, session);
+                
 
 
 
@@ -269,6 +269,10 @@ public class VendorManager extends HttpServlet {
 
         this.forwardToPage("/vendor/succ.jsp", request, response);
     }
+    
+    /*
+    *  Comment because is done from DIController
+    * 
 
     protected void showSchemas(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws IOException, ServletException {
@@ -298,7 +302,13 @@ public class VendorManager extends HttpServlet {
 
         return;
     }
+    * */
+    
 
+    
+    /*
+    *  Comment because is done from DIController
+    * 
     protected void presentServiceOperationsTree(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws IOException, ServletException {
 
@@ -314,7 +324,11 @@ public class VendorManager extends HttpServlet {
         //WSDLParser wsdlParser = new WSDLParser(service.getWsdl(),service.getNamespace());
         //wsdlParser.loadService(service.getName());
         //wsdlParser.outputFunctionsToXML(response.getWriter());
-    }
+    }*/
+    
+    /*
+    *  Comment because is done from DIController
+    * 
 
     protected void presentServiceSchemaTree(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws IOException, ServletException, ParserConfigurationException, SAXException {
@@ -332,8 +346,11 @@ public class VendorManager extends HttpServlet {
         response.setContentType("text/xml; charset=UTF-8");
         PrintWriter out = response.getWriter();
         out.write(xml_string);
-    }
-
+    }*/
+    
+     /*
+    *  Comment because is done from DIController
+    * 
     public void outputOperationsToXML(PrintWriter out, LinkedList<Operation> operations) {
         try {
             //work with collection. get services
@@ -396,7 +413,14 @@ public class VendorManager extends HttpServlet {
             t.printStackTrace();
         }
     }
-
+    */
+    
+    
+   
+    
+    /*
+    *  Comment because is done from DIController
+    * 
     protected void annotateOperations(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws IOException, ServletException, ParserConfigurationException, SAXException, XPathExpressionException {
         int schema_id = Integer.parseInt((String) request.getParameter("schema_id"));
@@ -414,7 +438,11 @@ public class VendorManager extends HttpServlet {
 
         this.forwardToPage("/vendor/annotationResult.jsp?schema_id=" + schema_id, request, response);
     }
-
+    */
+    
+   /*
+    *  Comment because is done from DIController
+    * 
     protected void presentOptionTrees(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws IOException, ServletException {
         response.setContentType("text/xml; charset=UTF-8");
@@ -428,7 +456,11 @@ public class VendorManager extends HttpServlet {
         out.close();
 
     }
-
+    * 
+    */
+   /*
+    * comment because is done from DIController
+    * 
     protected void annotate(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws IOException, ServletException, ParserConfigurationException, SAXException, XPathExpressionException {
         int schema_id = Integer.parseInt((String) request.getParameter("schema_id"));
@@ -472,7 +504,7 @@ public class VendorManager extends HttpServlet {
         }
         this.forwardToPage("/vendor/proceedDataTree.jsp?schema_id=" + schema_id, request, response);
 
-    }
+    }*/
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**

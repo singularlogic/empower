@@ -61,18 +61,19 @@ public class OrganizationManager extends HttpServlet {
 
         try {
             if (operation != null) {
-                if (operation.equals("show_components")) {
+                if (operation.equals("show_components")) 
                     this.showComponents(request, response, session);
-                } else if (operation.equals("show_bridging_schemas")) {
+                 else if (operation.equals("show_bridging_schemas")) 
                     this.manageBridgingSchemas(request, response, session);
-                } else if (operation.equals("showPossibleTargets")) {
+                 else if (operation.equals("showPossibleTargets")) 
                     this.showPossibleTargets(request, response, session);
-                } else if (operation.equals("createBridging")) {
+                 else if (operation.equals("createBridging")) 
                     this.createBridging(request, response, session);
-                } else if (operation.equals("doBridging")) {
+                 else if (operation.equals("doBridging")) 
                     this.doBridging(request, response, session);
-                }else if (operation.equals("showMyBridges")) 
+                else if (operation.equals("showMyBridges")) 
                     this.showMyBridges(request, response, session);
+                
                  
 
 
@@ -104,7 +105,9 @@ public class OrganizationManager extends HttpServlet {
                     + "<cell>" + comp.getSoftwareID() + "</cell>"
                     + "<cell>" + comp.getName() + "^../DIController?op=show_bridging_schemas&amp;software_id=" + comp.getSoftwareID() + "^_self</cell>"
                     + "<cell>" + comp.getVersion() + "</cell>"
-                    + "<cell>Schemas^../DIController?op=show_bridging_schemas&amp;software_id=" + comp.getSoftwareID() + "^_self</cell></row>");
+                    + "<cell>Bridging^../DIController?op=show_bridging_schemas&amp;software_id=" + comp.getSoftwareID() + "^_self</cell>"
+                    + "<cell>CPP^../DIController?op=show_schema&amp;xsd=1_1_" + comp.getSoftwareID() + "^_self</cell>"
+                    + "</row>");
         }
 
         out.write("</rows>");
@@ -200,7 +203,7 @@ public class OrganizationManager extends HttpServlet {
 
         String organization_name = (String) session.getAttribute("name");
 
-       Map<String, CVP> CVPList = new HashMap<String, CVP>();
+        Map<String, CVP> CVPList = new HashMap<String, CVP>();
 
         String service_id = selections_source.split("--")[5];
         String operation_id = selections_source.split("--")[2];
@@ -380,6 +383,7 @@ public class OrganizationManager extends HttpServlet {
         out.write("</rows>");
         out.flush();
      }
+     
     
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
