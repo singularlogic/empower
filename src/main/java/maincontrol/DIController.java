@@ -246,8 +246,9 @@ public class DIController extends HttpServlet {
         int rowID = 1;
 
         MainControlDB mainControlDB = new MainControlDB();
-        XSDIterator = mainControlDB.getSchemas((String) request.getParameter("software_id")).iterator();
-
+        
+        XSDIterator = (verifyUser("vendor", session)) ? mainControlDB.getSchemas((String) request.getParameter("software_id"),false).iterator() : mainControlDB.getSchemas((String) request.getParameter("software_id"),true).iterator();
+        
         response.setContentType("text/xml; charset=UTF-8");
         PrintWriter out = response.getWriter();
         out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
@@ -421,6 +422,8 @@ public class DIController extends HttpServlet {
         }
 
         request.setAttribute("mapping", mapping);
+        if (verifyUser("vendor", session)) request.setAttribute("map_type", "cvp");
+            else request.setAttribute("map_type", "cpp");
 
         //we pass to the annotator the schema id as service id until only for the first deliverable of the empower project, so as not to double change the annotator without reason
         if (inputoutput.equals("output")) {
@@ -428,7 +431,6 @@ public class DIController extends HttpServlet {
             //response.sendRedirect(response.encodeRedirectURL("http://127.0.0.1:8080/annotator?input=xsd/XBRL-GL-PR-2010-04-12/plt/case-c-b-m/gl-cor-content-2010-04-12.xsd&output=xsd/" + filename + "&service_id=" + schema_id + "&map_type=cvp&outputType=" + schema_data +"&inputType=" + centralTree + "&mapping="+ mapping)); 
             request.setAttribute("output", "xsd/" + filename);
             request.setAttribute("input", "xsd/XBRL-GL-PR-2010-04-12/plt/case-c-b-m/gl-cor-content-2010-04-12.xsd");
-            request.setAttribute("map_type", "cvp");
             request.setAttribute("outputType", schema_data);
             request.setAttribute("inputType", centralTree);
             request.setAttribute("selections", centralTree + "$" + schema_data);
@@ -436,7 +438,6 @@ public class DIController extends HttpServlet {
             //response.sendRedirect(response.encodeRedirectURL("http://127.0.0.1:8080/annotator?input=xsd/" + filename + "&output=xsd/XBRL-GL-PR-2010-04-12/plt/case-c-b-m/gl-cor-content-2010-04-12.xsd&service_id=" + schema_id + "&map_type=cvp&outputType=" + centralTree + "&inputType=" + schema_data + "&mapping="));
             request.setAttribute("input", "xsd/" + filename);
             request.setAttribute("output", "xsd/XBRL-GL-PR-2010-04-12/plt/case-c-b-m/gl-cor-content-2010-04-12.xsd");
-            request.setAttribute("map_type", "cvp");
             request.setAttribute("outputType", centralTree);
             request.setAttribute("inputType", schema_data);
             request.setAttribute("selections", schema_data + "$" + centralTree);
@@ -476,6 +477,12 @@ public class DIController extends HttpServlet {
         if (mapType.equals("cvp")) {
 
             Integer cvpID = new Integer(mainControlDB.insertCVP(xml, schema_id, name, json, selections));
+            this.forwardToPage("/annotationResult.jsp?schema_id=" + schema_id + "&dataannotation='true'", request, response);
+        }
+        if (mapType.equals("cpp")) {
+            
+            System.out.println("MapTye is cpp");
+            Integer cvpID = new Integer(mainControlDB.insertCPP(xml, schema_id, name, json, selections));
             this.forwardToPage("/annotationResult.jsp?schema_id=" + schema_id + "&dataannotation='true'", request, response);
         }
         /*

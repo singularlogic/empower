@@ -10,6 +10,7 @@ import dataaccesslayer.Service;
 import dataaccesslayer.dbConnector;
 import java.sql.ResultSet;
 import java.util.Collection;
+import java.util.EmptyStackException;
 import java.util.LinkedList;
 
 /**
@@ -73,14 +74,14 @@ public class MainControlDB {
         }
     }
 
-  public Collection getServices(String software_id) {
+    public Collection getServices(String software_id) {
         ResultSet rs;
         LinkedList<Service> compList = new LinkedList<Service>();
 
         try {
 
             this.dbHandler.dbOpen();
-            rs = this.dbHandler.dbQuery("SELECT ws.service_id , ws.name FROM web_service ws where software_id="+software_id);
+            rs = this.dbHandler.dbQuery("SELECT ws.service_id , ws.name FROM web_service ws where software_id=" + software_id);
 
             dbConnector dbHand = new dbConnector();
 
@@ -89,7 +90,7 @@ public class MainControlDB {
 
             if (rs != null) {
                 while (rs.next()) {
-                    compList.add(new Service(rs.getInt("service_id"),rs.getString("name")));   
+                    compList.add(new Service(rs.getInt("service_id"), rs.getString("name")));
                 }
             }
 
@@ -102,8 +103,12 @@ public class MainControlDB {
 
         return compList;
     }
-  
-        public Collection getSchemas(String software_id) {
+    /*
+     * Get all schemas that belong to a software component. if cvp is true the
+     * functions only returns those that have been annotated.
+     */
+
+    public Collection getSchemas(String software_id, boolean cvp) {
         ResultSet rs;
         LinkedList<Schema> XSDList = new LinkedList<Schema>();
 
@@ -111,10 +116,8 @@ public class MainControlDB {
 
             this.dbHandler.dbOpen();
 
-            rs = this.dbHandler.dbQuery("select s.schema_id as schema_id,s.name as schema_name from operation o LEFT JOIN web_service ws on o.service_id=ws.service_id LEFT JOIN operation_schema os  on o.operation_id = os.operation_id LEFT JOIN schema_xsd  s  on os.schema_id = s.schema_id where ws.software_id=" + software_id);
-
-            // rs = this.dbHandler.dbQuery("select a.name, a.xsd_id from xsd a, softwarecomponent b where " 
-            //                             + "b.software_id='" + software_id +"' and b.software_id=a.software_id;");
+            rs = (cvp) ? this.dbHandler.dbQuery("select s.schema_id as schema_id,s.name as schema_name , da.dataAnnotations_id as dataAnnotations from operation o LEFT JOIN web_service ws on o.service_id=ws.service_id LEFT JOIN operation_schema os  on o.operation_id = os.operation_id LEFT JOIN schema_xsd  s  on os.schema_id = s.schema_id RIGHT JOIN dataannotations  da  on  s.schema_id = da.schema_id where ws.software_id=" + software_id)
+                    : this.dbHandler.dbQuery("select s.schema_id as schema_id,s.name as schema_name from operation o LEFT JOIN web_service ws on o.service_id=ws.service_id LEFT JOIN operation_schema os  on o.operation_id = os.operation_id LEFT JOIN schema_xsd  s  on os.schema_id = s.schema_id where ws.software_id=" + software_id);
 
             if (rs != null) {
                 while (rs.next()) {
@@ -131,8 +134,8 @@ public class MainControlDB {
 
         return XSDList;
     }
-        
-     public LinkedList<Operation> getOperationsBySchema(int schema_id) {
+
+    public LinkedList<Operation> getOperationsBySchema(int schema_id) {
         ResultSet rs;
         LinkedList<Operation> OperationList = new LinkedList<Operation>();
 
@@ -157,9 +160,9 @@ public class MainControlDB {
         }
 
         return OperationList;
-    }    
-     
-     public void insertTaxonomyToOperation(int operation_id, String funcSelections) {
+    }
+
+    public void insertTaxonomyToOperation(int operation_id, String funcSelections) {
 
         try {
             this.dbHandler.dbOpen();
@@ -172,9 +175,8 @@ public class MainControlDB {
 
         }
     }
-     
-     
-     public Schema getSchema(int schema_id) {
+
+    public Schema getSchema(int schema_id) {
         ResultSet rs;
         Schema schema = new Schema();
 
@@ -204,48 +206,43 @@ public class MainControlDB {
 
         return schema;
     }
-     
-      public String getMapping(int schema_id , String selections)
-    {
+
+    public String getMapping(int schema_id, String selections) {
         ResultSet rs;
         String mappings = null;
 
-	try
-        {
-            this.dbHandler.dbOpen();        
-            System.out.println("selections: "+ selections);
-            rs = this.dbHandler.dbQuery("select mapping from dataannotations where schema_id=" + schema_id +" and selections='"+ selections+"'");
-            
-            if(rs.next())
-            {
+        try {
+            this.dbHandler.dbOpen();
+            System.out.println("selections: " + selections);
+            rs = this.dbHandler.dbQuery("select mapping from dataannotations where schema_id=" + schema_id + " and selections='" + selections + "'");
+
+            if (rs.next()) {
                 mappings = rs.getString("mapping");
             }
-            
+
             this.dbHandler.dbClose();
-        }
-        catch(Throwable t)
-        {
+        } catch (Throwable t) {
             t.printStackTrace();
         }
-        
+
         return mappings;
     }
-      
+
     public int insertCVP(String annotations, int schema_id, String vendorName, String json, String selections) {
         ResultSet rs;
         int cvp = 0, dataannotations_id, vendor_id, cvp_id;
         int num = 0;
 
         try {
-            
+
             // get vendor id
             vendor_id = getuserid(vendorName);
             System.out.println(" vendor_id:" + vendor_id);
-            
+
             //check if exists an other cvp
             this.dbHandler.dbOpen();
 
-            rs = this.dbHandler.dbQuery("SELECT cvp_id, da.dataAnnotations_id from dataannotations  da, cvp  cvp  WHERE schema_id=" + schema_id +" and selections='"+selections+"' and da.dataAnnotations_id = cvp.dataAnnotations_id");
+            rs = this.dbHandler.dbQuery("SELECT cvp_id, da.dataAnnotations_id from dataannotations  da, cvp  cvp  WHERE schema_id=" + schema_id + " and selections='" + selections + "' and da.dataAnnotations_id = cvp.dataAnnotations_id");
 
             if (rs.next()) {
                 cvp_id = rs.getInt("cvp_id");
@@ -253,13 +250,13 @@ public class MainControlDB {
 
                 //update dataannotations info and vendor name info of cvp
 
-                this.dbHandler.dbUpdate("update dataannotations set mapping='" + json + "', xslt_annotations ='" + annotations + "', selections = '"+selections+"'  where dataannotations_id=" + rs.getInt("dataannotations_id") + ";");
+                this.dbHandler.dbUpdate("update dataannotations set mapping='" + json + "', xslt_annotations ='" + annotations + "', selections = '" + selections + "'  where dataannotations_id=" + rs.getInt("dataannotations_id") + ";");
                 System.out.println("update dataannotations");
                 this.dbHandler.dbUpdate("update cvp set vendor_id='" + vendor_id + "' where cvp_id=" + cvp_id + ";");
                 System.out.println("update cvp");
 
             } else {
-                dataannotations_id = this.dbHandler.dbUpdate("insert into dataannotations (schema_id, xslt_annotations,mapping,selections) values (" + schema_id + ",'" + annotations + "','" + json + "','"+selections+"');");
+                dataannotations_id = this.dbHandler.dbUpdate("insert into dataannotations (schema_id, xslt_annotations,mapping,selections) values (" + schema_id + ",'" + annotations + "','" + json + "','" + selections + "');");
 
                 System.out.println(" create dataannotations:" + dataannotations_id);
 
@@ -269,20 +266,63 @@ public class MainControlDB {
                 System.out.println(" create cvp:" + cvp_id);
             }
 
-             this.dbHandler.dbClose();
+            this.dbHandler.dbClose();
         } catch (Throwable t) {
             t.printStackTrace();
         }
 
         return cvp;
     }
-    
+
+    public int insertCPP(String annotations, int schema_id, String orgName, String json, String selections) {
+        ResultSet rs, rs1;
+        int cvp_id = -1, organization_id, cpp_id = -1, vendor_id = -1, dataannotations_id = -1;
+        try {
+
+            // get organization id
+            organization_id = getuserid(orgName);
+
+            this.dbHandler.dbOpen();
+            //check if exists a cvp
+            rs1 = this.dbHandler.dbQuery("SELECT cvp.cvp_id as cvp_id , da.dataAnnotations_id as dataAnnotations_id, cvp.vendor_id  as vendor_id from dataannotations  da, cvp  cvp  WHERE schema_id=" + schema_id + " and selections='" + selections + "' and da.dataAnnotations_id = cvp.dataAnnotations_id");
+
+            if (rs1.next()) {
+                cvp_id = rs1.getInt("cvp_id");
+                vendor_id = rs1.getInt("vendor_id");
+                dataannotations_id = rs1.getInt("dataannotations_id");
+                rs1.close();
+                
+                //update dataannotations info 
+                this.dbHandler.dbUpdate("update dataannotations set mapping='" + json + "', xslt_annotations ='" + annotations + "', selections = '" + selections + "'  where dataannotations_id=" + dataannotations_id + ";");
+
+                rs = this.dbHandler.dbQuery("SELECT cpp.cpp_id, cpp.organization_id from cpp cpp  WHERE cpp.cvp_id=" + cvp_id);
+                if (rs.next()) {
+                     // update cpp
+                    cpp_id = rs.getInt("cpp_id");
+                    this.dbHandler.dbUpdate("update cpp set organization_id='" + organization_id + "' where cpp_id=" + cpp_id + ";");
+                } else {
+                    // insert cpp
+                    cpp_id = this.dbHandler.dbUpdate("insert into cpp(cvp_id, vendor_id, organization_id) values(" + cvp_id + "," + vendor_id + "," + organization_id + ");");
+                }
+                 rs.close();
+                 
+                 this.dbHandler.dbClose();
+                 
+            } else {
+                throw new EmptyStackException();
+            }            
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+        return cpp_id;
+    }
+
     public int getuserid(String name) {
         ResultSet rs;
         int user_id = -1;
         try {
 
-             System.out.println("name: "+ name);
+            System.out.println("name: " + name);
             this.dbHandler.dbOpen();
             rs = this.dbHandler.dbQuery("select * from users where name='" + name + "'");
 
@@ -296,10 +336,7 @@ public class MainControlDB {
             this.dbHandler.dbClose();
         } catch (Throwable t) {
         }
-        System.out.println("user_id: "+ user_id);
+        System.out.println("user_id: " + user_id);
         return user_id;
     }
-    
-    
-
 }
