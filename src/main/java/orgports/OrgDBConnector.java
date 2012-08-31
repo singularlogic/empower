@@ -311,6 +311,43 @@ public class OrgDBConnector {
 
         return cpaList;
     
-    }  
+    }
+    
+    
+    /*
+     * Given the cvp_in we look for the cpp_id so as to create the cpa registry
+     * if ther is not no cpp we create it
+     */
+    public int getCPP(int cvp_id,String organization_name){
+        ResultSet rs,rs1;
+        int cpp_id = -1;
+        try{
+            int organization_id = this.getUserID(organization_name);
+            
+            this.dbHandler.dbOpen();
+            
+            rs = this.dbHandler.dbQuery("select cpp_id from cpp where cvp_id="+cvp_id + " and organization_id="+organization_id);
+
+            if(rs.next()){
+                cpp_id =rs.getInt("cpp_id");
+                rs.close();
+            }else {
+                rs1 = this.dbHandler.dbQuery("select vendor_id from cvp where cvp_id="+cvp_id);
+                  if(rs1.next()) {
+                      int vendor_id = rs1.getInt("vendor_id");
+                      cpp_id = this.dbHandler.dbUpdate("insert into cpp(cvp_id,vendor_id,organization_id) values("
+                    + cvp_id + "," + vendor_id + ","+organization_id+")");
+                  }
+            }
+
+            this.dbHandler.dbClose();
+	}
+	catch(Throwable t)
+	{
+		t.printStackTrace(); 
+	}
+        return cpp_id;
+    }
+   
     
 }

@@ -10,9 +10,9 @@ import orgports.OrgDBConnector;
  *
  * @author eleni
  */
-public class CVP {
+public class CPP {
     
-    private int cvpID;
+    private int cppID;
     private String dataAnnotations;
     private int vendor_id;
     private String service;
@@ -20,15 +20,15 @@ public class CVP {
     private String schema;
     private String schema_complexType;
     
-     public CVP(int cvpID, String dataAnnotations,int vendor_id) {
-        this.cvpID = cvpID;
+     public CPP(int cppID, String dataAnnotations,int vendor_id) {
+        this.cppID = cppID;
         this.dataAnnotations = dataAnnotations;
         this.vendor_id = vendor_id;
     }
      
-    public CVP(int cvpID, int service_id, int operation_id, int schema_id, String schema_complexType ) {
+    public CPP(int cppID, int service_id, int operation_id, int schema_id, String schema_complexType ) {
         OrgDBConnector orgDBConnector = new OrgDBConnector();
-        this.cvpID = cvpID;
+        this.cppID = cppID;
         this.service = orgDBConnector.getServiceName(service_id);
         this.operation = orgDBConnector.getOperationName(operation_id);
         this.schema = orgDBConnector.getSchemaName(schema_id);
@@ -37,12 +37,12 @@ public class CVP {
        
     }
 
-    public int getCvpID() {
-        return cvpID;
+    public int getCppID() {
+        return cppID;
     }
 
-    public void setCvpID(int cvpID) {
-        this.cvpID = cvpID;
+    public void setCppID(int cppID) {
+        this.cppID = cppID;
     }
 
     public String getDataAnnotations() {

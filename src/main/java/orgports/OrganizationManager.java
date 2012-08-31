@@ -192,37 +192,41 @@ public class OrganizationManager extends HttpServlet {
     protected void createBridging(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws IOException, ServletException {
 
+        OrgDBConnector orgDBConnector = new OrgDBConnector();
+        
         int cpa_id = -1;
         String selections_source = request.getParameter("selections_source");
         String cvp_source = selections_source.split("--")[4];
-        System.out.println("cvp_source: " + cvp_source);
-
+        int cpp_source = orgDBConnector.getCPP(Integer.parseInt(cvp_source),(String) session.getAttribute("name"));
+        System.out.println("cpp_source: " + cpp_source);
+        
         String selections_target = request.getParameter("selections_target");
         String cvp_target = selections_target.split("--")[4];
-        System.out.println("cvp_target: " + cvp_target);
+        int cpp_target = orgDBConnector.getCPP(Integer.parseInt(cvp_target),(String) session.getAttribute("name"));
+        System.out.println("cpp_target: " + cpp_target);
 
         String organization_name = (String) session.getAttribute("name");
 
-        Map<String, CVP> CVPList = new HashMap<String, CVP>();
+        Map<String, CPP> CPPList = new HashMap<String, CPP>();
 
         String service_id = selections_source.split("--")[5];
         String operation_id = selections_source.split("--")[2];
         String schema_id = selections_source.split("--")[6];
         String complex_type = selections_source.split("--")[0];
-        CVP cvpinfo_first= new CVP(Integer.parseInt(cvp_source),Integer.parseInt(service_id),Integer.parseInt(operation_id),Integer.parseInt(schema_id), complex_type);
+        CPP cppinfo_first= new CPP(cpp_source,Integer.parseInt(service_id),Integer.parseInt(operation_id),Integer.parseInt(schema_id), complex_type);
         
         service_id = selections_target.split("--")[5];
         operation_id = selections_target.split("--")[2];
         schema_id = selections_target.split("--")[6];
         complex_type = selections_target.split("--")[0];
-        CVP cvpinfo_second= new CVP(Integer.parseInt(cvp_source),Integer.parseInt(service_id),Integer.parseInt(operation_id),Integer.parseInt(schema_id), complex_type);
+        CPP cppinfo_second= new CPP(cpp_target,Integer.parseInt(service_id),Integer.parseInt(operation_id),Integer.parseInt(schema_id), complex_type);
         
         
-        CVPList.put("cvpinfo_first", cvpinfo_first);
-        CVPList.put("cvpinfo_second", cvpinfo_second);
+        CPPList.put("cppinfo_first", cppinfo_first);
+        CPPList.put("cppinfo_second", cppinfo_second);
 
-        OrgDBConnector orgDBConnector = new OrgDBConnector();
-        Map<String, Integer> data = orgDBConnector.insertBridging(Integer.parseInt(cvp_source), Integer.parseInt(cvp_target), organization_name,new Gson().toJson(CVPList));
+       
+        Map<String, Integer> data = orgDBConnector.insertBridging(cpp_source, cpp_target, organization_name,new Gson().toJson(CPPList));
 
 
         if (data.containsKey("new_cpa_id")) {
