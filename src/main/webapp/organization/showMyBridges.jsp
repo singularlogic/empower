@@ -13,15 +13,12 @@
         <script src="../js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgrid.js"></script>
         <script src="../js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgridcell.js"></script>
         <script src="../js/dhtmlxSuite/dhtmlxGrid/codebase/excells/dhtmlxgrid_excell_link.js"></script>
-        <script type="text/javascript" src="../js/jquery.js"></script>  
-        <script type="text/javascript">                                          
-            function doOnRowSelected()
-            {
-               //var selId=grid.getSelectedId();
-               //var row_id= grid.getSelectedRowId();
-               //var cell_index= getSelectedCellIndex();        
-            }
-        </script>
+        <script type="text/javascript" src="../js/jquery.js"></script> 
+        <style type="text/css">
+            div.gridbox_inverse table.hdr td {background-color:#A0D651; color:white; font-weight:bold;}
+            div.gridbox_inverse table.obj td{background-color: #D9EFB9;text-align: center;}
+            div.gridbox_inverse table.obj tr{height: 30px;}
+        </style>
     </head> 
     <body class="yui-skin-sam">
     <center>
@@ -45,13 +42,18 @@
         </div>
         <div class="main">
             <div class="main-navigation">
-                <div class="round-border-topright"></div>
-                <h1 class="first">Menu</h1>
-                <div class='glossymenu'>
-                    <a class='menuitem submenuheader1'>Organization Menu</a>
-                    <div class='submenu1'><a class='menuitem' href='showSoftwareComponent.jsp'>Show software components</a></div> 
-                    <div class='submenu1'><a class='menuitem' href='showMyBridges.jsp'>Show My Bridges</a></div>                  
-                    <div class='submenu1'><a class='menuitem' href='../DIController?op=signout'>Logout</a></div>                   
+                    <div id="menu_grid" style="width:180px; height:120px" class='glossymenu'>
+                    <script>
+                        menu_grid = new dhtmlXGridObject("menu_grid");
+                        menu_grid.setImagePath("js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");
+                        menu_grid.setHeader("Menu");//set column names
+                        menu_grid.setColTypes("link");
+                        menu_grid.setSkin("light");//set grid skin
+                        menu_grid.setSkin("inverse");
+                        menu_grid.init();//initialize grid
+                        menu_grid.loadXML('../DIController?op=get_menu&level=2');
+
+                    </script>
                 </div>
             </div>    
             <div class="main-content">
@@ -61,6 +63,7 @@
                     grid = new dhtmlXGridObject("box_grid");
                     grid.setImagePath("/js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");
                     grid.setHeader(",Input Info,Output Info,");//set column names
+                    //grid.setNoHeader(true);
                     //grid.attachEvent("onRowSelect", doOnRowSelected);
                     // grid.setColTypes("sub_row,ro,link");
                     grid.setColTypes("ro,ro,ro,link");

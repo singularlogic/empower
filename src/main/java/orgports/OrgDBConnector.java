@@ -160,15 +160,18 @@ public class OrgDBConnector {
     }
    
    
-    public String retrieveXLST(int cvp_id)
+    public String retrieveXLST(int cpp_id)
     {
         String xsltCode = null;
         ResultSet rs;
         
 	try{
             this.dbHandler.dbOpen();
-            rs = this.dbHandler.dbQuery("select da.xslt_annotations as xslt_annotations from dataannotations da, cvp cvp where da.dataAnnotations_id=cvp.dataAnnotations_id and cvp_id=" + cvp_id );
-            
+            rs = this.dbHandler.dbQuery("select da.xslt_annotations as xslt_annotations "
+                    + " from dataannotations da, cvp cvp, cpp cpp "
+                    + " where cpp.cpp_id =" +cpp_id
+                    + " and cpp.cvp_id = cvp.cvp_id"
+                    + " and da.dataAnnotations_id=cvp.dataAnnotations_id ");
             if(rs.next())
                 xsltCode = new String(rs.getString("xslt_annotations"));
 

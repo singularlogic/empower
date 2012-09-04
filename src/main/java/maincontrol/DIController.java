@@ -89,6 +89,13 @@ public class DIController extends HttpServlet {
                     this.presentOptionTrees(request, response, session);
                 else if (operation.equals("annotate")) 
                     this.annotate(request, response, session);
+                else if (operation.equals("showAvailableSources_title")) 
+                    this.showAvailableSources_title(request, response, session);
+                else if (operation.equals("get_menu")) 
+                    this.getMenu(request, response, session);
+                
+                
+                
                 
                 //else
                 //  this.forwardToPage("/error/generic_error.jsp?errormsg=Cannot find op", request, response);
@@ -540,6 +547,62 @@ public class DIController extends HttpServlet {
         }
 
     }
+    
+    protected void showAvailableSources_title(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws ServletException, IOException {
+       
+        MainControlDB mainControlDB = new MainControlDB();
+        
+        String software_name = mainControlDB.getSoftwareName(Integer.parseInt(request.getParameter("software_id")));
+        
+        response.setContentType("text/xml; charset=UTF-8");
+        PrintWriter out = response.getWriter();
+        out.write("<h2>Available Source Schemas for the software component: " + software_name +"<h2>");
+        out.flush();
+    }
+    
+     
+    protected void getMenu(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws ServletException, IOException {
+    
+        int level = Integer.parseInt(request.getParameter("level"));
+        String userType = (String) session.getAttribute("userType");
+        String menu_level="";
+        String sign_out="";
+        
+        switch(level)
+         { case 0: menu_level=userType+"/"; sign_out=""; break;
+           case 1: menu_level="./"+userType+"/"; sign_out="./"; break;
+           case 2: menu_level=""; sign_out="../"; break; 
+           case 3: menu_level="./"; sign_out="/empower/"; break;   
+           default: menu_level=""; sign_out=""; break;
+        }; 
+        
+        response.setContentType("text/xml; charset=UTF-8");
+        PrintWriter out = response.getWriter();
+        out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+        out.write("<rows>");
+        
+        if(verifyUser("vendor", session)) 
+            
+            out.write("<row id='1'><cell>Register new software^"+menu_level+"softwareReg.jsp^_self</cell></row>"
+                    + "<row id='2'><cell>Show software components^"+menu_level+"showSoftwareComponent.jsp^_self</cell></row>"
+                    + "<row id='3'><cell>Logout^"+sign_out+"DIController?op=signout^_self</cell></row>");
+                  
+            
+       else
+            out.write("<row id='1'><cell>Show software components^"+menu_level+"showSoftwareComponent.jsp^_self</cell></row>"
+                    + "<row id='2'><cell>Show My Bridges^"+menu_level+"showMyBridges.jsp^_self</cell></row>"
+                    + "<row id='3'><cell>Logout^"+sign_out+"DIController?op=signout^_self</cell></row>");
+
+
+        out.write("</rows>");
+        out.flush();
+
+        return;
+    }
+    
+    
 
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

@@ -1,2 +1,18 @@
 .glossymenu{margin: 0px 0;margin-left:10px;margin-top:11px;padding: 0;width: 180px; border: 1px none #9A9A9A;border-bottom-width: 0;}.glossymenu a.menuitem{border-bottom-style:solid;border-bottom-color:#cccccc;border-bottom-width:2px;background-color: #A0D651;font-family:tahoma;font-size:9px;color: white;display: block;position: relative;width: auto;padding: 2px 2px 2px 20px;text-decoration: none;}.glossymenu a.menuitem:hover{background-color: #98acf1;}.glossymenu a.menuitem .statusicon{position: absolute;top: 5px;right: 115px;border: none;}.glossymenu a.menuitem .statusicon_minus{position: absolute;top: 1px;right: 157px;border: none;width: 8px;height: 4px;background: transparent url(minus.gif) no-repeat center top;}.glossymenu a.menuitem .statusicon_plus{position: absolute;top: 1px;right: 157px;border: none;width: 4px;height: 8px;background: transparent url(plus.gif) no-repeat center top;}.glossymenu img{padding:0px;}
 .submenu1 a.menuitem{border-bottom-style:solid;border-bottom-color:gray;border-bottom-width:1px;background-color: #D9EFB9;font-family:sans-serif;font-size:10px;color: black;display: block;position: relative;width: auto;padding: 4px 2;padding-left: 20px;text-decoration: none;}
+.main a {
+    color: #467AA7;
+    font-weight: bold;
+    text-decoration: none;
+}
+.main-content p {
+    font-size: 13px !important; 
+}
+.main-content h2 {
+    clear: both;
+    color: #505050;
+    font-family: "trebuchet ms",arial,sans-serif;
+    font-size: 170%;
+    font-weight: normal;
+    margin: 1em 0 0.5em;
+}

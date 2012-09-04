@@ -339,4 +339,27 @@ public class MainControlDB {
         System.out.println("user_id: " + user_id);
         return user_id;
     }
+    
+    public String getSoftwareName(int software_id) {
+        ResultSet rs;
+        String name = "";
+        try {
+
+            System.out.println("name: " + name);
+            this.dbHandler.dbOpen();
+            rs = this.dbHandler.dbQuery("select name from softwarecomponent where software_id='" + software_id + "'");
+
+            if (rs != null) {
+                rs.next();
+                name = rs.getString("name");
+            }
+
+            rs.close();
+
+            this.dbHandler.dbClose();
+        } catch (Throwable t) {
+        }
+      
+        return name;
+    }
 }

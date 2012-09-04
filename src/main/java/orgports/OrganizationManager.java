@@ -251,8 +251,8 @@ public class OrganizationManager extends HttpServlet {
         OrgDBConnector orgDBConnector = new OrgDBConnector();
         String cpainfo = orgDBConnector.getinfocpa(cpa_id);
         
-        int cvp_a = Integer.parseInt(cpainfo.split("--")[0]);
-        int cvp_b = Integer.parseInt(cpainfo.split("--")[1]);
+        int cpp_a = Integer.parseInt(cpainfo.split("--")[0]);
+        int cpp_b = Integer.parseInt(cpainfo.split("--")[1]);
 
         // Check that we have a file upload request
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
@@ -277,19 +277,19 @@ public class OrganizationManager extends HttpServlet {
             }
         }
         
-        String target_xml = this.transform(cvp_a,cvp_b,data).toString();
+        String target_xml = this.transform(cpp_a,cpp_b,data).toString();
         session.setAttribute("source_xml", data.toString());
         session.setAttribute("target_xml", target_xml);
         this.forwardToPage("/organization/showBridging.jsp", request, response);
 
     }
 
-    private String transform(int cvp_a, int cvp_b, String xmlData) {
+    private String transform(int cpp_a, int cpp_b, String xmlData) {
 
         OrgDBConnector orgDBConnector = new OrgDBConnector();
         
-        String xsltRulesFirst = orgDBConnector.retrieveXLST(cvp_a);//input
-        String xsltRulesSecond = orgDBConnector.retrieveXLST(cvp_b);//output
+        String xsltRulesFirst = orgDBConnector.retrieveXLST(cpp_a);//input
+        String xsltRulesSecond = orgDBConnector.retrieveXLST(cpp_b);//output
        
 
         System.out.println("CHECK " + xsltRulesFirst);
@@ -341,13 +341,15 @@ public class OrganizationManager extends HttpServlet {
         PrintWriter out = response.getWriter();
         out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         out.write("<rows>");
+        
+        if (!cpaIterator.hasNext()) out.write("<row><cell>There are no </cell><cell>Bridges </cell><cell> created!!!</cell></row>");
 
         while (cpaIterator.hasNext()) {
             CPA cpa = (CPA) cpaIterator.next();
             JSONObject o = new JSONObject();
             o = (JSONObject) JSONSerializer.toJSON(cpa.getCpa_info());     
-            JSONObject o_first = (JSONObject) JSONSerializer.toJSON(o.get("cvpinfo_first"));  
-            JSONObject o_second = (JSONObject) JSONSerializer.toJSON(o.get("cvpinfo_second"));  
+            JSONObject o_first = (JSONObject) JSONSerializer.toJSON(o.get("cppinfo_first"));  
+            JSONObject o_second = (JSONObject) JSONSerializer.toJSON(o.get("cppinfo_second"));  
             
             out.write("<row id=\"" + cpa.getCpa_id() + "1\">"
                     + "<cell> Web Service:</cell>"

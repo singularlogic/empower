@@ -74,21 +74,6 @@ public class VendorManager extends HttpServlet {
                     this.updateSoftware(request, response, session);
                  else if (operation.equals("delete_software")) 
                     this.deleteSoftware(request, response, session);
-                // else if (operation.equals("present_service_operations")) 
-                 //   this.presentServiceOperationsTree(request, response, session);
-                 //else if (operation.equals("annotate_operations")) 
-                 //   this.annotateOperations(request, response, session);
-                // else if (operation.equals("present_central_trees")) 
-                //    this.presentOptionTrees(request, response, session);
-                // else if (operation.equals("present_service_schema")) 
-                //    this.presentServiceSchemaTree(request, response, session);
-                 //else if (operation.equals("annotate")) 
-                  //  this.annotate(request, response, session);
-                
-
-
-
-
             }
         } catch (Throwable t) {
             t.printStackTrace();
