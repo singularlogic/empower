@@ -249,10 +249,10 @@ public class OrganizationManager extends HttpServlet {
         String data= "";
    
         OrgDBConnector orgDBConnector = new OrgDBConnector();
-        String cpainfo = orgDBConnector.getinfocpa(cpa_id);
+        CPA cpainfo = orgDBConnector.getinfocpa(cpa_id);
         
-        int cpp_a = Integer.parseInt(cpainfo.split("--")[0]);
-        int cpp_b = Integer.parseInt(cpainfo.split("--")[1]);
+        int cpp_a = cpainfo.getCpp_id_first();
+        int cpp_b = cpainfo.getCpp_id_second();
 
         // Check that we have a file upload request
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
@@ -277,19 +277,19 @@ public class OrganizationManager extends HttpServlet {
             }
         }
         
-        String target_xml = this.transform(cpp_a,cpp_b,data).toString();
+        String target_xml = this.transform(cpp_a,cpp_b,data,cpainfo.getCpa_info()).toString();
         session.setAttribute("source_xml", data.toString());
         session.setAttribute("target_xml", target_xml);
         this.forwardToPage("/organization/showBridging.jsp", request, response);
 
     }
 
-    private String transform(int cpp_a, int cpp_b, String xmlData) {
+    private String transform(int cpp_a, int cpp_b, String xmlData,String cpa_info) {
 
         OrgDBConnector orgDBConnector = new OrgDBConnector();
         
-        String xsltRulesFirst = orgDBConnector.retrieveXLST(cpp_a);//input
-        String xsltRulesSecond = orgDBConnector.retrieveXLST(cpp_b);//output
+        String xsltRulesFirst = orgDBConnector.retrieveXLST(cpp_a,"input",cpa_info);//input
+        String xsltRulesSecond = orgDBConnector.retrieveXLST(cpp_b,"output",cpa_info);//output
        
 
         System.out.println("CHECK " + xsltRulesFirst);

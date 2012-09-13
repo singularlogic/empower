@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
+import xml.WSDLParser;
 
 /**
  *
@@ -76,8 +77,12 @@ public class VendorDBConnector {
         }
     }
 
+    /*
+     * Get the software components that belong to a vendor with the schemas and services of each component
+     */
+    
     public Collection getSoftwareComponents(String vendor) {
-        ResultSet rs, rsServ;
+        ResultSet rs, rsServ , rsSchemas;
         LinkedList<SoftwareComponent> compList = new LinkedList<SoftwareComponent>();
 
         try {
@@ -90,20 +95,22 @@ public class VendorDBConnector {
 
             dbHand.dbOpen();
 
-
-
             if (rs != null) {
                 while (rs.next()) {
 
-                    rsServ = dbHand.dbQuery("select count(s.schema_id) as rows from operation o LEFT JOIN web_service ws on o.service_id=ws.service_id LEFT JOIN operation_schema os  on o.operation_id = os.operation_id LEFT JOIN schema_xsd  s  on os.schema_id = s.schema_id where ws.software_id=" + rs.getString("software_id"));
-
-                    rsServ.next();
+                    rsSchemas = dbHand.dbQuery("select count(s.schema_id) as schemas_num from operation o LEFT JOIN web_service ws on o.service_id=ws.service_id LEFT JOIN operation_schema os  on o.operation_id = os.operation_id LEFT JOIN schema_xsd  s  on os.schema_id = s.schema_id where ws.software_id=" + rs.getString("software_id"));
+                    int schemas_num = (rsSchemas.next()) ? rsSchemas.getInt("schemas_num"): 0;
+                    rsSchemas.close();
+                    
+                    rsServ = dbHand.dbQuery("select count(ws.service_id) as services_num from  web_service ws where ws.software_id="+rs.getString("software_id"));
+                    int services_num = (rsServ.next()) ? rsServ.getInt("services_num"): 0;
+                    rsServ.close();
+                    
                     compList.add(new SoftwareComponent(rs.getString("name"),
                             rs.getString("version"),
-                            rsServ.getInt("rows"),
-                            rs.getInt("software_id")));
-                    System.out.println();
-                    rsServ.close();
+                            schemas_num,
+                            services_num,
+                            rs.getInt("software_id"))); 
                 }
             }
 
@@ -149,6 +156,51 @@ public class VendorDBConnector {
         }
 
         return schema_id;
+    }
+    
+    public int insertServiceInfo(int software_id, String serviceName, String wsdlFilename, String xmlRepPath, String namespace)
+    {
+        ResultSet rs;
+        int service_id = -1;
+        int old_service_id = 0;
+        String version = new String("");
+        String filename = null;
+        Iterator servicePorts;
+        int numberOperations, numberMessages;
+        
+	try
+        {
+            // for mysql compatibility
+            wsdlFilename = wsdlFilename.replace("\\", "\\\\");
+
+            this.dbHandler.dbOpen();
+
+            WSDLParser wsdlParser = new WSDLParser(wsdlFilename, namespace);
+            wsdlParser.loadService(serviceName);
+            numberOperations = wsdlParser.getOperationsNumber();
+             System.out.println("numberOperations: "+numberOperations);
+            numberMessages   = wsdlParser.getMessageNumber(); 
+             System.out.println("numberMessages: "+numberMessages);
+
+           service_id = this.dbHandler.dbUpdate("insert into web_service(name,software_id,namespace,wsdl,operation_number, messages_number) values('"
+                                    + serviceName + "',"+software_id+",'" + namespace +"','" +wsdlFilename + "'," + numberOperations + "," + numberMessages + ");");
+            
+            servicePorts = wsdlParser.returnServicePortsString();
+            
+            while(servicePorts.hasNext())
+                  this.dbHandler.dbUpdate("insert into installedbinding(service_id,service_port_name) values("
+                          + service_id + ",'" + servicePorts.next().toString() + "');");
+                System.out.println("servicePorts: "+servicePorts.next().toString());
+
+            this.dbHandler.dbClose();
+	}
+	catch(Throwable t)
+	{
+            //t.printStackTrace(); 
+            System.out.println(t);
+	}
+                
+        return service_id;
     }
 
     public Collection getSchemas(String software_id) {

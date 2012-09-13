@@ -10,16 +10,12 @@ package dataaccesslayer;
  */
 public class CPA {
     int cpa_id;
-    String url;
-    String port;
     int cpp_id_first;
     int cpp_id_second;
     String cpa_info;
 
-    public CPA(int cpa_id, int cpp_id_first, int cpp_id_second, String cpa_info,String url, String port) {
+    public CPA(int cpa_id, int cpp_id_first, int cpp_id_second, String cpa_info) {
         this.cpa_id= cpa_id;
-        this.url = url;
-        this.port = port;
         this.cpp_id_first = cpp_id_first;
         this.cpp_id_second = cpp_id_second;
         this.cpa_info = cpa_info;
@@ -56,22 +52,5 @@ public class CPA {
     public void setCpp_id_second(int cpp_id_second) {
         this.cpp_id_second = cpp_id_second;
     }
-
-    public String getPort() {
-        return port;
-    }
-
-    public void setPort(String port) {
-        this.port = port;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-    
     
 }

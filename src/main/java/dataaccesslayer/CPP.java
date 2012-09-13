@@ -16,8 +16,11 @@ public class CPP {
     private String dataAnnotations;
     private int vendor_id;
     private String service;
+    private int service_id;
     private String operation;
+    private int operation_id;
     private String schema;
+    private int schema_id;
     private String schema_complexType;
     
      public CPP(int cppID, String dataAnnotations,int vendor_id) {
@@ -30,8 +33,11 @@ public class CPP {
         OrgDBConnector orgDBConnector = new OrgDBConnector();
         this.cppID = cppID;
         this.service = orgDBConnector.getServiceName(service_id);
+        this.service_id = service_id;
         this.operation = orgDBConnector.getOperationName(operation_id);
+        this.operation_id = operation_id;
         this.schema = orgDBConnector.getSchemaName(schema_id);
+        this.schema_id = schema_id;
         this.schema_complexType = schema_complexType;
         
        
@@ -91,6 +97,30 @@ public class CPP {
 
     public void setService_id(String service) {
         this.service = service;
+    }
+    
+    public int getOperation_id() {
+        return operation_id;
+    }
+
+    public void setOperation_id(int operation_id) {
+        this.operation_id = operation_id;
+    }
+
+    public int getSchema_id() {
+        return schema_id;
+    }
+
+    public void setSchema_id(int schema_id) {
+        this.schema_id = schema_id;
+    }
+
+    public int getService_id() {
+        return service_id;
+    }
+
+    public void setService_id(int service_id) {
+        this.service_id = service_id;
     }
 
     

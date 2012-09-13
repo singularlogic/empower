@@ -73,16 +73,27 @@ public class MainControlDB {
             t.printStackTrace();
         }
     }
-
-    public Collection getServices(String software_id) {
+    
+    
+    /*
+     * Get all services that belong to a software component. if cvp is true the
+     * functions only returns those that have been annotated.
+     * We put that boolean condition so as to hide services that have never been annotated from organization
+     */
+    public Collection getServices(String software_id, boolean cvp) {
         ResultSet rs;
         LinkedList<Service> compList = new LinkedList<Service>();
 
         try {
 
             this.dbHandler.dbOpen();
-            rs = this.dbHandler.dbQuery("SELECT ws.service_id , ws.name FROM web_service ws where software_id=" + software_id);
+            rs = (cvp) ? this.dbHandler.dbQuery("select ws.service_id as service_id,ws.name as service_name , da.dataAnnotations_id as dataAnnotations "
+                    + "from web_service ws LEFT JOIN operation o on ws.service_id=o.service_id LEFT JOIN operation_schema os  on o.operation_id = os.operation_id "
+                    + "LEFT JOIN schema_xsd  s  on os.schema_id = s.schema_id RIGHT JOIN dataannotations  da  on  s.schema_id = da.schema_id "
+                    + "where ws.software_id=" + software_id)
+                    : this.dbHandler.dbQuery("select ws.service_id as service_id, ws.name as service_name from web_service ws where ws.software_id=" + software_id);
 
+            
             dbConnector dbHand = new dbConnector();
 
             dbHand.dbOpen();
@@ -90,7 +101,7 @@ public class MainControlDB {
 
             if (rs != null) {
                 while (rs.next()) {
-                    compList.add(new Service(rs.getInt("service_id"), rs.getString("name")));
+                    compList.add(new Service(rs.getInt("service_id"), rs.getString("service_name")));
                 }
             }
 
@@ -106,6 +117,7 @@ public class MainControlDB {
     /*
      * Get all schemas that belong to a software component. if cvp is true the
      * functions only returns those that have been annotated.
+     * We put that boolean condition so as to hide schemas that have never been annotated from organization
      */
 
     public Collection getSchemas(String software_id, boolean cvp) {
@@ -162,12 +174,14 @@ public class MainControlDB {
         return OperationList;
     }
 
-    public void insertTaxonomyToOperation(int operation_id, String funcSelections) {
+    public void insertTaxonomyToOperation(int operation_id, String funcSelections,int cvp_id) {
 
         try {
             this.dbHandler.dbOpen();
 
-            this.dbHandler.dbUpdate("update operation set taxonomy_id='" + funcSelections + "' where operation_id=" + operation_id);
+            if (cvp_id==-1)  this.dbHandler.dbUpdate("update operation set taxonomy_id='" + funcSelections + "' where operation_id=" + operation_id);
+            else  this.dbHandler.dbUpdate("update operation set taxonomy_id='" + funcSelections + "',cvp_id="+cvp_id+" where operation_id=" + operation_id);
+            
             this.dbHandler.dbClose();
         } catch (Throwable t) {
             t.printStackTrace();
@@ -228,9 +242,9 @@ public class MainControlDB {
         return mappings;
     }
 
-    public int insertCVP(String annotations, int schema_id, String vendorName, String json, String selections) {
-        ResultSet rs;
-        int cvp = 0, dataannotations_id, vendor_id, cvp_id;
+    public int insertCVP(int schema_id, String vendorName) {
+        ResultSet rs,rs1;
+        int vendor_id, cvp_id=-1;
         int num = 0;
 
         try {
@@ -239,31 +253,56 @@ public class MainControlDB {
             vendor_id = getuserid(vendorName);
             System.out.println(" vendor_id:" + vendor_id);
 
-            //check if exists an other cvp
+            //check if exists an other cvp. (if the web service has a cvp asigned)
             this.dbHandler.dbOpen();
 
-            rs = this.dbHandler.dbQuery("SELECT cvp_id, da.dataAnnotations_id from dataannotations  da, cvp  cvp  WHERE schema_id=" + schema_id + " and selections='" + selections + "' and da.dataAnnotations_id = cvp.dataAnnotations_id");
-
+            //rs = this.dbHandler.dbQuery("SELECT cvp.cvp_id, da.dataAnnotations_id from dataannotations  da, cvp  cvp  WHERE schema_id=" + schema_id + " and selections='" + selections + "' and da.dataAnnotations_id = cvp.dataAnnotations_id");
+              rs = this.dbHandler.dbQuery("select cvp.cvp_id as cvp_id from operation_schema os, operation o, cvp cvp where  o.operation_id=os.operation_id and cvp.service_id = o.service_id and os.schema_id = "+ schema_id);  
             if (rs.next()) {
                 cvp_id = rs.getInt("cvp_id");
-                System.out.println(" CVP exists:" + cvp);
-
-                //update dataannotations info and vendor name info of cvp
-
-                this.dbHandler.dbUpdate("update dataannotations set mapping='" + json + "', xslt_annotations ='" + annotations + "', selections = '" + selections + "'  where dataannotations_id=" + rs.getInt("dataannotations_id") + ";");
-                System.out.println("update dataannotations");
                 this.dbHandler.dbUpdate("update cvp set vendor_id='" + vendor_id + "' where cvp_id=" + cvp_id + ";");
                 System.out.println("update cvp");
 
             } else {
-                dataannotations_id = this.dbHandler.dbUpdate("insert into dataannotations (schema_id, xslt_annotations,mapping,selections) values (" + schema_id + ",'" + annotations + "','" + json + "','" + selections + "');");
-
-                System.out.println(" create dataannotations:" + dataannotations_id);
-
+                //get service_id that participates the schema
+                rs1 = this.dbHandler.dbQuery("select o.service_id as service_id from operation_schema os, operation o where os.schema_id = "+schema_id+" and o.operation_id=os.operation_id");
                 // insert cvp
-                cvp_id = this.dbHandler.dbUpdate("insert into cvp(dataAnnotations_id, vendor_id) values(" + dataannotations_id + ",'" + vendor_id + "');");
+                if (rs1.next()) {
+                    cvp_id = this.dbHandler.dbUpdate("insert into cvp(service_id, vendor_id) values(" + rs1.getInt("service_id") + ",'" + vendor_id + "');");
+                    System.out.println(" create cvp:" + cvp_id);
+                }
+                rs1.close();
+            }
+            rs.close();
 
-                System.out.println(" create cvp:" + cvp_id);
+            this.dbHandler.dbClose();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+
+        return cvp_id;
+    }
+    
+    public int insert_dataannotations(int cvp_id ,String annotations, int schema_id, String vendorName, String json, String selections) {
+        ResultSet rs;
+        int cvp = 0, dataannotations_id, vendor_id;
+        int num = 0;
+
+        try {
+           this.dbHandler.dbOpen();
+
+            //rs = this.dbHandler.dbQuery("SELECT cvp.cvp_id, da.dataAnnotations_id from dataannotations  da, cvp  cvp  WHERE schema_id=" + schema_id + " and selections='" + selections + "' and da.dataAnnotations_id = cvp.dataAnnotations_id");
+              rs = this.dbHandler.dbQuery("select da.dataAnnotations_id as dataAnnotations_id from dataannotations  da where da.cvp_id ="+cvp_id+" and da.schema_id="+schema_id);  
+            if (rs.next()) {
+                dataannotations_id = rs.getInt("dataAnnotations_id");
+                System.out.println(" dataannotations_id exists:" + dataannotations_id);
+                //update dataannotations info
+                this.dbHandler.dbUpdate("update dataannotations set mapping='" + json + "', xslt_annotations ='" + annotations + "', selections = '" + selections + "'  where dataannotations_id=" + dataannotations_id + ";");
+                System.out.println("update dataannotations");
+            } else {
+                 //create dataannotations info
+                dataannotations_id = this.dbHandler.dbUpdate("insert into dataannotations (schema_id, xslt_annotations,mapping,selections,cvp_id) values (" + schema_id + ",'" + annotations + "','" + json + "','" + selections + "',"+cvp_id+");");
+                System.out.println(" create dataannotations:" + dataannotations_id);
             }
 
             this.dbHandler.dbClose();
@@ -273,8 +312,28 @@ public class MainControlDB {
 
         return cvp;
     }
+    public int getCVP(int schema_id) {
+        ResultSet rs,rs1;
+        int cvp = 0, vendor_id, cvp_id = -1;
+        int num = 0;
 
-    public int insertCPP(String annotations, int schema_id, String orgName, String json, String selections) {
+        try {
+            //check if exists an other cvp. (if the web service has a cvp asigned)
+            this.dbHandler.dbOpen();
+
+            rs = this.dbHandler.dbQuery("select cvp.cvp_id as cvp_id from operation_schema os, operation o, cvp cvp where  o.operation_id=os.operation_id and cvp.service_id = o.service_id and os.schema_id ="+ schema_id);  
+            if (rs.next()) cvp_id =  rs.getInt("cvp_id");
+            else throw new EmptyStackException();
+
+             this.dbHandler.dbClose();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+            return cvp_id;
+ 
+    }
+
+    public int insertCPP(int schema_id, String orgName) {
         ResultSet rs, rs1;
         int cvp_id = -1, organization_id, cpp_id = -1, vendor_id = -1, dataannotations_id = -1;
         try {
@@ -284,17 +343,14 @@ public class MainControlDB {
 
             this.dbHandler.dbOpen();
             //check if exists a cvp
-            rs1 = this.dbHandler.dbQuery("SELECT cvp.cvp_id as cvp_id , da.dataAnnotations_id as dataAnnotations_id, cvp.vendor_id  as vendor_id from dataannotations  da, cvp  cvp  WHERE schema_id=" + schema_id + " and selections='" + selections + "' and da.dataAnnotations_id = cvp.dataAnnotations_id");
-
+            //rs1 = this.dbHandler.dbQuery("SELECT cvp.cvp_id as cvp_id , da.dataAnnotations_id as dataAnnotations_id, cvp.vendor_id  as vendor_id from dataannotations  da, cvp  cvp  WHERE schema_id=" + schema_id + " and selections='" + selections + "' and da.dataAnnotations_id = cvp.dataAnnotations_id");
+            rs1 = this.dbHandler.dbQuery("select cvp.cvp_id as cvp_id, cvp.vendor_id  as vendor_id from operation_schema os, operation o, cvp cvp where  o.operation_id=os.operation_id and cvp.service_id = o.service_id and os.schema_id = "+ schema_id);  
+           
             if (rs1.next()) {
                 cvp_id = rs1.getInt("cvp_id");
                 vendor_id = rs1.getInt("vendor_id");
-                dataannotations_id = rs1.getInt("dataannotations_id");
                 rs1.close();
                 
-                //update dataannotations info 
-                this.dbHandler.dbUpdate("update dataannotations set mapping='" + json + "', xslt_annotations ='" + annotations + "', selections = '" + selections + "'  where dataannotations_id=" + dataannotations_id + ";");
-
                 rs = this.dbHandler.dbQuery("SELECT cpp.cpp_id, cpp.organization_id from cpp cpp  WHERE cpp.cvp_id=" + cvp_id);
                 if (rs.next()) {
                      // update cpp

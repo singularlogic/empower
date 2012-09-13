@@ -93,12 +93,15 @@ public class DIController extends HttpServlet {
                     this.showAvailableSources_title(request, response, session);
                 else if (operation.equals("get_menu")) 
                     this.getMenu(request, response, session);
+                else if (operation.equals("show_service")) 
+                    this.manageShowService(request, response, session);
+                else if (operation.equals("show_services")) 
+                    this.showServices(request, response, session);
+                else if (operation.equals("service_reg")) 
+                    this.manageVendorServiceReg(request, response, session);
                 
                 
                 
-                
-                //else
-                //  this.forwardToPage("/error/generic_error.jsp?errormsg=Cannot find op", request, response);
             }  } catch (Throwable t) {
             t.printStackTrace();
             this.forwardToPage("/error/generic_error.jsp?errormsg= " + t.getMessage() + " " + operation, request, response);
@@ -213,7 +216,7 @@ public class DIController extends HttpServlet {
 
 
         MainControlDB mainControlDB = new MainControlDB();
-        LinkedList<Service> services = (LinkedList<Service>) mainControlDB.getServices(software_id);
+        LinkedList<Service> services = (LinkedList<Service>) mainControlDB.getServices(software_id,false);
         System.out.println("services: " + services + "lenght: " + services.size());
         if (services.size() > 0) {
            
@@ -271,6 +274,76 @@ public class DIController extends HttpServlet {
                     + "</row>");
         }
 
+        out.write("</rows>");
+        out.flush();
+
+        return;
+    }
+     
+     
+     protected void manageShowService(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws ServletException, IOException {
+        String service_num = ((String) request.getParameter("service")).split("_")[1];
+        String software_id = ((String) request.getParameter("service")).split("_")[2];
+        //session.setAttribute("service", (String) request.getParameter("service"));
+
+
+        MainControlDB mainControlDB = new MainControlDB();
+        LinkedList<Service> services = (LinkedList<Service>) mainControlDB.getServices(software_id,false);
+        System.out.println("services: " + services + "lenght: " + services.size());
+        if (services.size() > 0) {
+           
+            JSONObject json_services = new JSONObject();
+            Iterator serv_iterator = services.iterator();
+            while (serv_iterator.hasNext()) {
+                Service serv = (Service) serv_iterator.next();
+                json_services.put(serv.getService_id(), serv.getName());
+            }
+            session.setAttribute("services", json_services);
+        } else {
+            session.setAttribute("services", "");
+        }
+            // if software component with any service
+            if (service_num.equals("0")) {
+                this.forwardToPage("/vendor/serviceReg.jsp?software_id=" + software_id + "&jsp=false", request, response);
+            } else {
+            this.forwardToPage("/showServices.jsp?software_id=" + software_id, request, response);
+            }
+
+    }
+     
+     protected void showServices(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+    throws IOException, ServletException
+    {
+        Iterator servIterator;
+
+        MainControlDB mainControlDB = new MainControlDB();
+        
+        servIterator = (verifyUser("vendor", session)) ? mainControlDB.getServices((String)request.getParameter("software_id"),false).iterator()
+                : mainControlDB.getServices((String)request.getParameter("software_id"),true).iterator();
+
+        response.setContentType("text/xml; charset=UTF-8");        
+        PrintWriter out = response.getWriter();
+        out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+        out.write("<rows>");
+        
+        while(servIterator.hasNext())
+        {
+            Service service = (Service) servIterator.next();
+            out.write("<row id=\"" + service.getService_id() + "\">"
+                    + "<cell>" + service.getName() + "</cell>"
+                    + "<cell>Annotate Data^./vendor/presentServiceTree.jsp?service_id=" + service.getService_id() +"^_self</cell>" 
+                    + "<cell>Annotate Functions^./vendor/presentServiceFunctionTree.jsp?service_id=" + service.getService_id() + "^_self</cell>" 
+                    +  "</row>");    
+//                      "<cell>Delete^./VendorManager?op=delete_service&amp;service_id=" + service.getServiceID() +
+//                      "^_self</cell>" +
+                      
+//                      "^_self</cell>" +
+//                      "<cell>Annotate Taxonomy^./vendor/presentServiceTaxonomy.jsp?service_id=" + service.getServiceID() +
+//                      "^_self</cell>" +                 
+                         
+        }
+        
         out.write("</rows>");
         out.flush();
 
@@ -369,7 +442,14 @@ public class DIController extends HttpServlet {
 
         MainControlDB mainControlDB = new MainControlDB();
 
-        mainControlDB.insertTaxonomyToOperation(operation_id, funcSelections);
+        if (verifyUser("organization", session)) {
+            mainControlDB.insertCPP(schema_id, name);
+            mainControlDB.insertTaxonomyToOperation(operation_id, funcSelections,-1);
+        }else{
+           
+            Integer cvpID = new Integer(mainControlDB.insertCVP(schema_id, name));
+            mainControlDB.insertTaxonomyToOperation(operation_id, funcSelections,cvpID);
+        }
 
         //vendorDBConnector.insertCVPFunction(funcSelections, serviceID, selections, name);
 
@@ -410,6 +490,7 @@ public class DIController extends HttpServlet {
      
     protected void annotate(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws IOException, ServletException, ParserConfigurationException, SAXException, XPathExpressionException {
+        
         int schema_id = Integer.parseInt((String) request.getParameter("schema_id"));
         String schema_data = ((String) request.getParameter("selections")).split("--")[0];
         String inputoutput = ((String) request.getParameter("selections")).split("--")[1];
@@ -464,9 +545,21 @@ public class DIController extends HttpServlet {
             this.forwardToPage("/error/generic_error.jsp?errormsg=op_not_supported_for_you", request, response);
         }
     }
+    
+    protected void manageVendorServiceReg(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws ServletException, IOException {
+        if (verifyUser("vendor", session)) {
+            String softwareID = request.getParameter("software_id");
+
+            this.forwardToPage("/VendorManager?op=service_reg&software_id=" + softwareID, request, response);
+        } else {
+            this.forwardToPage("/error/generic_error.jsp?errormsg=op_not_supported_for_you", request, response);
+        }
+    }
 
     protected void managePostMappings(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws IOException, ServletException {
+        Integer cvpID= -1;
         String json = request.getParameter("json");
 
         String xml = request.getParameter("xml");
@@ -480,18 +573,19 @@ public class DIController extends HttpServlet {
 
         MainControlDB mainControlDB = new MainControlDB();
         //System.out.println("XML=" + xml + "\n\njson=" + json);
-
+        
         if (mapType.equals("cvp")) {
-
-            Integer cvpID = new Integer(mainControlDB.insertCVP(xml, schema_id, name, json, selections));
-            this.forwardToPage("/annotationResult.jsp?schema_id=" + schema_id + "&dataannotation='true'", request, response);
-        }
+        cvpID = new Integer(mainControlDB.insertCVP(schema_id, name));
+       }
+        
         if (mapType.equals("cpp")) {
-            
-            System.out.println("MapTye is cpp");
-            Integer cvpID = new Integer(mainControlDB.insertCPP(xml, schema_id, name, json, selections));
-            this.forwardToPage("/annotationResult.jsp?schema_id=" + schema_id + "&dataannotation='true'", request, response);
+        cvpID=new Integer(mainControlDB.getCVP(schema_id));
+        System.out.println("MapTye is cpp");
+        Integer cppID = new Integer(mainControlDB.insertCPP(schema_id,name));
         }
+        mainControlDB.insert_dataannotations(cvpID,xml, schema_id, name, json, selections);
+        this.forwardToPage("/annotationResult.jsp?schema_id=" + schema_id + "&dataannotation='true'", request, response);
+        
         /*
          * System.out.println("isfullymatched " +
          * vendorDBConnector.isFullyMatched(0, serviceID, cvpID));
@@ -601,9 +695,6 @@ public class DIController extends HttpServlet {
 
         return;
     }
-    
-    
-
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**

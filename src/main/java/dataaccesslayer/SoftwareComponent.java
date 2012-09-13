@@ -13,12 +13,23 @@ public class SoftwareComponent {
     private String name;
     private String version;
     private int num_xsds;
+    private int num_services;
+
+
+    public int getSoftware_id() {
+        return software_id;
+    }
+
+    public void setSoftware_id(int software_id) {
+        this.software_id = software_id;
+    }
     private int software_id;
     
-    public SoftwareComponent(String name, String version, int num_xsds, int software_id) {
+    public SoftwareComponent(String name, String version, int num_xsds, int num_services, int software_id) {
         this.name = name;
         this.version = version;
         this.num_xsds = num_xsds;
+        this.num_services = num_services;
         this.software_id = software_id;
     }
 
@@ -59,5 +70,13 @@ public class SoftwareComponent {
 
     public void setNum_xsds(int num_xsds) {
         this.num_xsds = num_xsds;
+    }
+    
+    public int getNum_services() {
+        return num_services;
+    }
+
+    public void setNum_services(int num_services) {
+        this.num_services = num_services;
     }
 }

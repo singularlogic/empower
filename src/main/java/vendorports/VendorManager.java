@@ -66,14 +66,14 @@ public class VendorManager extends HttpServlet {
                     this.showComponents(request, response, session);
                  else if (operation.equals("schema_reg")) 
                     this.registerSchema(request, response, session);
-                 //else if (operation.equals("show_schemas")) 
-                 //   this.showSchemas(request, response, session);
                  else if (operation.equals("load_software_reg")) 
                     this.loadSoftwareReg(request, response, session);
                  else if (operation.equals("update_software")) 
                     this.updateSoftware(request, response, session);
                  else if (operation.equals("delete_software")) 
                     this.deleteSoftware(request, response, session);
+                 else if (operation.equals("service_reg")) 
+                    this.registerService(request, response, session);  
             }
         } catch (Throwable t) {
             t.printStackTrace();
@@ -161,7 +161,10 @@ public class VendorManager extends HttpServlet {
                     + "&amp;software_name=" + comp.getName() + "&amp;software_version=" + comp.getVersion()
                     + "^_self</cell>"
                     + "<cell>Schemas^../DIController?op=show_schema&amp;xsd=" + rowID + "_" + comp.getNum_xsds()
-                    + "_" + comp.getSoftwareID() + "^_self</cell>" + "</row>");
+                    + "_" + comp.getSoftwareID() + "^_self</cell>" 
+                     + "<cell>Services^../DIController?op=show_service&amp;service=" + rowID + "_" + comp.getNum_services() + 
+                      "_" + comp.getSoftwareID() + "^_self</cell>" 
+                    + "</row>");
         }
 
         out.write("</rows>");
@@ -254,6 +257,68 @@ public class VendorManager extends HttpServlet {
 
         this.forwardToPage("/vendor/succ.jsp", request, response);
     }
+    
+     protected void registerService(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws IOException, ServletException, FileUploadException, Exception {
+        // Check that we have a file upload request
+
+        String service_name = null; 
+        String serviceFilename = null; 
+        String service_namespace = null;
+        int software_id = 0;
+        int service_id = 0;
+
+        boolean isMultipart = ServletFileUpload.isMultipartContent(request);
+
+        // Create a factory for disk-based file items
+        DiskFileItemFactory factory = new DiskFileItemFactory();
+
+        // Set factory constraints
+        factory.setSizeThreshold(30000);
+        factory.setRepository(new File("/home/eleni/Desktop/"));
+        ServletFileUpload upload = new ServletFileUpload(factory);
+
+        upload.setSizeMax(30000);
+
+        // Parse the request
+        List items = upload.parseRequest(request);
+
+        Iterator iter = items.iterator();
+
+        while (iter.hasNext()) {
+            FileItem item = (FileItem) iter.next();
+
+            if (item.isFormField()) {
+
+                System.out.println("Here we have: ");
+
+                if (item.getFieldName().equals("software_id")) {
+                    software_id = Integer.parseInt(item.getString());
+                    System.out.println("lala_software_id " + software_id);
+                } else if (item.getFieldName().equals("service_name")) {
+                    service_name = new String(item.getString());
+                     System.out.println("lala_service_name: " + service_name); 
+                } else if (item.getFieldName().equals("service_namespace")) {
+                    service_namespace = new String(item.getString());
+                     System.out.println("lala_service_namespace: " + service_namespace); 
+                }
+            } else {
+                System.out.println("Here we put the file ");
+
+                serviceFilename = new String(this.xml_rep_path + "/wsdl/" + software_id + "_" + service_name + "_" + ((int) (100000 * Math.random())) + ".wsdl");
+                System.out.println("serviceFilename: " + serviceFilename);
+                File uploadedFile = new File(serviceFilename);
+                item.write(uploadedFile);
+            }
+        }
+
+        VendorDBConnector vendorDBConnector = new VendorDBConnector();
+  
+        service_id = vendorDBConnector.insertServiceInfo(software_id, service_name ,serviceFilename, xml_rep_path,service_namespace);
+
+        this.forwardToPage("/vendor/succ.jsp", request, response);
+    }
+  
     
   
 
