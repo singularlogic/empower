@@ -5,17 +5,19 @@
         <script type="text/javascript" src="./js/jquery.js"></script>  
         <script type="text/javascript">                                          
             $(document).ready(function() {
-                $("#get_target_schemas").click(function() {
-
-                    $.getJSON('./OrganizationManager?op=showPossibleTargets&selections='+tree.getAllChecked(), function(data) {
-     
-                        target_tree = new dhtmlXTreeObject("target_box_tree", "100%", "100%", 0);
-                        target_tree.setImagePath("./js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
-                        target_tree.enableCheckBoxes(true, false);
-                        //target_tree.loadXMLString("<?xml version='1.0' encoding='UTF-8'?><tree id='0'><item text='accountingEntriesComplexType' id='accountingEntriesComplexType'><item text='documentInfoComplexType' id='documentInfoComplexType'/><item text='entityInformationComplexType' id='entityInformationComplexType'/><item text='entryHeaderComplexType' id='entryHeaderComplexType\'><item text='entryDetailComplexType' id='entryDetailComplexType'/></item></item></tree>", null);               
-                        target_tree.loadXMLString(data.tree, null);               
-                    });
+                $("#get_target_schemas").click(function() {   
+                    $('#target_box_tree').empty();  
+                    if(tree.getAllChecked().split("--").length>8) alert("You have to check only one input schema! Thank You!");
+                    else{    $.getJSON('./OrganizationManager?op=showPossibleTargets&selections='+tree.getAllChecked(), function(data) {
+                            target_tree = new dhtmlXTreeObject("target_box_tree", "100%", "100%", 0);
+                            target_tree.setImagePath("./js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
+                            target_tree.enableCheckBoxes(true, false);
+                            //target_tree.loadXMLString("<?xml version='1.0' encoding='UTF-8'?><tree id='0'><item text='accountingEntriesComplexType' id='accountingEntriesComplexType'><item text='documentInfoComplexType' id='documentInfoComplexType'/><item text='entityInformationComplexType' id='entityInformationComplexType'/><item text='entryHeaderComplexType' id='entryHeaderComplexType\'><item text='entryDetailComplexType' id='entryDetailComplexType'/></item></item></tree>", null);               
+                            target_tree.loadXMLString(data.tree, null);               
+                        }); 
+                    }
                 });
+               
               
             });
  
@@ -33,14 +35,20 @@
         <script>
             function replaceValue()
             {
+                if(tree.getAllChecked().split("--").length>8) alert("You have to check only one input schema! Thank You!");
+                else if(centralTree.getAllChecked().split("--").length>8) alert("You have to check only one output schema! Thank You!");
+                else{    
                 document.forms['annotationf'].elements['selections'].value  = tree.getAllChecked();
-                document.forms['annotationf'].elements['centraltree'].value = centralTree.getAllChecked();                
+                document.forms['annotationf'].elements['centraltree'].value = centralTree.getAllChecked();  
+                }
             }
         
             function assign_selections()
             {
                 document.forms['create_bridge'].elements['selections_source'].value  = tree.getAllChecked();
-                document.forms['create_bridge'].elements['selections_target'].value = target_tree.getAllChecked();                
+                document.forms['create_bridge'].elements['selections_target'].value = target_tree.getAllChecked();  
+                
+                return true;
             }
         </script>
         <title>Presenting service in tree form</title>
@@ -102,6 +110,7 @@
             <div class="main-content" style="width:550px;">
                 <br>
                 <div id="title"> </div>
+                <div><p class="info_message">For Every input schema you choose you get all the available output schemas that belong at the same category with the input selection and have been annotated at the same data facet of the XBRL Taxonomy.</p></div>
                 <br>
                 <div id="box_tree" style="float:left;width:250px; height:400px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;"/>
                 <script>
@@ -118,7 +127,7 @@
         <input type="submit" value="Get Semantically coherent Target Schemas" name="get_target_schemas" id="get_target_schemas"/>
         <br>
         <br>
-        <form method="post" name="create_bridge" action="./OrganizationManager?op=createBridging" onclick="assign_selections();">
+        <form method="post" name="create_bridge" action="./OrganizationManager?op=createBridging" onSubmit="assign_selections();">
             <input type='hidden' name='selections_source'  value='null'>
             <input type='hidden' name='selections_target'  value='null'>
             <input type="submit" value="Create Bridging" name="create_bridging" id="create_bridging"/>

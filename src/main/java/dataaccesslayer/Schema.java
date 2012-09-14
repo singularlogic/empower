@@ -21,9 +21,10 @@ public class Schema {
     String service;
     String inputoutput;
     int cvp_id;
+    String selections;
 
-      
-    public Schema(int service_id , String ws_name, int operation_id,String operation_name,String op_taxonomy_id,String inputoutput,int schema_id,String schema_location, String name, int cvp_id) {
+     
+    public Schema(int service_id , String ws_name, int operation_id,String operation_name,String op_taxonomy_id,String inputoutput,int schema_id,String schema_location, String name, int cvp_id, String selections) {
         this.service_id = service_id;
         this.service = ws_name;
         this.operation_id = operation_id;
@@ -34,16 +35,13 @@ public class Schema {
         this.location = schema_location;
         this.name = name;
         this.cvp_id = cvp_id;
+        this.selections = selections;
     }
-
-   
-            
-            
+       
     public Schema(int schema_id, String name) {
         this.schema_id = schema_id;
         this.name = name;
     }
-     
     
 
     public Schema() {
@@ -141,6 +139,14 @@ public class Schema {
 
     public void setSchema_id(int xsd_id) {
         this.schema_id = schema_id;
+    }
+    
+     public String getSelections() {
+        return selections;
+    }
+
+    public void setSelections(String selections) {
+        this.selections = selections;
     }
    
 }

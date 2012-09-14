@@ -9,6 +9,7 @@ import dataaccesslayer.Schema;
 import dataaccesslayer.Service;
 import dataaccesslayer.dbConnector;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EmptyStackException;
 import java.util.LinkedList;
@@ -90,8 +91,8 @@ public class MainControlDB {
             rs = (cvp) ? this.dbHandler.dbQuery("select ws.service_id as service_id,ws.name as service_name , da.dataAnnotations_id as dataAnnotations "
                     + "from web_service ws LEFT JOIN operation o on ws.service_id=o.service_id LEFT JOIN operation_schema os  on o.operation_id = os.operation_id "
                     + "LEFT JOIN schema_xsd  s  on os.schema_id = s.schema_id RIGHT JOIN dataannotations  da  on  s.schema_id = da.schema_id "
-                    + "where ws.software_id=" + software_id)
-                    : this.dbHandler.dbQuery("select ws.service_id as service_id, ws.name as service_name from web_service ws where ws.software_id=" + software_id);
+                    + "where ws.software_id=" + software_id+" and ws.wsdl IS NOT NULL")
+                    : this.dbHandler.dbQuery("select ws.service_id as service_id, ws.name as service_name from web_service ws where ws.software_id=" + software_id+" and ws.wsdl IS NOT NULL");
 
             
             dbConnector dbHand = new dbConnector();
@@ -174,7 +175,7 @@ public class MainControlDB {
         return OperationList;
     }
 
-    public void insertTaxonomyToOperation(int operation_id, String funcSelections,int cvp_id) {
+    public void insertTaxonomyToOperation(int operation_id,String funcSelections,int cvp_id) {
 
         try {
             this.dbHandler.dbOpen();
@@ -182,6 +183,33 @@ public class MainControlDB {
             if (cvp_id==-1)  this.dbHandler.dbUpdate("update operation set taxonomy_id='" + funcSelections + "' where operation_id=" + operation_id);
             else  this.dbHandler.dbUpdate("update operation set taxonomy_id='" + funcSelections + "',cvp_id="+cvp_id+" where operation_id=" + operation_id);
             
+            this.dbHandler.dbClose();
+        } catch (Throwable t) {
+            t.printStackTrace();
+            System.out.println("Insert Taxonomy " + t);
+
+        }
+    }
+    
+     public void insertTaxonomyAndOperation(int service_id,String operation_name,String funcSelections,int cvp_id) {
+         ResultSet rs;
+         
+         System.out.println(service_id+operation_name+funcSelections+cvp_id);
+        try {
+            this.dbHandler.dbOpen();
+            
+            //check if the operation exists for this service_id
+            rs= this.dbHandler.dbQuery("select o.operation_id as operation_id from operation o where o.service_id="+service_id+" and o.name='"+operation_name+"'");
+            
+            if (rs.next()){
+                if (cvp_id==-1)  this.dbHandler.dbUpdate("update operation set taxonomy_id='" + funcSelections + "' where operation_id=" + rs.getInt("operation_id"));
+                else  this.dbHandler.dbUpdate("update operation set taxonomy_id='" + funcSelections + "',cvp_id="+cvp_id+" where operation_id=" + rs.getInt("operation_id"));
+            
+            }else{
+                if (cvp_id==-1)  this.dbHandler.dbUpdate("insert into operation(name,service_id,taxonomy_id) values('" + operation_name + "',"+service_id+",'"+funcSelections+"')");
+                else  this.dbHandler.dbUpdate("insert into operation(cvp_id,name,service_id,taxonomy_id) values(" + cvp_id + ",'" + operation_name + "',"+service_id+",'"+funcSelections+"')");
+            }
+
             this.dbHandler.dbClose();
         } catch (Throwable t) {
             t.printStackTrace();
@@ -242,7 +270,7 @@ public class MainControlDB {
         return mappings;
     }
 
-    public int insertCVP(int schema_id, String vendorName) {
+    public int insertCVP(int schema_id, int service_id, String vendorName) {
         ResultSet rs,rs1;
         int vendor_id, cvp_id=-1;
         int num = 0;
@@ -255,9 +283,10 @@ public class MainControlDB {
 
             //check if exists an other cvp. (if the web service has a cvp asigned)
             this.dbHandler.dbOpen();
-
-            //rs = this.dbHandler.dbQuery("SELECT cvp.cvp_id, da.dataAnnotations_id from dataannotations  da, cvp  cvp  WHERE schema_id=" + schema_id + " and selections='" + selections + "' and da.dataAnnotations_id = cvp.dataAnnotations_id");
-              rs = this.dbHandler.dbQuery("select cvp.cvp_id as cvp_id from operation_schema os, operation o, cvp cvp where  o.operation_id=os.operation_id and cvp.service_id = o.service_id and os.schema_id = "+ schema_id);  
+            
+            rs = (service_id==-1)?this.dbHandler.dbQuery("select cvp.cvp_id as cvp_id from operation_schema os, operation o, cvp cvp where  o.operation_id=os.operation_id and cvp.service_id = o.service_id and os.schema_id = "+ schema_id)
+                    : this.dbHandler.dbQuery("select cvp.cvp_id as cvp_id from  cvp cvp where  cvp.service_id="+service_id);
+                     
             if (rs.next()) {
                 cvp_id = rs.getInt("cvp_id");
                 this.dbHandler.dbUpdate("update cvp set vendor_id='" + vendor_id + "' where cvp_id=" + cvp_id + ";");
@@ -265,13 +294,15 @@ public class MainControlDB {
 
             } else {
                 //get service_id that participates the schema
-                rs1 = this.dbHandler.dbQuery("select o.service_id as service_id from operation_schema os, operation o where os.schema_id = "+schema_id+" and o.operation_id=os.operation_id");
+                rs1 =this.dbHandler.dbQuery("select o.service_id as service_id from operation_schema os, operation o where os.schema_id = "+schema_id+" and o.operation_id=os.operation_id");
                 // insert cvp
                 if (rs1.next()) {
                     cvp_id = this.dbHandler.dbUpdate("insert into cvp(service_id, vendor_id) values(" + rs1.getInt("service_id") + ",'" + vendor_id + "');");
                     System.out.println(" create cvp:" + cvp_id);
                 }
                 rs1.close();
+                if (service_id!=-1) cvp_id = this.dbHandler.dbUpdate("insert into cvp(service_id, vendor_id) values(" + service_id + ",'" + vendor_id + "');");
+                    
             }
             rs.close();
 
@@ -282,6 +313,7 @@ public class MainControlDB {
 
         return cvp_id;
     }
+    
     
     public int insert_dataannotations(int cvp_id ,String annotations, int schema_id, String vendorName, String json, String selections) {
         ResultSet rs;
@@ -417,5 +449,33 @@ public class MainControlDB {
         }
       
         return name;
+    }
+    
+     public Service getService(int service_id)
+    {
+        Service service = null;
+        ResultSet rs;
+        
+	try{
+            
+            this.dbHandler.dbOpen();
+            rs = this.dbHandler.dbQuery("select * from web_service where service_id=" + service_id);
+
+            if(rs != null)
+            {
+                rs.next();
+                service = new Service(service_id,rs.getString("name"), rs.getString("wsdl"), rs.getString("namespace"));
+            }
+            
+            rs.close();
+            
+            this.dbHandler.dbClose();
+	}
+	catch(Throwable t)
+	{
+		t.printStackTrace(); 
+	}
+
+        return service;        
     }
 }

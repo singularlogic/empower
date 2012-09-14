@@ -70,7 +70,7 @@ public class OrgDBConnector {
 
             if (rs != null) {
                 while (rs.next()) {
-                    XSDList.add(new Schema(rs.getInt("service_id"), rs.getString("ws_name"),rs.getInt("operation_id"),rs.getString("operation_name"),rs.getString("op_taxonomy_id"),rs.getString("inputoutput"),rs.getInt("schema_id"),rs.getString("schema_location"), rs.getString("schema_name"), rs.getInt("cvp_id")));
+                    XSDList.add(new Schema(rs.getInt("service_id"), rs.getString("ws_name"),rs.getInt("operation_id"),rs.getString("operation_name"),rs.getString("op_taxonomy_id"),rs.getString("inputoutput"),rs.getInt("schema_id"),rs.getString("schema_location"), rs.getString("schema_name"), rs.getInt("cvp_id"),rs.getString("selections")));
                 }
             }
 
@@ -84,9 +84,11 @@ public class OrgDBConnector {
         return XSDList;
     }
      
-        public Collection getTargetSchemas(String inputoutput, String taxonomy_id) {
+        public Collection getTargetSchemas(String inputoutput, String taxonomy_id,String xbrl_taxonomy) {
         ResultSet rs;
         LinkedList<Schema> XSDList = new LinkedList<Schema>();
+        String xbrl = xbrl_taxonomy.split("\\$")[1];
+      
 
         try {
 
@@ -99,13 +101,13 @@ public class OrgDBConnector {
                     + " LEFT JOIN schema_xsd  s  on os.schema_id = s.schema_id "
                     + " LEFT JOIN dataannotations da on da.schema_id = s.schema_id "
                     + " LEFT JOIN cvp cvp on cvp.cvp_id = da.cvp_id"
-                    + " where  o.taxonomy_id = '"+taxonomy_id+"' and os.inputoutput='output' and cvp.cvp_id IS NOT NULL order by ws.service_id ");
+                    + " where  o.taxonomy_id = '"+taxonomy_id+"' and os.inputoutput='output' and cvp.cvp_id IS NOT NULL and da.selections LIKE '%"+xbrl+"%' order by ws.service_id ");
             
             
             
             if (rs != null) {
                 while (rs.next()) {
-                    XSDList.add(new Schema(rs.getInt("service_id"), rs.getString("ws_name"),rs.getInt("operation_id"),rs.getString("operation_name"),rs.getString("op_taxonomy_id"),rs.getString("inputoutput"),rs.getInt("schema_id"),rs.getString("schema_location"), rs.getString("schema_name"),rs.getInt("cvp_id")));
+                    XSDList.add(new Schema(rs.getInt("service_id"), rs.getString("ws_name"),rs.getInt("operation_id"),rs.getString("operation_name"),rs.getString("op_taxonomy_id"),rs.getString("inputoutput"),rs.getInt("schema_id"),rs.getString("schema_location"), rs.getString("schema_name"),rs.getInt("cvp_id"),rs.getString("selections")));
                     System.out.println("Schema: "+ rs.getString("ws_name") + " " + rs.getInt("operation_id") + " " + rs.getString("operation_name") + " " + rs.getString("inputoutput")+ " " +rs.getInt("schema_id") + " " + rs.getString("schema_name")+ " " +rs.getInt("cvp_id") );
                 
                 }

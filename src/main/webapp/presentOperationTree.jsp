@@ -45,7 +45,7 @@
                     </ul>
                 </div>
             </div><!-- A.2 HEADER MIDDLE -->
-            <div class="header-middle"><!-- Site message --><div class="sitemessage"><h1 style="float:right">SEMANTIX PROJECT</h1><h2 style="width:450px">A Semantic Service-Oriented Enterprise Application Integration Middleware Addressing the Needs of the European SMEs</h2></div></div>                                    
+            <div class="header-middle"><!-- Site message --><div class="sitemessage"><h1 style="float:right">EMPOWER PROJECT</h1><h2 style="width:450px">A Semantic Service-Oriented Enterprise Application Integration Middleware Addressing the Needs of the European SMEs</h2></div></div>                                    
             <div class="header-bottom"><!-- Navigation Level 2 (Drop-down menus) --><div class="nav2"><ul><li id="current" class="last"><a href="actions.jsp?action=tabSelect&amp;tabIndex=0&amp;menuitemId=tabA">Home</a></li></ul></div></div>
             <div class="header-breadcrumbs"><ul></ul></div>
         </div>   
@@ -76,8 +76,12 @@
                         tree.setImagePath("./js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
                         tree.enableCheckBoxes(true, false);                      
                         tree.load
-                        tree.loadXML('./DIController?op=present_service_operations&schema_id=<%= request.getParameter("schema_id") %>', null);
-                </script>
+                        if(<%=request.getParameter("service_id")%>){
+                         tree.loadXML('./DIController?op=present_service_operations&service_id=<%= request.getParameter("service_id") %>', null); 
+                        }else if (<%=request.getParameter("schema_id")%>){     
+                         tree.loadXML('./DIController?op=present_service_operations&schema_id=<%= request.getParameter("schema_id") %>', null);
+                        }
+                        </script>
                 </div>
                 
                 <br>
@@ -96,7 +100,9 @@
 
                 <br><br>
                 <form method="post" name="annotationf" action="./DIController?op=annotate_operations" onClick="replaceValue();">
+                    
                     <input type='hidden' name='schema_id' value='<%= request.getParameter("schema_id") %>'>
+                    <input type='hidden' name='service_id' value='<%= request.getParameter("service_id") %>'>
                     <input type='hidden' name='selections' value='null'>
                     <input type='hidden' name='funcselections' value='null'>
                     
@@ -104,7 +110,7 @@
                 </form>
             </div>
     </div>
-            <div class="footer"><p>Copyright &copy; 2011 SEMANTIX Consortium | All Rights Reserved</p></div>
+            <div class="footer"><p>Copyright &copy; 2011 EMPOWER Consortium | All Rights Reserved</p></div>
     </center>                
 </body>
 </html>

@@ -11,10 +11,19 @@ package dataaccesslayer;
 public class Service {
     int service_id;
     String  name;
+    String wsdl;
+    String namespace;
 
     public Service(int service_id, String name) {
         this.service_id = service_id;
         this.name = name;
+    }
+    
+    public Service(int service_id, String name, String wsdl , String namespace) {
+        this.service_id = service_id;
+        this.name = name;
+        this.wsdl = wsdl;
+        this.namespace = namespace;
     }
     
 
@@ -34,4 +43,19 @@ public class Service {
         this.service_id = service_id;
     }
     
+    public String getNamespace() {
+        return namespace;
+    }
+
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
+    }
+
+    public String getWsdl() {
+        return wsdl;
+    }
+
+    public void setWsdl(String wsdl) {
+        this.wsdl = wsdl;
+    }
 }

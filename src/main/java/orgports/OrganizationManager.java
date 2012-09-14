@@ -154,11 +154,12 @@ public class OrganizationManager extends HttpServlet {
         String selections = request.getParameter("selections");
         String inputoutput = selections.split("--")[1];
         String taxonomy_id = selections.split("--")[3];
+        String xbrl_taxonomy = selections.split("--")[7];
         String xml_string = "";
 
         OrgDBConnector orgDBConnector = new OrgDBConnector();
 
-        LinkedList<Schema> schemas = (LinkedList<Schema>) orgDBConnector.getTargetSchemas(inputoutput, taxonomy_id);
+        LinkedList<Schema> schemas = (LinkedList<Schema>) orgDBConnector.getTargetSchemas(inputoutput, taxonomy_id,xbrl_taxonomy);
 
         Iterator<Schema> schemas_it = schemas.iterator();
         while (schemas_it.hasNext()) {
