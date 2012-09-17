@@ -129,8 +129,11 @@ public class MainControlDB {
 
             this.dbHandler.dbOpen();
 
-            rs = (cvp) ? this.dbHandler.dbQuery("select s.schema_id as schema_id,s.name as schema_name , da.dataAnnotations_id as dataAnnotations from operation o LEFT JOIN web_service ws on o.service_id=ws.service_id LEFT JOIN operation_schema os  on o.operation_id = os.operation_id LEFT JOIN schema_xsd  s  on os.schema_id = s.schema_id RIGHT JOIN dataannotations  da  on  s.schema_id = da.schema_id where ws.software_id=" + software_id)
-                    : this.dbHandler.dbQuery("select s.schema_id as schema_id,s.name as schema_name from operation o LEFT JOIN web_service ws on o.service_id=ws.service_id LEFT JOIN operation_schema os  on o.operation_id = os.operation_id LEFT JOIN schema_xsd  s  on os.schema_id = s.schema_id where ws.software_id=" + software_id);
+            rs = (cvp) ? this.dbHandler.dbQuery("select s.schema_id as schema_id,s.name as schema_name "
+                    + "from operation o  LEFT JOIN web_service ws on o.service_id=ws.service_id  LEFT JOIN operation_schema os  on o.operation_id = os.operation_id "
+                    + "LEFT JOIN schema_xsd  s  on os.schema_id = s.schema_id RIGHT JOIN cvp  cvp  on  cvp.service_id = ws.service_id "
+                    + "where ws.software_id="+software_id+" and ws.wsdl IS NULL")
+                    : this.dbHandler.dbQuery("select s.schema_id as schema_id,s.name as schema_name from operation o LEFT JOIN web_service ws on o.service_id=ws.service_id LEFT JOIN operation_schema os  on o.operation_id = os.operation_id LEFT JOIN schema_xsd  s  on os.schema_id = s.schema_id where ws.wsdl IS NULL and ws.software_id=" + software_id);
 
             if (rs != null) {
                 while (rs.next()) {
@@ -175,7 +178,7 @@ public class MainControlDB {
         return OperationList;
     }
 
-    public void insertTaxonomyToOperation(int operation_id,String funcSelections,int cvp_id) {
+    public void functionalAnnotationBySchema(int operation_id,String funcSelections,int cvp_id) {
 
         try {
             this.dbHandler.dbOpen();
@@ -191,7 +194,7 @@ public class MainControlDB {
         }
     }
     
-     public void insertTaxonomyAndOperation(int service_id,String operation_name,String funcSelections,int cvp_id) {
+     public void functionalAnnotationByService(int service_id,String operation_name,String funcSelections,int cvp_id) {
          ResultSet rs;
          
          System.out.println(service_id+operation_name+funcSelections+cvp_id);
@@ -365,7 +368,7 @@ public class MainControlDB {
  
     }
 
-    public int insertCPP(int schema_id, String orgName) {
+    public int insertCPP(int schema_id, int service_id, String orgName) {
         ResultSet rs, rs1;
         int cvp_id = -1, organization_id, cpp_id = -1, vendor_id = -1, dataannotations_id = -1;
         try {
@@ -376,7 +379,9 @@ public class MainControlDB {
             this.dbHandler.dbOpen();
             //check if exists a cvp
             //rs1 = this.dbHandler.dbQuery("SELECT cvp.cvp_id as cvp_id , da.dataAnnotations_id as dataAnnotations_id, cvp.vendor_id  as vendor_id from dataannotations  da, cvp  cvp  WHERE schema_id=" + schema_id + " and selections='" + selections + "' and da.dataAnnotations_id = cvp.dataAnnotations_id");
-            rs1 = this.dbHandler.dbQuery("select cvp.cvp_id as cvp_id, cvp.vendor_id  as vendor_id from operation_schema os, operation o, cvp cvp where  o.operation_id=os.operation_id and cvp.service_id = o.service_id and os.schema_id = "+ schema_id);  
+            rs1 = (service_id==-1)?this.dbHandler.dbQuery("select cvp.cvp_id as cvp_id, cvp.vendor_id  as vendor_id from operation_schema os, operation o, cvp cvp where  o.operation_id=os.operation_id and cvp.service_id = o.service_id and os.schema_id = "+ schema_id)
+                    :this.dbHandler.dbQuery("select cvp.cvp_id as cvp_id, cvp.vendor_id  as vendor_id from cvp cvp where cvp.service_id ="+ service_id);
+                 
            
             if (rs1.next()) {
                 cvp_id = rs1.getInt("cvp_id");
@@ -478,4 +483,6 @@ public class MainControlDB {
 
         return service;        
     }
+     
+    
 }

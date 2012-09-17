@@ -81,8 +81,11 @@
                         tree = new dhtmlXTreeObject("box_tree", "100%", "100%", 0);
                         tree.setImagePath("./js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
                         tree.enableCheckBoxes(true, false);
+                        if(<%=request.getParameter("service_id")%>){
+                         tree.loadXML('./DIController?op=present_service&service_id=<%= request.getParameter("service_id") %>', null); 
+                        }else if (<%=request.getParameter("schema_id")%>){  
                         tree.loadXML('./DIController?op=present_service_schema&schema_id=<%= request.getParameter("schema_id") %>', null);
-
+                        }
                        // tree.loadXML('../VendorManager?op=present_service&service_id=<%= request.getParameter("service_id") %>', null);
                 </script>
                 </div>
@@ -101,6 +104,7 @@
                 
                 <form method="post" name="annotationf" action="./DIController?op=annotate" onClick="replaceValue();">
                     <input type='hidden' name='schema_id' value='<%= request.getParameter("schema_id") %>'>
+                    <input type='hidden' name='schema_id' value='<%= request.getParameter("service_id") %>'>
                     <!--<input type='hidden' name='exposed'  value='< %= request.getParameter("exposed") %>'>-->
                     <input type='hidden' name='selections'  value='null'>
                     <input type='hidden' name='centraltree'  value='null'>                                        
