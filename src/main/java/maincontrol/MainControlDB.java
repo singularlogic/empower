@@ -252,7 +252,7 @@ public class MainControlDB {
         return schema;
     }
 
-    public String getMapping(int schema_id, String selections) {
+    public String getMapping(int schema_id,int service_id, String selections) {
         ResultSet rs;
         String mappings = null;
 

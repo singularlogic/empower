@@ -34,6 +34,8 @@ import xml.XSDParser;
  */
 public class DIController extends HttpServlet {
 
+    private static String xml_rep_path = "/home/eleni/Documents/ubi/empower/empower-deliverable-september/empower";
+
     /**
      * Processes requests for both HTTP
      * <code>GET</code> and
@@ -559,10 +561,15 @@ public class DIController extends HttpServlet {
 
     protected void annotate(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws IOException, ServletException, ParserConfigurationException, SAXException, XPathExpressionException, WSDLException {
-
         
-        
-        if  (!request.getParameter("schema_id").equalsIgnoreCase("null")){ 
+        if  (!request.getParameter("schema_id").equalsIgnoreCase("null")) annotate_data_schema(request,response,session);
+        if  (!request.getParameter("service_id").equalsIgnoreCase("null")) annotate_data_service(request,response,session);
+ 
+    }
+    
+    protected void annotate_data_schema(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws IOException, ServletException, ParserConfigurationException, SAXException, XPathExpressionException, WSDLException {
+       
         int schema_id = Integer.parseInt((String) request.getParameter("schema_id"));    
         String schema_data = ((String) request.getParameter("selections")).split("--")[0];
         String inputoutput = ((String) request.getParameter("selections")).split("--")[1];
@@ -574,9 +581,9 @@ public class DIController extends HttpServlet {
         String filename = ((String) schema.getLocation()).split("/xsd/")[1];
 
         if (inputoutput.equals("output")) {
-            mapping = mainControlDB.getMapping(schema_id, centralTree + "$" + schema_data);
+            mapping = mainControlDB.getMapping(schema_id,-1, centralTree + "$" + schema_data);
         } else {
-            mapping = mainControlDB.getMapping(schema_id, schema_data + "$" + centralTree);
+            mapping = mainControlDB.getMapping(schema_id,-1, schema_data + "$" + centralTree);
         }
 
         if (mapping != null) {
@@ -609,9 +616,61 @@ public class DIController extends HttpServlet {
             request.setAttribute("selections", schema_data + "$" + centralTree);
         }
         this.forwardToPage("/proceedDataTree.jsp?schema_id=" + schema_id, request, response);
-        }
- 
+        
     }
+    
+    protected void annotate_data_service(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws IOException, ServletException, ParserConfigurationException, SAXException, XPathExpressionException, WSDLException {
+   
+       System.out.println("You are in annotate data service!!");
+        int service_id = Integer.parseInt((String)request.getParameter("service_id"));
+        String selections = request.getParameter("selections");
+        String centralTree = request.getParameter("centraltree");
+        String mapping = null;
+        String choice = null;
+
+        MainControlDB mainControlDB = new MainControlDB();
+        Service service = mainControlDB.getService(service_id);
+        
+        WSDLParser wsdlParser = new WSDLParser(service.getWsdl(), service.getNamespace());
+        choice = selections.split("\\$")[1];
+        String inputoutput = selections.split("\\$")[0];
+        String xsdTypes = wsdlParser.extractXSD(choice);
+               
+        String filename = new String("cvp_" + service.getName() + "_" + ((int)(100000*Math.random())) + ".xsd"); 
+        String xsdFilename = new String(xml_rep_path + "/xsd/" + filename);
+        PrintWriter xsdFile = new PrintWriter(xsdFilename);
+        xsdFile.write(xsdTypes);
+        xsdFile.close();
+ 
+        /*
+        mapping = mainControlDB.getMapping(-1,service_id,selections);
+        if(mapping!=null)
+        {
+            mapping = new String(mapping.replace("\\", "%5C%5C%5C%5C"));
+            mapping = new String("&mapping=" + mapping.replace("\"", "%5C%22"));
+            System.out.println(" ============ mapping=" + mapping);
+        }
+        else*/
+            mapping = new String("");
+        
+        if(inputoutput.equalsIgnoreCase("output")){
+            request.setAttribute("output", "xsd/" + filename);
+            request.setAttribute("input", "xsd/XBRL-GL-PR-2010-04-12/plt/case-c-b-m/gl-cor-content-2010-04-12.xsd");
+            request.setAttribute("outputType", choice);
+            request.setAttribute("inputType", centralTree);
+            request.setAttribute("selections", selections);
+        }else{
+            request.setAttribute("input", "xsd/" + filename);
+            request.setAttribute("output", "xsd/XBRL-GL-PR-2010-04-12/plt/case-c-b-m/gl-cor-content-2010-04-12.xsd");
+            request.setAttribute("outputType", centralTree);
+            request.setAttribute("inputType", choice);
+            request.setAttribute("selections", selections);        
+        }
+        this.forwardToPage("/proceedDataTree.jsp?schema_id=" + service_id, request, response);
+    
+    }
+
 
     protected void manageVendorSchemaReg(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws ServletException, IOException {

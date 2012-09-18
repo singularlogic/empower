@@ -104,7 +104,7 @@
                 
                 <form method="post" name="annotationf" action="./DIController?op=annotate" onClick="replaceValue();">
                     <input type='hidden' name='schema_id' value='<%= request.getParameter("schema_id") %>'>
-                    <input type='hidden' name='schema_id' value='<%= request.getParameter("service_id") %>'>
+                    <input type='hidden' name='service_id' value='<%= request.getParameter("service_id") %>'>
                     <!--<input type='hidden' name='exposed'  value='< %= request.getParameter("exposed") %>'>-->
                     <input type='hidden' name='selections'  value='null'>
                     <input type='hidden' name='centraltree'  value='null'>                                        
