@@ -4,6 +4,7 @@
  */
 package maincontrol;
 
+import dataaccesslayer.DataAnnotations;
 import dataaccesslayer.Operation;
 import dataaccesslayer.Schema;
 import dataaccesslayer.Service;
@@ -292,7 +293,7 @@ public class DIController extends HttpServlet {
             throws ServletException, IOException {
         String service_num = ((String) request.getParameter("service")).split("_")[1];
         String software_id = ((String) request.getParameter("service")).split("_")[2];
-        //session.setAttribute("service", (String) request.getParameter("service"));
+        session.setAttribute("service", (String) request.getParameter("service"));
 
 
         MainControlDB mainControlDB = new MainControlDB();
@@ -581,10 +582,13 @@ public class DIController extends HttpServlet {
         String filename = ((String) schema.getLocation()).split("/xsd/")[1];
 
         if (inputoutput.equals("output")) {
-            mapping = mainControlDB.getMapping(schema_id,-1, centralTree + "$" + schema_data);
+             DataAnnotations dataannotations = mainControlDB.getMapping(schema_id,-1, centralTree + "$" + schema_data);
+             mapping = dataannotations.getMapping();
         } else {
-            mapping = mainControlDB.getMapping(schema_id,-1, schema_data + "$" + centralTree);
+            DataAnnotations dataannotations = mainControlDB.getMapping(schema_id,-1, schema_data + "$" + centralTree);
+            mapping = dataannotations.getMapping();
         }
+        
 
         if (mapping != null) {
             mapping = new String(mapping.replace("\"", "\\\""));
@@ -615,21 +619,31 @@ public class DIController extends HttpServlet {
             request.setAttribute("inputType", schema_data);
             request.setAttribute("selections", schema_data + "$" + centralTree);
         }
-        this.forwardToPage("/proceedDataTree.jsp?schema_id=" + schema_id, request, response);
+        this.forwardToPage("/proceedDataTree.jsp?schema_id=" + schema_id+"&service_id=-1", request, response);
         
     }
     
     protected void annotate_data_service(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws IOException, ServletException, ParserConfigurationException, SAXException, XPathExpressionException, WSDLException {
    
-       System.out.println("You are in annotate data service!!");
         int service_id = Integer.parseInt((String)request.getParameter("service_id"));
         String selections = request.getParameter("selections");
         String centralTree = request.getParameter("centraltree");
-        String mapping = null;
+        String mapping = new String("");
         String choice = null;
+        String xbrl_mismatch="false";
+        if (verifyUser("vendor", session)) {
+            request.setAttribute("map_type", "cvp");
+        } else {
+            request.setAttribute("map_type", "cpp");
+        }
 
         MainControlDB mainControlDB = new MainControlDB();
+        DataAnnotations dataannotations = mainControlDB.getMapping(-1,service_id, selections);
+        mapping = dataannotations.getMapping();
+        mapping = new String(mapping.replace("\"", "\\\""));
+        request.setAttribute("mapping", mapping);
+        
         Service service = mainControlDB.getService(service_id);
         
         WSDLParser wsdlParser = new WSDLParser(service.getWsdl(), service.getNamespace());
@@ -643,17 +657,7 @@ public class DIController extends HttpServlet {
         xsdFile.write(xsdTypes);
         xsdFile.close();
  
-        /*
-        mapping = mainControlDB.getMapping(-1,service_id,selections);
-        if(mapping!=null)
-        {
-            mapping = new String(mapping.replace("\\", "%5C%5C%5C%5C"));
-            mapping = new String("&mapping=" + mapping.replace("\"", "%5C%22"));
-            System.out.println(" ============ mapping=" + mapping);
-        }
-        else*/
-            mapping = new String("");
-        
+              
         if(inputoutput.equalsIgnoreCase("output")){
             request.setAttribute("output", "xsd/" + filename);
             request.setAttribute("input", "xsd/XBRL-GL-PR-2010-04-12/plt/case-c-b-m/gl-cor-content-2010-04-12.xsd");
@@ -667,7 +671,12 @@ public class DIController extends HttpServlet {
             request.setAttribute("inputType", choice);
             request.setAttribute("selections", selections);        
         }
-        this.forwardToPage("/proceedDataTree.jsp?schema_id=" + service_id, request, response);
+        
+        
+        if (!centralTree.equalsIgnoreCase(dataannotations.getXbrl())) xbrl_mismatch= dataannotations.getXbrl()+"$"+centralTree; 
+            
+        
+        this.forwardToPage("/proceedDataTree.jsp?schema_id=-1&service_id="+ service_id+"&xbrl_mismatch="+xbrl_mismatch, request, response);
     
     }
 
@@ -701,7 +710,13 @@ public class DIController extends HttpServlet {
 
         String xml = request.getParameter("xml");
         String mapType = request.getParameter("map_type");
-        int schema_id = Integer.parseInt(request.getParameter("service_id"));
+        String xbrlType=request.getParameter("xbrl");
+        int schema_id =-1;
+        int service_id =-1;
+        
+        if (!request.getParameter("schema_id").equalsIgnoreCase("-1")) schema_id = Integer.parseInt(request.getParameter("schema_id"));
+        if (!request.getParameter("service_id").equalsIgnoreCase("-1")) service_id = Integer.parseInt(request.getParameter("service_id"));
+        
         String name = (String) request.getSession().getAttribute("name");
 
         String selections = request.getParameter("selections");
@@ -712,16 +727,15 @@ public class DIController extends HttpServlet {
         //System.out.println("XML=" + xml + "\n\njson=" + json);
 
         if (mapType.equals("cvp")) {
-            cvpID = new Integer(mainControlDB.insertCVP(schema_id, -1, name));
+            cvpID = new Integer(mainControlDB.insertCVP(schema_id, service_id, name));
         }
-
         if (mapType.equals("cpp")) {
-            cvpID = new Integer(mainControlDB.getCVP(schema_id));
-            System.out.println("MapTye is cpp");
-            Integer cppID = new Integer(mainControlDB.insertCPP(schema_id,-1, name));
+            cvpID = new Integer(mainControlDB.getCVP(schema_id,service_id));
+            System.out.println("MapType is cpp");
+            Integer cppID = new Integer(mainControlDB.insertCPP(schema_id,service_id, name));
         }
-        mainControlDB.insert_dataannotations(cvpID, xml, schema_id, name, json, selections);
-        this.forwardToPage("/annotationResult.jsp?schema_id=" + schema_id + "&dataannotation='true'", request, response);
+        mainControlDB.insert_dataannotations(cvpID, xml, schema_id, service_id, name, json, selections,xbrlType);
+        this.forwardToPage("/annotationResult.jsp?schema_id=" + schema_id + "&service_id="+service_id+"&dataannotation='true'", request, response);
 
         /*
          * System.out.println("isfullymatched " +

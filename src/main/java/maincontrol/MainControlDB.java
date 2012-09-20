@@ -4,10 +4,7 @@
  */
 package maincontrol;
 
-import dataaccesslayer.Operation;
-import dataaccesslayer.Schema;
-import dataaccesslayer.Service;
-import dataaccesslayer.dbConnector;
+import dataaccesslayer.*;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -252,17 +249,22 @@ public class MainControlDB {
         return schema;
     }
 
-    public String getMapping(int schema_id,int service_id, String selections) {
+    public DataAnnotations getMapping(int schema_id,int service_id, String selections) {
         ResultSet rs;
         String mappings = null;
+        DataAnnotations dataAnnotations = new DataAnnotations();
 
         try {
             this.dbHandler.dbOpen();
             System.out.println("selections: " + selections);
-            rs = this.dbHandler.dbQuery("select mapping from dataannotations where schema_id=" + schema_id + " and selections='" + selections + "'");
+            rs = (service_id==-1)? this.dbHandler.dbQuery("select dataAnnotations_id,mapping, xbrl from dataannotations where schema_id=" + schema_id + " and selections='" + selections + "'")
+                    : this.dbHandler.dbQuery("select dataAnnotations_id,mapping, xbrl from dataannotations da, cvp cvp where cvp.cvp_id=da.cvp_id and cvp.service_id=" + service_id + " and da.selections='" + selections + "'");
+               
 
             if (rs.next()) {
-                mappings = rs.getString("mapping");
+                dataAnnotations.setDataAnnotations_id(rs.getInt("dataAnnotations_id"));
+                dataAnnotations.setMapping(rs.getString("mapping"));
+                dataAnnotations.setXbrl(rs.getString("xbrl"));
             }
 
             this.dbHandler.dbClose();
@@ -270,7 +272,7 @@ public class MainControlDB {
             t.printStackTrace();
         }
 
-        return mappings;
+        return dataAnnotations;
     }
 
     public int insertCVP(int schema_id, int service_id, String vendorName) {
@@ -318,7 +320,7 @@ public class MainControlDB {
     }
     
     
-    public int insert_dataannotations(int cvp_id ,String annotations, int schema_id, String vendorName, String json, String selections) {
+    public int insert_dataannotations(int cvp_id ,String annotations, int schema_id, int service_id, String vendorName, String json, String selections, String xbrlType) {
         ResultSet rs;
         int cvp = 0, dataannotations_id, vendor_id;
         int num = 0;
@@ -326,17 +328,21 @@ public class MainControlDB {
         try {
            this.dbHandler.dbOpen();
 
-            //rs = this.dbHandler.dbQuery("SELECT cvp.cvp_id, da.dataAnnotations_id from dataannotations  da, cvp  cvp  WHERE schema_id=" + schema_id + " and selections='" + selections + "' and da.dataAnnotations_id = cvp.dataAnnotations_id");
-              rs = this.dbHandler.dbQuery("select da.dataAnnotations_id as dataAnnotations_id from dataannotations  da where da.cvp_id ="+cvp_id+" and da.schema_id="+schema_id);  
+            rs = (service_id==-1)? this.dbHandler.dbQuery("select da.dataAnnotations_id as dataAnnotations_id from dataannotations  da where da.cvp_id ="+cvp_id+" and da.schema_id="+schema_id)
+                     :this.dbHandler.dbQuery("select da.dataAnnotations_id as dataAnnotations_id from dataannotations  da where da.cvp_id ="+cvp_id+" and da.selections='"+selections+"'");
+                     
+            System.out.println("service_id: "+service_id+" cvp_id: "+cvp_id+" selections: "+selections+" schema_id: "+schema_id);
             if (rs.next()) {
                 dataannotations_id = rs.getInt("dataAnnotations_id");
                 System.out.println(" dataannotations_id exists:" + dataannotations_id);
                 //update dataannotations info
-                this.dbHandler.dbUpdate("update dataannotations set mapping='" + json + "', xslt_annotations ='" + annotations + "', selections = '" + selections + "'  where dataannotations_id=" + dataannotations_id + ";");
+                this.dbHandler.dbUpdate("update dataannotations set mapping='" + json + "', xslt_annotations ='" + annotations + "', selections = '" + selections + "', xbrl='"+xbrlType+"'  where dataannotations_id=" + dataannotations_id + ";");
                 System.out.println("update dataannotations");
             } else {
                  //create dataannotations info
-                dataannotations_id = this.dbHandler.dbUpdate("insert into dataannotations (schema_id, xslt_annotations,mapping,selections,cvp_id) values (" + schema_id + ",'" + annotations + "','" + json + "','" + selections + "',"+cvp_id+");");
+               dataannotations_id= (service_id==-1)?  this.dbHandler.dbUpdate("insert into dataannotations (schema_id, xslt_annotations,mapping,selections,cvp_id) values (" + schema_id + ",'" + annotations + "','" + json + "','" + selections + "',"+cvp_id+");")
+                        : this.dbHandler.dbUpdate("insert into dataannotations (xslt_annotations,mapping,selections,cvp_id,xbrl) values ('" + annotations + "','" + json + "','" + selections + "',"+cvp_id+",'"+xbrlType+"');");
+                        
                 System.out.println(" create dataannotations:" + dataannotations_id);
             }
 
@@ -347,7 +353,7 @@ public class MainControlDB {
 
         return cvp;
     }
-    public int getCVP(int schema_id) {
+    public int getCVP(int schema_id, int service_id) {
         ResultSet rs,rs1;
         int cvp = 0, vendor_id, cvp_id = -1;
         int num = 0;
@@ -356,7 +362,9 @@ public class MainControlDB {
             //check if exists an other cvp. (if the web service has a cvp asigned)
             this.dbHandler.dbOpen();
 
-            rs = this.dbHandler.dbQuery("select cvp.cvp_id as cvp_id from operation_schema os, operation o, cvp cvp where  o.operation_id=os.operation_id and cvp.service_id = o.service_id and os.schema_id ="+ schema_id);  
+            rs = (service_id!=-1)? this.dbHandler.dbQuery("select cvp.cvp_id as cvp_id from operation_schema os, operation o, cvp cvp where  o.operation_id=os.operation_id and cvp.service_id = o.service_id and os.schema_id ="+ schema_id)
+                    :this.dbHandler.dbQuery("select cvp.cvp_id as cvp_id from cvp cvp where  cvp.service_id="+ service_id);
+                  
             if (rs.next()) cvp_id =  rs.getInt("cvp_id");
             else throw new EmptyStackException();
 

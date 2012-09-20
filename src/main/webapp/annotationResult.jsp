@@ -61,12 +61,18 @@
                 <br>
                 <p><h2>Action was successful</h2>
                 <br>
-                <% if (((String)session.getAttribute("xsd")).toString() == "true") {%>
-                <p>Annotation for the data of the schema was successful. 
+                <% //if (((String)session.getAttribute("xsd")).toString() == "true") 
+                if (!request.getParameter("dataannotation").equalsIgnoreCase("true"))   {%>
+                <p>Data Annotation was successful. 
                 <% } else { %>
                 <p>Annotation for service operation was successful. 
                 <% } %>
+                <% //if (((String)session.getAttribute("xsd")).toString() == "true") 
+                if (!request.getParameter("schema_id").equalsIgnoreCase("-1"))   {%>
                 <p>Return back to <a href='DIController?op=show_schema&xsd=<%= ((String)session.getAttribute("xsd")).toString() %>'>schema</a>                    
+                <% } else { %>
+                <p>Return back to <a href='DIController?op=show_service&service=<%= ((String)session.getAttribute("service")).toString() %>'>service</a>                    
+                <% } %>
             </div>
     </div>
             <div class="footer"><p>Copyright &copy; 2012 Empower Consortium | All Rights Reserved</p></div>
