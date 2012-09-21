@@ -76,9 +76,11 @@ public class MainControlDB {
     /*
      * Get all services that belong to a software component. if cvp is true the
      * functions only returns those that have been annotated.
+     * if wsdl is null we get all the web services annotated at a schema level 
+     * but if wsdl is declares as "is not null" we only get the wsdl web services
      * We put that boolean condition so as to hide services that have never been annotated from organization
      */
-    public Collection getServices(String software_id, boolean cvp) {
+    public Collection getServices(String software_id, boolean cvp, String wsdl) {
         ResultSet rs;
         LinkedList<Service> compList = new LinkedList<Service>();
 
@@ -88,8 +90,8 @@ public class MainControlDB {
             rs = (cvp) ? this.dbHandler.dbQuery("select ws.service_id as service_id,ws.name as service_name , da.dataAnnotations_id as dataAnnotations "
                     + "from web_service ws LEFT JOIN operation o on ws.service_id=o.service_id LEFT JOIN operation_schema os  on o.operation_id = os.operation_id "
                     + "LEFT JOIN schema_xsd  s  on os.schema_id = s.schema_id RIGHT JOIN dataannotations  da  on  s.schema_id = da.schema_id "
-                    + "where ws.software_id=" + software_id+" and ws.wsdl IS NOT NULL")
-                    : this.dbHandler.dbQuery("select ws.service_id as service_id, ws.name as service_name from web_service ws where ws.software_id=" + software_id+" and ws.wsdl IS NOT NULL");
+                    + "where ws.software_id=" + software_id+" and ws.wsdl "+wsdl)
+                    : this.dbHandler.dbQuery("select ws.service_id as service_id, ws.name as service_name from web_service ws where ws.software_id=" + software_id+" and ws.wsdl "+wsdl);
 
             
             dbConnector dbHand = new dbConnector();
@@ -225,18 +227,23 @@ public class MainControlDB {
         try {
             this.dbHandler.dbOpen();
 
-            rs = this.dbHandler.dbQuery("select ws.service_id as service_id,ws.name as web_service_name ,o.operation_id as operation_id ,o.name as operation_name, s.schema_id as schema_id , s.location as schema_location, s.name as schema_name, os.inputoutput as inputoutput from schema_xsd s LEFT JOIN operation_schema os  on s.schema_id = os.schema_id LEFT JOIN operation o  on o.operation_id = os.operation_id LEFT JOIN web_service ws  on ws.service_id = o.service_id where s.schema_id=" + schema_id);
+            rs = this.dbHandler.dbQuery("select ws.service_id as service_id,ws.name as web_service_name ,o.operation_id as operation_id ,o.name as operation_name, s.schema_id as schema_id , s.location as schema_location, s.name as schema_name, os.inputoutput as inputoutput,o.taxonomy_id as taxomony_id from schema_xsd s LEFT JOIN operation_schema os  on s.schema_id = os.schema_id LEFT JOIN operation o  on o.operation_id = os.operation_id LEFT JOIN web_service ws  on ws.service_id = o.service_id where s.schema_id=" + schema_id);
 
 
             if (rs != null) {
 
                 while (rs.next()) {
                     schema.setSchema_id(rs.getInt("schema_id"));
+                    System.out.println("schema_id "+schema.getSchema_id());
                     schema.setName(rs.getString("schema_name"));
+                    System.out.println("schema_name "+schema.getName());
                     schema.setLocation(rs.getString("schema_location"));
                     schema.setService(rs.getString("web_service_name"));
+                    schema.setService_id(rs.getInt("service_id"));
                     schema.setOperation(rs.getString("operation_name"));
+                    schema.setOperation_id(rs.getInt("operation_id"));
                     schema.setInputoutput(rs.getString("inputoutput"));
+                    schema.setOp_taxonomy_id(rs.getString("taxomony_id"));
                 }
             }
 
@@ -257,8 +264,8 @@ public class MainControlDB {
         try {
             this.dbHandler.dbOpen();
             System.out.println("selections: " + selections);
-            rs = (service_id==-1)? this.dbHandler.dbQuery("select dataAnnotations_id,mapping, xbrl from dataannotations where schema_id=" + schema_id + " and selections='" + selections + "'")
-                    : this.dbHandler.dbQuery("select dataAnnotations_id,mapping, xbrl from dataannotations da, cvp cvp where cvp.cvp_id=da.cvp_id and cvp.service_id=" + service_id + " and da.selections='" + selections + "'");
+            rs = (service_id==-1)? this.dbHandler.dbQuery("select da.dataAnnotations_id as dataAnnotations_id ,da.mapping as mapping, da.xbrl as xbrl from dataannotations da where schema_id=" + schema_id + " and selections='" + selections + "'")
+                    : this.dbHandler.dbQuery("select da.dataAnnotations_id as dataAnnotations_id ,da.mapping as mapping , da.xbrl as xbrl from dataannotations da, cvp cvp where cvp.cvp_id=da.cvp_id and cvp.service_id=" + service_id + " and da.selections='" + selections + "'");
                
 
             if (rs.next()) {
@@ -340,7 +347,7 @@ public class MainControlDB {
                 System.out.println("update dataannotations");
             } else {
                  //create dataannotations info
-               dataannotations_id= (service_id==-1)?  this.dbHandler.dbUpdate("insert into dataannotations (schema_id, xslt_annotations,mapping,selections,cvp_id) values (" + schema_id + ",'" + annotations + "','" + json + "','" + selections + "',"+cvp_id+");")
+               dataannotations_id= (service_id==-1)?  this.dbHandler.dbUpdate("insert into dataannotations (schema_id, xslt_annotations,mapping,selections,cvp_id,xbrl) values (" + schema_id + ",'" + annotations + "','" + json + "','" + selections + "',"+cvp_id+",'"+xbrlType+"');")
                         : this.dbHandler.dbUpdate("insert into dataannotations (xslt_annotations,mapping,selections,cvp_id,xbrl) values ('" + annotations + "','" + json + "','" + selections + "',"+cvp_id+",'"+xbrlType+"');");
                         
                 System.out.println(" create dataannotations:" + dataannotations_id);

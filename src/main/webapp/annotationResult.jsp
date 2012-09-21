@@ -62,10 +62,10 @@
                 <p><h2>Action was successful</h2>
                 <br>
                 <% //if (((String)session.getAttribute("xsd")).toString() == "true") 
-                if (!request.getParameter("dataannotation").equalsIgnoreCase("true"))   {%>
-                <p>Data Annotation was successful. 
+                if (request.getParameter("dataannotation").equalsIgnoreCase("true"))   {%>
+                <p>Data Annotation was successful.
                 <% } else { %>
-                <p>Annotation for service operation was successful. 
+                <p>Annotation for service operation was successful.
                 <% } %>
                 <% //if (((String)session.getAttribute("xsd")).toString() == "true") 
                 if (!request.getParameter("schema_id").equalsIgnoreCase("-1"))   {%>

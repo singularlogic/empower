@@ -225,7 +225,7 @@ public class DIController extends HttpServlet {
 
 
         MainControlDB mainControlDB = new MainControlDB();
-        LinkedList<Service> services = (LinkedList<Service>) mainControlDB.getServices(software_id, false);
+        LinkedList<Service> services = (LinkedList<Service>) mainControlDB.getServices(software_id, false,"IS NULL");
         System.out.println("services: " + services + "lenght: " + services.size());
         if (services.size() > 0) {
 
@@ -297,7 +297,7 @@ public class DIController extends HttpServlet {
 
 
         MainControlDB mainControlDB = new MainControlDB();
-        LinkedList<Service> services = (LinkedList<Service>) mainControlDB.getServices(software_id, false);
+        LinkedList<Service> services = (LinkedList<Service>) mainControlDB.getServices(software_id, false,"IS NOT NULL");
         System.out.println("services: " + services + "lenght: " + services.size());
         if (services.size() > 0) {
 
@@ -326,8 +326,8 @@ public class DIController extends HttpServlet {
 
         MainControlDB mainControlDB = new MainControlDB();
 
-        servIterator = (verifyUser("vendor", session)) ? mainControlDB.getServices((String) request.getParameter("software_id"), false).iterator()
-                : mainControlDB.getServices((String) request.getParameter("software_id"), true).iterator();
+        servIterator = (verifyUser("vendor", session)) ? mainControlDB.getServices((String) request.getParameter("software_id"), false,"IS NOT NULL").iterator()
+                : mainControlDB.getServices((String) request.getParameter("software_id"), true,"IS NOT NULL").iterator();
 
         response.setContentType("text/xml; charset=UTF-8");
         PrintWriter out = response.getWriter();
@@ -458,7 +458,7 @@ public class DIController extends HttpServlet {
             schema_id = Integer.parseInt((String) request.getParameter("schema_id"));
             operation_id = Integer.parseInt((String) request.getParameter("selections"));
             this.annotateOperations_schema(schema_id,operation_id,funcSelections,name,userType);
-            this.forwardToPage("/annotationResult.jsp?schema_id=" + schema_id, request, response);
+            this.forwardToPage("/annotationResult.jsp?schema_id=" + schema_id+"&dataannotation=false", request, response);
         }
         if (!request.getParameter("service_id").equalsIgnoreCase("null")) {
             service_id = Integer.parseInt((String) request.getParameter("service_id"));
@@ -516,7 +516,8 @@ public class DIController extends HttpServlet {
         
         MainControlDB mainControlDB = new MainControlDB();
         Schema schema = mainControlDB.getSchema(schema_id);
-        System.out.println("schema location: " + schema.getLocation());
+        
+        System.out.println(schema_id+"schema location: " + schema.getLocation()+schema.getInputoutput()+"--"+ schema.getOperation_id()+"--"+schema.getOp_taxonomy_id()+"--"+schema.getCvp_id()+"--"+schema.getService_id()+"--"+schema.getSchema_id()+"--"+schema.getSelections());
 
         XSDParser p = new XSDParser(schema);
         String xml_string = p.convertSchemaToXML();
@@ -576,19 +577,14 @@ public class DIController extends HttpServlet {
         String inputoutput = ((String) request.getParameter("selections")).split("--")[1];
         String centralTree = request.getParameter("centraltree");
         String mapping = null;
+        String xbrl_mismatch="false";
 
         MainControlDB mainControlDB = new MainControlDB();
         Schema schema = mainControlDB.getSchema(schema_id);
         String filename = ((String) schema.getLocation()).split("/xsd/")[1];
 
-        if (inputoutput.equals("output")) {
-             DataAnnotations dataannotations = mainControlDB.getMapping(schema_id,-1, centralTree + "$" + schema_data);
-             mapping = dataannotations.getMapping();
-        } else {
-            DataAnnotations dataannotations = mainControlDB.getMapping(schema_id,-1, schema_data + "$" + centralTree);
-            mapping = dataannotations.getMapping();
-        }
-        
+        DataAnnotations dataannotations = mainControlDB.getMapping(schema_id,-1, inputoutput+"$" + schema_data);
+        mapping = dataannotations.getMapping();
 
         if (mapping != null) {
             mapping = new String(mapping.replace("\"", "\\\""));
@@ -596,11 +592,13 @@ public class DIController extends HttpServlet {
         }
 
         request.setAttribute("mapping", mapping);
-        if (verifyUser("vendor", session)) {
-            request.setAttribute("map_type", "cvp");
-        } else {
-            request.setAttribute("map_type", "cpp");
-        }
+        if (verifyUser("vendor", session))   request.setAttribute("map_type", "cvp");
+        else request.setAttribute("map_type", "cpp");
+       
+        
+        request.setAttribute("selections", inputoutput+"$" + schema_data);
+        request.setAttribute("xbrl", centralTree);
+
 
         //we pass to the annotator the schema id as service id until only for the first deliverable of the empower project, so as not to double change the annotator without reason
         if (inputoutput.equals("output")) {
@@ -610,16 +608,19 @@ public class DIController extends HttpServlet {
             request.setAttribute("input", "xsd/XBRL-GL-PR-2010-04-12/plt/case-c-b-m/gl-cor-content-2010-04-12.xsd");
             request.setAttribute("outputType", schema_data);
             request.setAttribute("inputType", centralTree);
-            request.setAttribute("selections", centralTree + "$" + schema_data);
+           
+            
         } else {
             //response.sendRedirect(response.encodeRedirectURL("http://127.0.0.1:8080/annotator?input=xsd/" + filename + "&output=xsd/XBRL-GL-PR-2010-04-12/plt/case-c-b-m/gl-cor-content-2010-04-12.xsd&service_id=" + schema_id + "&map_type=cvp&outputType=" + centralTree + "&inputType=" + schema_data + "&mapping="));
             request.setAttribute("input", "xsd/" + filename);
             request.setAttribute("output", "xsd/XBRL-GL-PR-2010-04-12/plt/case-c-b-m/gl-cor-content-2010-04-12.xsd");
             request.setAttribute("outputType", centralTree);
             request.setAttribute("inputType", schema_data);
-            request.setAttribute("selections", schema_data + "$" + centralTree);
+            
+            //request.setAttribute("selections", schema_data + "$" + centralTree);
         }
-        this.forwardToPage("/proceedDataTree.jsp?schema_id=" + schema_id+"&service_id=-1", request, response);
+        if (!centralTree.equalsIgnoreCase(dataannotations.getXbrl())) xbrl_mismatch= dataannotations.getXbrl()+"$"+centralTree; 
+        this.forwardToPage("/proceedDataTree.jsp?schema_id=" + schema_id+"&service_id=-1&xbrl_mismatch="+xbrl_mismatch, request, response);
         
     }
     
@@ -643,6 +644,7 @@ public class DIController extends HttpServlet {
         mapping = dataannotations.getMapping();
         mapping = new String(mapping.replace("\"", "\\\""));
         request.setAttribute("mapping", mapping);
+        request.setAttribute("selections", selections);       
         
         Service service = mainControlDB.getService(service_id);
         
@@ -663,19 +665,15 @@ public class DIController extends HttpServlet {
             request.setAttribute("input", "xsd/XBRL-GL-PR-2010-04-12/plt/case-c-b-m/gl-cor-content-2010-04-12.xsd");
             request.setAttribute("outputType", choice);
             request.setAttribute("inputType", centralTree);
-            request.setAttribute("selections", selections);
         }else{
             request.setAttribute("input", "xsd/" + filename);
             request.setAttribute("output", "xsd/XBRL-GL-PR-2010-04-12/plt/case-c-b-m/gl-cor-content-2010-04-12.xsd");
             request.setAttribute("outputType", centralTree);
-            request.setAttribute("inputType", choice);
-            request.setAttribute("selections", selections);        
+            request.setAttribute("inputType", choice);  
         }
         
         
         if (!centralTree.equalsIgnoreCase(dataannotations.getXbrl())) xbrl_mismatch= dataannotations.getXbrl()+"$"+centralTree; 
-            
-        
         this.forwardToPage("/proceedDataTree.jsp?schema_id=-1&service_id="+ service_id+"&xbrl_mismatch="+xbrl_mismatch, request, response);
     
     }
@@ -720,11 +718,8 @@ public class DIController extends HttpServlet {
         String name = (String) request.getSession().getAttribute("name");
 
         String selections = request.getParameter("selections");
-        //String service = (String)session.getAttribute("service");
-        //String userType = (String) request.getSession().getAttribute("userType");
 
         MainControlDB mainControlDB = new MainControlDB();
-        //System.out.println("XML=" + xml + "\n\njson=" + json);
 
         if (mapType.equals("cvp")) {
             cvpID = new Integer(mainControlDB.insertCVP(schema_id, service_id, name));
@@ -735,7 +730,7 @@ public class DIController extends HttpServlet {
             Integer cppID = new Integer(mainControlDB.insertCPP(schema_id,service_id, name));
         }
         mainControlDB.insert_dataannotations(cvpID, xml, schema_id, service_id, name, json, selections,xbrlType);
-        this.forwardToPage("/annotationResult.jsp?schema_id=" + schema_id + "&service_id="+service_id+"&dataannotation='true'", request, response);
+        this.forwardToPage("/annotationResult.jsp?schema_id=" + schema_id + "&service_id="+service_id+"&dataannotation=true", request, response);
 
         /*
          * System.out.println("isfullymatched " +

@@ -20,11 +20,12 @@ import javax.xml.parsers.SAXParser;
  * @author eleni
  */
 public class XSDParser  {
-    public Schema schema = new Schema();
+    private Schema schema;
+    //public Schema schema = new Schema();
     
     public XSDParser(Schema schema) {
         
-        this.schema = schema;
+       this.schema = schema;
     }
    
     
@@ -77,6 +78,7 @@ public class XSDParser  {
             if (attributes != null) {
                 for (int i = 0; i < attributes.getLength(); i++) {
                     xmlToReturn.add("<item text='" + attributes.getValue(i)+"("+schema.getInputoutput()+")" + "' id='" + attributes.getValue(i) +"--"+schema.getInputoutput()+"--"+ schema.getOperation_id()+"--"+schema.getOp_taxonomy_id()+"--"+schema.getCvp_id()+"--"+schema.getService_id()+"--"+schema.getSchema_id()+"--"+schema.getSelections()+"' >");
+                System.out.println("' id='" + attributes.getValue(i) +"--"+schema.getInputoutput()+"--"+ schema.getOperation_id()+"--"+schema.getOp_taxonomy_id()+"--"+schema.getCvp_id()+"--"+schema.getService_id()+"--"+schema.getSchema_id()+"--"+schema.getSelections());
                 }
             }
         }
