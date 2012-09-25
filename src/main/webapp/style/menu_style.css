@@ -22,3 +22,8 @@ p.info_message{
     font-weight: bold;
     font-size: 10px !important;   
 }
+
+#menu_grid .organization{
+width:180px !important;    
+height:150px !important;   
+}

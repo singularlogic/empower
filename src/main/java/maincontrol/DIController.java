@@ -80,7 +80,9 @@ public class DIController extends HttpServlet {
                     this.managePostMappings(request, response, session);
                 } else if (operation.equals("show_bridging_schemas")) {
                     this.manageBridgingSchemas(request, response, session);
-                } else if (operation.equals("doBridging")) {
+                }else if (operation.equals("show_bridging_services")) {
+                    this.manageBridgingServices(request, response, session);
+                }else if (operation.equals("doBridging")) {
                     this.doBridging(request, response, session);
                 } else if (operation.equals("showMyBridges")) {
                     this.showMyBridges(request, response, session);
@@ -211,7 +213,8 @@ public class DIController extends HttpServlet {
         if (verifyUser("vendor", session)) {
             this.forwardToPage("/VendorManager?op=show_components", request, response);
         } else if (verifyUser("organization", session)) {
-            this.forwardToPage("/OrganizationManager?op=show_components", request, response);
+            String bridging = request.getParameter("bridging");
+            this.forwardToPage("/OrganizationManager?op=show_components&bridging="+bridging, request, response);
         } else {
             this.forwardToPage("/error/generic_error.jsp?errormsg=op_not_supported_for_you", request, response);
         }
@@ -323,6 +326,7 @@ public class DIController extends HttpServlet {
     protected void showServices(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws IOException, ServletException {
         Iterator servIterator;
+        String img_link  ="";
 
         MainControlDB mainControlDB = new MainControlDB();
 
@@ -333,13 +337,19 @@ public class DIController extends HttpServlet {
         PrintWriter out = response.getWriter();
         out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         out.write("<rows>");
+        
 
         while (servIterator.hasNext()) {
             Service service = (Service) servIterator.next();
+            img_link = (service.isExposed())?"js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/green.gif":"js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/red.gif";
+            
+           
+            System.out.println("img_link"+img_link);
             out.write("<row id=\"" + service.getService_id() + "\">"
                     + "<cell>" + service.getName() + "</cell>"
                     + "<cell>Annotate Functions^./presentOperationTree.jsp?service_id=" + service.getService_id() + "^_self</cell>"
                     + "<cell>Annotate Data^./presentDataTree.jsp?service_id=" + service.getService_id() + "^_self</cell>"
+                    + "<cell type=\"img\">"+img_link+"</cell>"
                     + "</row>");
 //                      "<cell>Delete^./VendorManager?op=delete_service&amp;service_id=" + service.getServiceID() +
 //                      "^_self</cell>" +
@@ -497,15 +507,20 @@ public class DIController extends HttpServlet {
     
       protected boolean annotateOperations_service(int service_id, String operation_name, String funcSelections, String name,String userType){
         
+        boolean isFullyMatched = false;
+        Integer cvpID = -1;
         MainControlDB mainControlDB = new MainControlDB();
         
       if (userType.equalsIgnoreCase("organization")) {
             mainControlDB.insertCPP(-1,service_id,name);
             mainControlDB.functionalAnnotationByService(service_id, operation_name,funcSelections, -1);
+            cvpID = mainControlDB.getCVP(-1, service_id);
         } else {
-            Integer cvpID = new Integer(mainControlDB.insertCVP(-1, service_id, name));
+            cvpID = new Integer(mainControlDB.insertCVP(-1, service_id, name));
             mainControlDB.functionalAnnotationByService(service_id, operation_name, funcSelections, cvpID);      
         }
+        isFullyMatched = mainControlDB.isFullyMatched(0, service_id, cvpID);
+        
         return true;
     }
 
@@ -642,9 +657,16 @@ public class DIController extends HttpServlet {
         MainControlDB mainControlDB = new MainControlDB();
         DataAnnotations dataannotations = mainControlDB.getMapping(-1,service_id, selections);
         mapping = dataannotations.getMapping();
-        mapping = new String(mapping.replace("\"", "\\\""));
+
+        
+       if (mapping != null) {
+            mapping = new String(mapping.replace("\"", "\\\""));
+           System.out.println("==== mapping=" + mapping.substring(0, 500));
+        }
+
         request.setAttribute("mapping", mapping);
-        request.setAttribute("selections", selections);       
+        request.setAttribute("selections", selections); 
+        request.setAttribute("xbrl", centralTree);
         
         Service service = mainControlDB.getService(service_id);
         
@@ -711,6 +733,7 @@ public class DIController extends HttpServlet {
         String xbrlType=request.getParameter("xbrl");
         int schema_id =-1;
         int service_id =-1;
+        boolean isFullyMatched = false;
         
         if (!request.getParameter("schema_id").equalsIgnoreCase("-1")) schema_id = Integer.parseInt(request.getParameter("schema_id"));
         if (!request.getParameter("service_id").equalsIgnoreCase("-1")) service_id = Integer.parseInt(request.getParameter("service_id"));
@@ -729,31 +752,14 @@ public class DIController extends HttpServlet {
             System.out.println("MapType is cpp");
             Integer cppID = new Integer(mainControlDB.insertCPP(schema_id,service_id, name));
         }
+        
         mainControlDB.insert_dataannotations(cvpID, xml, schema_id, service_id, name, json, selections,xbrlType);
+        isFullyMatched = (service_id!=-1)?mainControlDB.isFullyMatched(0, service_id, cvpID):false;
         this.forwardToPage("/annotationResult.jsp?schema_id=" + schema_id + "&service_id="+service_id+"&dataannotation=true", request, response);
 
-        /*
-         * System.out.println("isfullymatched " +
-         * vendorDBConnector.isFullyMatched(0, serviceID, cvpID));
-         * if(vendorDBConnector.isFullyMatched(0, serviceID, cvpID))
-         * this.forwardToPage("/SemanticPublish?op=publish&service_id="+
-         * serviceID + "&cvp_id=" + cvpID, request, response); else
-         * this.forwardToPage(redirectionURL, request, response); *
-         *
-         * else if(mapType.equals("cpp")) { System.out.println(" POST " +
-         * selections + " //// " + name); Integer cvpID =
-         * (Integer)request.getSession().getAttribute("cvp_id");
-         * System.out.println(" POST " + selections + " //// " + name + cvpID);
-         * int cpp = vendorDBConnector.insertCPP(xml, serviceID, selections,
-         * name, cvpID); System.out.println(" POST //// " + cpp); *
-         * if(vendorDBConnector.isFullyMatched(cpp, serviceID, cvpID))
-         * this.forwardToPage("/SemanticPublish?op=publish&service_id="+
-         * serviceID + "&cpp_id=" + cpp, request, response); else
-         * this.forwardToPage(redirectionURL, request, response); } else
-         * if(mapType.equals("functions")) {
-         * vendorDBConnector.insertCVPFunction(xml, serviceID, selections,
-         * name); this.forwardToPage(redirectionURL, request, response); }
-         */
+        
+          
+     
 
     }
 
@@ -764,6 +770,17 @@ public class DIController extends HttpServlet {
 
         if (verifyUser("organization", session)) {
             this.forwardToPage("/organization/showAvailableSources.jsp?software_id=" + software_id, request, response);
+
+        }
+    }
+    
+    protected void manageBridgingServices(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws ServletException, IOException {
+
+        String software_id = request.getParameter("software_id");
+
+        if (verifyUser("organization", session)) {
+            this.forwardToPage("/organization/showAvailableServices.jsp?software_id=" + software_id, request, response);
 
         }
     }
@@ -841,9 +858,10 @@ public class DIController extends HttpServlet {
                     + "<row id='2'><cell>Show software components^" + menu_level + "showSoftwareComponent.jsp^_self</cell></row>"
                     + "<row id='3'><cell>Logout^" + sign_out + "DIController?op=signout^_self</cell></row>");
         } else {
-            out.write("<row id='1'><cell>Show software components^" + menu_level + "showSoftwareComponent.jsp^_self</cell></row>"
-                    + "<row id='2'><cell>Show My Bridges^" + menu_level + "showMyBridges.jsp^_self</cell></row>"
-                    + "<row id='3'><cell>Logout^" + sign_out + "DIController?op=signout^_self</cell></row>");
+            out.write("<row id='1'><cell>Show software components^" + menu_level + "showSoftwareComponent.jsp?bridging=false^_self</cell></row>"
+                    + "<row id='2'><cell>Create My Bridges^" + menu_level + "showSoftwareComponent.jsp?bridging=true^_self</cell></row>"
+                    + "<row id='3'><cell>Show My Bridges^" + menu_level + "showMyBridges.jsp^_self</cell></row>"
+                    + "<row id='4'><cell>Logout^" + sign_out + "DIController?op=signout^_self</cell></row>");
         }
 
 

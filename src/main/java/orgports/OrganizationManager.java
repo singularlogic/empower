@@ -17,11 +17,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.wsdl.WSDLException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import maincontrol.MainControlDB;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 import org.apache.commons.fileupload.FileItem;
@@ -29,6 +31,7 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.xml.sax.SAXException;
+import xml.WSDLParser;
 import xml.XSDParser;
 
 /**
@@ -61,20 +64,23 @@ public class OrganizationManager extends HttpServlet {
 
         try {
             if (operation != null) {
-                if (operation.equals("show_components")) 
+                if (operation.equals("show_components")) {
                     this.showComponents(request, response, session);
-                 else if (operation.equals("show_bridging_schemas")) 
+                } else if (operation.equals("show_bridging_schemas")) {
                     this.manageBridgingSchemas(request, response, session);
-                 else if (operation.equals("showPossibleTargets")) 
+                } else if (operation.equals("show_bridging_services")) {
+                    this.manageBridgingServices(request, response, session);
+                } else if (operation.equals("showPossibleTargets")) {
                     this.showPossibleTargets(request, response, session);
-                 else if (operation.equals("createBridging")) 
+                } else if (operation.equals("createBridging")) {
                     this.createBridging(request, response, session);
-                 else if (operation.equals("doBridging")) 
+                } else if (operation.equals("doBridging")) {
                     this.doBridging(request, response, session);
-                else if (operation.equals("showMyBridges")) 
+                } else if (operation.equals("showMyBridges")) {
                     this.showMyBridges(request, response, session);
-                
-                 
+                }
+
+
 
 
 
@@ -90,7 +96,8 @@ public class OrganizationManager extends HttpServlet {
     protected void showComponents(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws IOException, ServletException {
         int rowID = 1;
-        //String vendorName = request.getParameter("software_name");
+        String bridging = request.getParameter("bridging");
+        System.out.println("bridging " + bridging);
         OrgDBConnector orgDBConnector = new OrgDBConnector();
         Iterator compIterator = (orgDBConnector.getSoftwareComponents()).iterator();
 
@@ -104,10 +111,19 @@ public class OrganizationManager extends HttpServlet {
             out.write("<row id=\"" + comp.getSoftwareID() + "\">"
                     + "<cell>" + comp.getSoftwareID() + "</cell>"
                     + "<cell>" + comp.getName() + "^../DIController?op=show_bridging_schemas&amp;software_id=" + comp.getSoftwareID() + "^_self</cell>"
-                    + "<cell>" + comp.getVersion() + "</cell>"
-                    + "<cell>Bridging^../DIController?op=show_bridging_schemas&amp;software_id=" + comp.getSoftwareID() + "^_self</cell>"
-                    + "<cell>CPP^../DIController?op=show_schema&amp;xsd=1_1_" + comp.getSoftwareID() + "^_self</cell>"
-                    + "</row>");
+                    + "<cell>" + comp.getVersion() + "</cell>");
+
+            if (bridging.equalsIgnoreCase("true")) {
+                out.write("<cell type=\"img\">../js/dhtmlxSuite/dhtmlxTree/codebase/imgs/xsd.png^Schema Bridging^../DIController?op=show_bridging_schemas&amp;software_id=" + comp.getSoftwareID() + "^_self</cell>");
+                out.write("<cell type=\"img\">../js/dhtmlxSuite/dhtmlxTree/codebase/imgs/wsdl.png^Service Bridging^../DIController?op=show_bridging_services&amp;software_id=" + comp.getSoftwareID() + "^_self</cell>");
+
+
+
+            } else {
+                out.write("<cell>Schemas^../DIController?op=show_schema&amp;xsd=1_1_" + comp.getSoftwareID() + "^_self</cell>"
+                        + "<cell>Services^../DIController?op=show_service&amp;service=1_1_" + comp.getSoftwareID() + "^_self</cell>");
+            }
+            out.write(" </row>");
         }
 
         out.write("</rows>");
@@ -159,7 +175,7 @@ public class OrganizationManager extends HttpServlet {
 
         OrgDBConnector orgDBConnector = new OrgDBConnector();
 
-        LinkedList<Schema> schemas = (LinkedList<Schema>) orgDBConnector.getTargetSchemas(inputoutput, taxonomy_id,xbrl_taxonomy);
+        LinkedList<Schema> schemas = (LinkedList<Schema>) orgDBConnector.getTargetSchemas(inputoutput, taxonomy_id, xbrl_taxonomy);
 
         Iterator<Schema> schemas_it = schemas.iterator();
         while (schemas_it.hasNext()) {
@@ -194,16 +210,16 @@ public class OrganizationManager extends HttpServlet {
             throws IOException, ServletException {
 
         OrgDBConnector orgDBConnector = new OrgDBConnector();
-        
+
         int cpa_id = -1;
         String selections_source = request.getParameter("selections_source");
         String cvp_source = selections_source.split("--")[4];
-        int cpp_source = orgDBConnector.getCPP(Integer.parseInt(cvp_source),(String) session.getAttribute("name"));
+        int cpp_source = orgDBConnector.getCPP(Integer.parseInt(cvp_source), (String) session.getAttribute("name"));
         System.out.println("cpp_source: " + cpp_source);
-        
+
         String selections_target = request.getParameter("selections_target");
         String cvp_target = selections_target.split("--")[4];
-        int cpp_target = orgDBConnector.getCPP(Integer.parseInt(cvp_target),(String) session.getAttribute("name"));
+        int cpp_target = orgDBConnector.getCPP(Integer.parseInt(cvp_target), (String) session.getAttribute("name"));
         System.out.println("cpp_target: " + cpp_target);
 
         String organization_name = (String) session.getAttribute("name");
@@ -214,20 +230,20 @@ public class OrganizationManager extends HttpServlet {
         String operation_id = selections_source.split("--")[2];
         String schema_id = selections_source.split("--")[6];
         String complex_type = selections_source.split("--")[0];
-        CPP cppinfo_first= new CPP(cpp_source,Integer.parseInt(service_id),Integer.parseInt(operation_id),Integer.parseInt(schema_id), complex_type);
-        
+        CPP cppinfo_first = new CPP(cpp_source, Integer.parseInt(service_id), Integer.parseInt(operation_id), Integer.parseInt(schema_id), complex_type);
+
         service_id = selections_target.split("--")[5];
         operation_id = selections_target.split("--")[2];
         schema_id = selections_target.split("--")[6];
         complex_type = selections_target.split("--")[0];
-        CPP cppinfo_second= new CPP(cpp_target,Integer.parseInt(service_id),Integer.parseInt(operation_id),Integer.parseInt(schema_id), complex_type);
-        
-        
+        CPP cppinfo_second = new CPP(cpp_target, Integer.parseInt(service_id), Integer.parseInt(operation_id), Integer.parseInt(schema_id), complex_type);
+
+
         CPPList.put("cppinfo_first", cppinfo_first);
         CPPList.put("cppinfo_second", cppinfo_second);
 
-       
-        Map<String, Integer> data = orgDBConnector.insertBridging(cpp_source, cpp_target, organization_name,new Gson().toJson(CPPList));
+
+        Map<String, Integer> data = orgDBConnector.insertBridging(cpp_source, cpp_target, organization_name, new Gson().toJson(CPPList));
 
 
         if (data.containsKey("new_cpa_id")) {
@@ -245,13 +261,13 @@ public class OrganizationManager extends HttpServlet {
 
     protected void doBridging(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws IOException, ServletException, FileUploadException {
-        
-        int  cpa_id =Integer.parseInt(request.getParameter("cpa_id"));
-        String data= "";
-   
+
+        int cpa_id = Integer.parseInt(request.getParameter("cpa_id"));
+        String data = "";
+
         OrgDBConnector orgDBConnector = new OrgDBConnector();
         CPA cpainfo = orgDBConnector.getinfocpa(cpa_id);
-        
+
         int cpp_a = cpainfo.getCpp_id_first();
         int cpp_b = cpainfo.getCpp_id_second();
 
@@ -272,26 +288,26 @@ public class OrganizationManager extends HttpServlet {
         while (iter.hasNext()) {
             FileItem item = (FileItem) iter.next();
 
-            if (!item.isFormField()) {         
-               System.out.println("data: "+item.getString());
-              data = item.getString();
+            if (!item.isFormField()) {
+                System.out.println("data: " + item.getString());
+                data = item.getString();
             }
         }
-        
-        String target_xml = this.transform(cpp_a,cpp_b,data,cpainfo.getCpa_info()).toString();
+
+        String target_xml = this.transform(cpp_a, cpp_b, data, cpainfo.getCpa_info()).toString();
         session.setAttribute("source_xml", data.toString());
         session.setAttribute("target_xml", target_xml);
         this.forwardToPage("/organization/showBridging.jsp", request, response);
 
     }
 
-    private String transform(int cpp_a, int cpp_b, String xmlData,String cpa_info) {
+    private String transform(int cpp_a, int cpp_b, String xmlData, String cpa_info) {
 
         OrgDBConnector orgDBConnector = new OrgDBConnector();
-        
-        String xsltRulesFirst = orgDBConnector.retrieveXLST(cpp_a,"input",cpa_info);//input
-        String xsltRulesSecond = orgDBConnector.retrieveXLST(cpp_b,"output",cpa_info);//output
-       
+
+        String xsltRulesFirst = orgDBConnector.retrieveXLST(cpp_a, "input", cpa_info);//input
+        String xsltRulesSecond = orgDBConnector.retrieveXLST(cpp_b, "output", cpa_info);//output
+
 
         System.out.println("CHECK " + xsltRulesFirst);
         System.out.println("CHECK " + xsltRulesSecond);
@@ -321,6 +337,37 @@ public class OrganizationManager extends HttpServlet {
         return stwRes.toString();
     }
 
+    protected void manageBridgingServices(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws IOException, ServletException, ParserConfigurationException, SAXException, WSDLException {
+
+        response.setContentType("text/xml; charset=UTF-8");
+        String software_id = (String) request.getParameter("software_id");
+        System.out.println("My software_id " + software_id);
+
+        MainControlDB mainControlDB = new MainControlDB();
+        LinkedList<Service> services = (LinkedList<Service>) mainControlDB.getServices(software_id, true, "IS NOT NULL");
+
+        System.out.println("services: " + services + "lenght: " + services.size());
+        if (services.size() > 0) {
+            PrintWriter out = response.getWriter();
+            out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+            out.write("<tree id=\"0\">");
+            Iterator serv_iterator = services.iterator();
+            while (serv_iterator.hasNext()) {
+                Service service = (Service) serv_iterator.next();
+                if (service.isExposed()) {
+                    System.out.println("My service " + service.getService_id() + " " + service.getWsdl() + " " + service.getNamespace());
+                    WSDLParser wsdlParser = new WSDLParser(service.getWsdl(), service.getNamespace());
+                    wsdlParser.loadService(service.getName());
+                    wsdlParser.outputFunctionsToXMLFromRoot(out, service.getName(), service.getService_id());
+                }
+            }
+
+            out.write("</tree>");
+            out.close();
+        }
+    }
+
     private void forwardToPage(String url, HttpServletRequest req, HttpServletResponse resp)
             throws IOException, ServletException {
         RequestDispatcher dis;
@@ -329,12 +376,12 @@ public class OrganizationManager extends HttpServlet {
         dis.forward(req, resp);
         return;
     }
-    
-     protected void showMyBridges(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+
+    protected void showMyBridges(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws IOException, ServletException, FileUploadException {
-         
+
         String name = (String) request.getSession().getAttribute("name");
-         
+
         OrgDBConnector orgDBConnector = new OrgDBConnector();
         Iterator cpaIterator = (orgDBConnector.getCPAs(name)).iterator();
 
@@ -342,56 +389,55 @@ public class OrganizationManager extends HttpServlet {
         PrintWriter out = response.getWriter();
         out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         out.write("<rows>");
-        
-        if (!cpaIterator.hasNext()) out.write("<row><cell>There are no </cell><cell>Bridges </cell><cell> created!!!</cell></row>");
+
+        if (!cpaIterator.hasNext()) {
+            out.write("<row><cell>There are no </cell><cell>Bridges </cell><cell> created!!!</cell></row>");
+        }
 
         while (cpaIterator.hasNext()) {
             CPA cpa = (CPA) cpaIterator.next();
             JSONObject o = new JSONObject();
-            o = (JSONObject) JSONSerializer.toJSON(cpa.getCpa_info());     
-            JSONObject o_first = (JSONObject) JSONSerializer.toJSON(o.get("cppinfo_first"));  
-            JSONObject o_second = (JSONObject) JSONSerializer.toJSON(o.get("cppinfo_second"));  
-            
+            o = (JSONObject) JSONSerializer.toJSON(cpa.getCpa_info());
+            JSONObject o_first = (JSONObject) JSONSerializer.toJSON(o.get("cppinfo_first"));
+            JSONObject o_second = (JSONObject) JSONSerializer.toJSON(o.get("cppinfo_second"));
+
             out.write("<row id=\"" + cpa.getCpa_id() + "1\">"
                     + "<cell> Web Service:</cell>"
-                    + "<cell>"+o_first.get("service") 
-                    +"</cell>"
-                    + "<cell>"+o_second.get("service") 
-                    +"</cell>"
+                    + "<cell>" + o_first.get("service")
+                    + "</cell>"
+                    + "<cell>" + o_second.get("service")
+                    + "</cell>"
                     + "<cell> </cell>"
                     + "</row>"
-                    +"<row id=\"" + cpa.getCpa_id() + "2\">"
+                    + "<row id=\"" + cpa.getCpa_id() + "2\">"
                     + "<cell>Operation:</cell>"
-                    + "<cell>"+o_first.get("operation")
-                    +"</cell>"
-                     + "<cell>"+o_second.get("operation")
-                    +"</cell>"
+                    + "<cell>" + o_first.get("operation")
+                    + "</cell>"
+                    + "<cell>" + o_second.get("operation")
+                    + "</cell>"
                     + "<cell> </cell>"
                     + "</row>"
-                    +"<row id=\"" + cpa.getCpa_id() + "3\">"
+                    + "<row id=\"" + cpa.getCpa_id() + "3\">"
                     + "<cell>Schema:</cell>"
-                    + "<cell>"+o_first.get("schema")
-                    +"</cell>"
-                     + "<cell>"+o_second.get("schema")
-                    +"</cell>"
+                    + "<cell>" + o_first.get("schema")
+                    + "</cell>"
+                    + "<cell>" + o_second.get("schema")
+                    + "</cell>"
                     + "<cell> </cell>"
                     + "</row>"
-                    +"<row id=\"" + cpa.getCpa_id() + "\">"
+                    + "<row id=\"" + cpa.getCpa_id() + "\">"
                     + "<cell>Elenent:</cell>"
-                    + "<cell>"+o_first.get("schema_complexType")
-                    +"</cell>"
-                    +" <cell>"+o_second.get("schema_complexType")
-                    +"</cell>"
-                    + "<cell> Do Brindging^../DIController?op=doBridging&amp;cpa_id="+ cpa.getCpa_id()+ "^_self</cell>"
-                    + "</row>"
-                    );              
+                    + "<cell>" + o_first.get("schema_complexType")
+                    + "</cell>"
+                    + " <cell>" + o_second.get("schema_complexType")
+                    + "</cell>"
+                    + "<cell> Do Brindging^../DIController?op=doBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
+                    + "</row>");
         }
 
         out.write("</rows>");
         out.flush();
-     }
-     
-    
+    }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**

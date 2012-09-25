@@ -41,7 +41,7 @@
         </div>
         <div class="main">
         <div class="main-navigation">
-            <div id="menu_grid" style="width:180px; height:120px" class='glossymenu'>
+            <div id="menu_grid" style="width:180px; height:<%=(session.getAttribute("userType").equals("organization"))?150:120%>px" class='glossymenu'>
                     <script>
                         menu_grid = new dhtmlXGridObject("menu_grid");
                         menu_grid.setImagePath("js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");
@@ -58,9 +58,9 @@
             <div id="box_grid" style="width:600px; height:200px"></div>
                 <script>
                         grid = new dhtmlXGridObject("box_grid");
-                        grid.setImagePath("js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");
-                        grid.setHeader("Service name,Action, ");//set column names
-                        grid.setColTypes("ro,link,link");
+                        grid.setImagePath("js/dhtmlxSuite/dhtmlxGrid/codebase/imgs");
+                        grid.setHeader("Service name,Action,,Fully Annotated");//set column names
+                        grid.setColTypes("ro,link,link,img");
 
                 //        grid.attachEvent("onRowSelect", doOnRowSelected);
                         grid.setSkin("light");//set grid skin

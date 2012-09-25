@@ -87,11 +87,10 @@ public class MainControlDB {
         try {
 
             this.dbHandler.dbOpen();
-            rs = (cvp) ? this.dbHandler.dbQuery("select ws.service_id as service_id,ws.name as service_name , da.dataAnnotations_id as dataAnnotations "
-                    + "from web_service ws LEFT JOIN operation o on ws.service_id=o.service_id LEFT JOIN operation_schema os  on o.operation_id = os.operation_id "
-                    + "LEFT JOIN schema_xsd  s  on os.schema_id = s.schema_id RIGHT JOIN dataannotations  da  on  s.schema_id = da.schema_id "
-                    + "where ws.software_id=" + software_id+" and ws.wsdl "+wsdl)
-                    : this.dbHandler.dbQuery("select ws.service_id as service_id, ws.name as service_name from web_service ws where ws.software_id=" + software_id+" and ws.wsdl "+wsdl);
+            
+            //"select ws.service_id as service_id,ws.name as service_name , da.dataAnnotations_id as dataAnnotations from web_service ws LEFT JOIN operation o on ws.service_id=o.service_id LEFT JOIN operation_schema os  on o.operation_id = os.operation_id LEFT JOIN schema_xsd  s  on os.schema_id = s.schema_id RIGHT JOIN dataannotations  da  on  s.schema_id = da.schema_id where ws.software_id=" + software_id+" and ws.wsdl "+wsdl
+            rs = (cvp) ? this.dbHandler.dbQuery("select ws.service_id as service_id, ws.name as service_name, ws.exposed as exposed, ws.wsdl as wsdl, ws.namespace as namespace from web_service ws,cvp cvp where ws.service_id=cvp.service_id and ws.software_id=" + software_id+" and ws.wsdl "+wsdl)
+                    : this.dbHandler.dbQuery("select ws.service_id as service_id, ws.name as service_name, ws.exposed as exposed, ws.wsdl as wsdl, ws.namespace as namespace from web_service ws where ws.software_id=" + software_id+" and ws.wsdl "+wsdl);
 
             
             dbConnector dbHand = new dbConnector();
@@ -101,7 +100,8 @@ public class MainControlDB {
 
             if (rs != null) {
                 while (rs.next()) {
-                    compList.add(new Service(rs.getInt("service_id"), rs.getString("service_name")));
+                    compList.add(new Service(rs.getInt("service_id"), rs.getString("service_name"),rs.getString("wsdl"),rs.getString("namespace"),rs.getBoolean("exposed")));
+                    System.out.println("service_id "+rs.getInt("service_id")+"service_name "+ rs.getString("service_name")+"exposed "+rs.getBoolean("exposed"));
                 }
             }
 
@@ -333,6 +333,8 @@ public class MainControlDB {
         int num = 0;
 
         try {
+            
+            System.out.println("xbrlType: "+xbrlType);
            this.dbHandler.dbOpen();
 
             rs = (service_id==-1)? this.dbHandler.dbQuery("select da.dataAnnotations_id as dataAnnotations_id from dataannotations  da where da.cvp_id ="+cvp_id+" and da.schema_id="+schema_id)
@@ -369,7 +371,7 @@ public class MainControlDB {
             //check if exists an other cvp. (if the web service has a cvp asigned)
             this.dbHandler.dbOpen();
 
-            rs = (service_id!=-1)? this.dbHandler.dbQuery("select cvp.cvp_id as cvp_id from operation_schema os, operation o, cvp cvp where  o.operation_id=os.operation_id and cvp.service_id = o.service_id and os.schema_id ="+ schema_id)
+            rs = (service_id==-1)? this.dbHandler.dbQuery("select cvp.cvp_id as cvp_id from operation_schema os, operation o, cvp cvp where  o.operation_id=os.operation_id and cvp.service_id = o.service_id and os.schema_id ="+ schema_id)
                     :this.dbHandler.dbQuery("select cvp.cvp_id as cvp_id from cvp cvp where  cvp.service_id="+ service_id);
                   
             if (rs.next()) cvp_id =  rs.getInt("cvp_id");
@@ -484,7 +486,7 @@ public class MainControlDB {
             if(rs != null)
             {
                 rs.next();
-                service = new Service(service_id,rs.getString("name"), rs.getString("wsdl"), rs.getString("namespace"));
+                service = new Service(service_id,rs.getString("name"), rs.getString("wsdl"), rs.getString("namespace"),rs.getBoolean("exposed"));
             }
             
             rs.close();
@@ -498,6 +500,70 @@ public class MainControlDB {
 
         return service;        
     }
+     
+         public boolean isFullyMatched(int cpp, int service_id, int cvpID)
+    {
+        ResultSet rs, tmpSet, funcSet;
+        int numberMessages, numberOperations, funcMessages, dataMessages;
+        String serviceName = null;
+        String operationName = null;
+        
+	try{
+            
+            this.dbHandler.dbOpen();
+            rs = this.dbHandler.dbQuery("select * from web_service where service_id = " + service_id + ";");
+
+            if(rs != null)
+            {
+                    rs.next();
+                    service_id = rs.getInt("service_id");
+                    numberMessages = rs.getInt("messages_number");
+                    numberOperations = rs.getInt("operation_number");
+                    funcMessages = 0;
+                    dataMessages = 0;
+                    serviceName = new String(rs.getString("name"));
+
+                    System.out.println(numberMessages +" "+ numberOperations);
+                    dbConnector dbHandler2 = new dbConnector();                    
+
+                    dbHandler2.dbOpen();
+                    //tmpSet = dbHandler2.dbQuery("select count(operation_name) as cnt from dataannotations where cvp_cvp_id=" + cvpID +";");
+                    tmpSet = dbHandler2.dbQuery("select count(da.dataAnnotations_id) as cnt from dataannotations da, cvp cvp where cvp.cvp_id=da.cvp_id and da.cvp_id=" + cvpID +";");
+                    if(tmpSet.next())
+                    {
+                        System.out.println(tmpSet.getInt("cnt"));
+                        dataMessages = dataMessages + tmpSet.getInt("cnt");
+                    }
+                    tmpSet.close();
+                    dbHandler2.dbClose();                                        
+                    
+                    dbHandler2.dbOpen();
+                    //funcSet = dbHandler2.dbQuery("select count(cvp_cvp_id) as cnt from funcannotations where cvp_cvp_id=" + cvpID + ";");
+                    funcSet = dbHandler2.dbQuery("select count(o.operation_id) as cnt from operation o where service_id=" + service_id + ";");
+                    if(funcSet.next())
+                    {
+                        funcMessages  = funcSet.getInt("cnt");
+                    }
+                    System.out.println(funcMessages);
+                    if(dataMessages==numberMessages && funcMessages==numberOperations){
+                       System.out.println("dataMessages==numberMessages"+dataMessages +numberMessages +"&& funcMessages==numberOperations "+ funcMessages +numberOperations );
+                       this.dbHandler.dbUpdate("update web_service set exposed=1 where service_id=" + service_id);
+                        return true;
+                    }else
+                        return false;
+            }
+            
+            rs.close();
+            
+            this.dbHandler.dbClose();
+	}
+	catch(Throwable t)
+	{
+		t.printStackTrace(); 
+	}
+        
+        return false;
+    } 
      
     
 }

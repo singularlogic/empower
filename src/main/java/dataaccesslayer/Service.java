@@ -13,19 +13,31 @@ public class Service {
     String  name;
     String wsdl;
     String namespace;
+    boolean exposed;
 
-    public Service(int service_id, String name) {
+    
+    public Service(int service_id, String name,boolean exposed) {
         this.service_id = service_id;
         this.name = name;
+        this.exposed = exposed;
     }
     
-    public Service(int service_id, String name, String wsdl , String namespace) {
+    public Service(int service_id, String name, String wsdl , String namespace,boolean exposed) {
         this.service_id = service_id;
         this.name = name;
         this.wsdl = wsdl;
         this.namespace = namespace;
+        this.exposed = exposed;
     }
     
+    public boolean isExposed() {
+        return exposed;
+    }
+
+    public void setExposed(boolean exposed) {
+        this.exposed = exposed;
+    }
+
 
     public String getName() {
         return name;

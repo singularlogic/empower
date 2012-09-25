@@ -110,14 +110,14 @@
             <div class="main-content" style="width:550px;">
                 <br>
                 <div id="title"> </div>
-                <div><p class="info_message">For Every input schema you choose you get all the available output schemas that belong at the same category with the input selection and have been annotated at the same data facet of the XBRL Taxonomy.</p></div>
+                <div><p class="info_message">In this page you can see all the exposed web services (web services that are fully annotated).</p></div>
                 <br>
                 <div id="box_tree" style="float:left;width:250px; height:400px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;"/>
                 <script>
                     tree = new dhtmlXTreeObject("box_tree", "100%", "100%", 0);
                     tree.setImagePath("./js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
                     tree.enableCheckBoxes(true, false);
-                    tree.loadXML('./OrganizationManager?op=show_bridging_schemas&software_id=<%=request.getParameter("software_id")%>', null);
+                    tree.loadXML('./OrganizationManager?op=show_bridging_services&software_id=<%=request.getParameter("software_id")%>', null);
                 </script>
             </div>   
 

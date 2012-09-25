@@ -41,7 +41,7 @@
         </div>
         <div class="main">
         <div class="main-navigation">
-             <div id="menu_grid" style="width:180px; height:120px" class='glossymenu'>
+             <div id="menu_grid" style="width:180px; height:150px" class='glossymenu <%=session.getAttribute("userType")%>'>
                     <script>
                         menu_grid = new dhtmlXGridObject("menu_grid");
                         menu_grid.setImagePath("js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");
@@ -61,17 +61,23 @@
                     String bridge = request.getParameter("bridge"); 
                     if(bridge==null)
                         bridge = new String("no");
-                %>                   
-                <div id="box_grid" style="width:500px; height:200px"/>
+                %> 
+                
+                <% if (request.getParameter("bridging").equalsIgnoreCase("true")){%>
+                <p id="title"><h2>Create My Bridges at Schema or Service Level</h2></p>
+                <%}else{%>
+                <p id="title"><h2>Do Data and Functional Annotation at a Schema or Service Level</h2></p>
+                <%}%>
+                <div id="box_grid" style="width:580px; height:600px"/>
                 <script>
                         grid = new dhtmlXGridObject("box_grid");
                         grid.setImagePath("/js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");
-                        grid.setHeader("ID,Component name,Version,Schemas, ");//set column names
+                        grid.setHeader("ID,Component name,Version,Schemas,Services");//set column names
 //                        grid.attachEvent("onRowSelect", doOnRowSelected);
                         grid.setColTypes("ro,link,ro,link,link");
                         grid.setSkin("light");//set grid skin
                         grid.init();//initialize grid
-                        grid.loadXML("../DIController?op=show_components");
+                        grid.loadXML("../DIController?op=show_components&bridging="+<%=request.getParameter("bridging")%>);
 
 //                        function doOnRowSelected(rowID,celInd){
 //                            location.replace('showServices.jsp?bridge=<%= bridge.toString() %>&software_name=' + rowID);

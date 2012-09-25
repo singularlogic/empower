@@ -609,6 +609,85 @@ public class WSDLParser
             t.printStackTrace();
         }
     }    
+    
+    public void outputFunctionsToXMLFromRoot(PrintWriter out,String service_name, int service_id)
+    {
+        int idNum = 1;
+        int internalIdNum;
+        Map servicePorts;
+        Binding portBinding;
+        Iterator portsIterator, operationIterator;
+        
+        try
+        {
+             out.write("<item text=\"" +service_name  +"\" id=\"" + service_id + "\" nocheckbox=\"true\">");
+            //String elaaa = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<tree id=\"0\">";
+                                            
+            servicePorts = returnServicePorts();
+            portsIterator = servicePorts.keySet().iterator();
+
+            // drill down the wsdl hierarchy
+            // starting from definition
+            while(portsIterator.hasNext())
+            {
+                internalIdNum = 1;
+                String portName = portsIterator.next().toString();
+
+                out.write("<item text=\"" + portName +
+                          "\" id=\"" + portName + "\" nocheckbox=\"true\">");
+                
+                //elaaa = elaaa + "<item text=\"" + portName +
+                //          "\" id=\"" + portName + "\" nocheckbox=\"true\">";
+                
+                portBinding = returnBinding(portName);
+
+                int internalIdNum2 = 1;
+                    
+                String binding = (String) portBinding.getQName().getLocalPart();
+
+                out.write("<item text=\"" + binding +
+                          "\" id=\"" + binding +"\" nocheckbox=\"true\">");
+
+                  //elaaa = elaaa + "<item text=\"" + binding +
+                  //         "\" id=\"" + binding +"\" nocheckbox=\"true\">";
+
+                operationIterator = this.returnBindingsOperations(portName);
+                while(operationIterator.hasNext())
+                {
+                        internalIdNum2 = 1;
+                        BindingOperationImpl operationBinding = 
+                                   (BindingOperationImpl)operationIterator.next();
+                        
+                        String operationName = operationBinding.getName();
+
+                        out.write("<item text=\"" + operationName +
+                                  "\" id=\"" + operationName + "\"/>");
+                        
+                          //elaaa = elaaa + "<item text=\"" + operationName +
+                           //        "\" id=\"" + operationName + "\"/>";
+                        
+                        //outputPortMessages(operationName, binding, out);
+                }
+                internalIdNum++;
+                out.write("</item>");
+                 //elaaa = elaaa + "</item>";
+
+                idNum++;
+                out.write("</item>");
+                // elaaa = elaaa + "</item>";
+            }
+            out.write("</item>");
+            //out.write("</tree>");
+             //elaaa = elaaa + "</tree>";
+            //out.close();
+            
+            //System.out.println("OUUUUUUTTTT: "+elaaa);
+        }
+        catch(Throwable t)
+        {
+            t.printStackTrace();
+        }
+    } 
 
     public String getFirstPortBinding()
     {
