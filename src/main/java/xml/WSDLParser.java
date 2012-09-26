@@ -634,7 +634,7 @@ public class WSDLParser
                 String portName = portsIterator.next().toString();
 
                 out.write("<item text=\"" + portName +
-                          "\" id=\"" + portName + "\" nocheckbox=\"true\">");
+                          "\" id=\"" +service_id+"$"+ portName + "\" nocheckbox=\"true\">");
                 
                 //elaaa = elaaa + "<item text=\"" + portName +
                 //          "\" id=\"" + portName + "\" nocheckbox=\"true\">";
@@ -646,7 +646,7 @@ public class WSDLParser
                 String binding = (String) portBinding.getQName().getLocalPart();
 
                 out.write("<item text=\"" + binding +
-                          "\" id=\"" + binding +"\" nocheckbox=\"true\">");
+                          "\" id=\""+service_id+"$" + binding +"\" nocheckbox=\"true\">");
 
                   //elaaa = elaaa + "<item text=\"" + binding +
                   //         "\" id=\"" + binding +"\" nocheckbox=\"true\">";
@@ -661,7 +661,7 @@ public class WSDLParser
                         String operationName = operationBinding.getName();
 
                         out.write("<item text=\"" + operationName +
-                                  "\" id=\"" + operationName + "\"/>");
+                                  "\" id=\"" +service_id+"$"+operationName + "\"/>");
                         
                           //elaaa = elaaa + "<item text=\"" + operationName +
                            //        "\" id=\"" + operationName + "\"/>";
@@ -687,6 +687,75 @@ public class WSDLParser
         {
             t.printStackTrace();
         }
+    } 
+    
+    
+    public String outputFunctionsToXMLFromRoot(String xml,String service_name, int service_id)
+    {
+        int idNum = 1;
+        int internalIdNum;
+        Map servicePorts;
+        Binding portBinding;
+        Iterator portsIterator, operationIterator;
+        String xml_string="";
+        
+        try
+        {
+            xml_string= xml.concat("<item text=\"" +service_name  +"\" id=\"" + service_id + "\" nocheckbox=\"true\">");
+              
+            System.out.println("xml_string: "+xml_string);
+            servicePorts = returnServicePorts();
+            portsIterator = servicePorts.keySet().iterator();
+
+            // drill down the wsdl hierarchy
+            // starting from definition
+            while(portsIterator.hasNext())
+            {
+                internalIdNum = 1;
+                String portName = portsIterator.next().toString();
+
+                xml_string = xml_string.concat("<item text=\"" + portName +
+                          "\" id=\"" +service_id+"$"+ portName + "\" nocheckbox=\"true\">");
+               
+                portBinding = returnBinding(portName);
+
+                int internalIdNum2 = 1;
+                    
+                String binding = (String) portBinding.getQName().getLocalPart();
+
+                xml_string = xml_string.concat("<item text=\"" + binding +
+                          "\" id=\""+service_id+"$" + binding +"\" nocheckbox=\"true\">");
+
+                operationIterator = this.returnBindingsOperations(portName);
+                while(operationIterator.hasNext())
+                {
+                        internalIdNum2 = 1;
+                        BindingOperationImpl operationBinding = 
+                                   (BindingOperationImpl)operationIterator.next();
+                        
+                        String operationName = operationBinding.getName();
+
+                   xml_string = xml_string.concat("<item text=\"" + operationName +
+                                  "\" id=\"" +service_id+"$"+operationName + "\"/>");
+                        
+                }
+                internalIdNum++;
+               xml_string = xml_string.concat("</item>");
+                
+                idNum++;
+               xml_string = xml_string.concat("</item>");
+               
+            }
+           xml_string = xml_string.concat("</item>");
+           System.out.println("xml_string1: "+xml_string);
+           
+           return xml_string;
+        }
+        catch(Throwable t)
+        {
+            t.printStackTrace();
+        }
+        return xml_string;
     } 
 
     public String getFirstPortBinding()

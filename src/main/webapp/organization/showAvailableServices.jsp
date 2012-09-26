@@ -1,33 +1,62 @@
+<%@page import="net.sf.json.JSONObject"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
     <head>
         <script type="text/javascript" src="./js/jquery.js"></script>  
         <script type="text/javascript">                                          
-            $(document).ready(function() {
+            jQuery(document).ready(function(){
                 $("#get_target_schemas").click(function() {   
-                    $('#target_box_tree').empty();  
+                    $('#target_box_tree').empty(); 
+                    tax_target = $('#tax_target').val();
                     if(tree.getAllChecked().split("--").length>8) alert("You have to check only one input schema! Thank You!");
-                    else{    $.getJSON('./OrganizationManager?op=showPossibleTargets&selections='+tree.getAllChecked(), function(data) {
+                    else{    $.getJSON('./OrganizationManager?op=showPossibleServiceTargets&selections='+tree.getAllChecked()+'tax_target='+tax_target, function(data) {
                             target_tree = new dhtmlXTreeObject("target_box_tree", "100%", "100%", 0);
                             target_tree.setImagePath("./js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
                             target_tree.enableCheckBoxes(true, false);
-                            //target_tree.loadXMLString("<?xml version='1.0' encoding='UTF-8'?><tree id='0'><item text='accountingEntriesComplexType' id='accountingEntriesComplexType'><item text='documentInfoComplexType' id='documentInfoComplexType'/><item text='entityInformationComplexType' id='entityInformationComplexType'/><item text='entryHeaderComplexType' id='entryHeaderComplexType\'><item text='entryDetailComplexType' id='entryDetailComplexType'/></item></item></tree>", null);               
                             target_tree.loadXMLString(data.tree, null);               
                         }); 
                     }
                 });
-               
-              
-            });
- 
-            jQuery(document).ready(function(){
-                dhtmlxAjax.get("./DIController?op=showAvailableSources_title&software_id=<%=request.getParameter("software_id")%>", putTitle);
+
+                $("#tax_target").change(function () {
+                    var tax = "";
+                    $('#target_box_tree').empty();
+                    $("#tax_target option:selected").each(function () {
+                        tax += $(this).text();    
+                        $.getJSON('./OrganizationManager?op=showexposedServicesByTaxonomy&form=json&tax='+tax, function(data) {
+                            target_tree = new dhtmlXTreeObject("target_box_tree", "100%", "100%", 0);
+                            target_tree.setImagePath("./js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
+                            target_tree.enableCheckBoxes(true, false);
+                            target_tree.loadXMLString(data.tree, null);               
+                        }); 
+                    });
+                })
+                
+                $("#tax_source").change(function () {
+                    var tax = "";
+                    $('#box_tree').empty(); 
+                    $("#tax_source option:selected").each(function () {
+                        tax += $(this).text();
+                        $.getJSON('./OrganizationManager?op=showexposedServicesByTaxonomy&form=json&tax='+tax, function(data) {
+                            tree = new dhtmlXTreeObject("box_tree", "100%", "100%", 0);
+                            tree.setImagePath("./js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
+                            tree.enableCheckBoxes(true, false);
+                            tree.loadXMLString(data.tree, null); 
+                            
+                        }); 
+                    });
+                })
+                dhtmlxAjax.get("./DIController?op=showcurrentsoftcomp&software_id=<%=request.getParameter("software_id")%>", putTitle);
             });
 
             function putTitle(loader) {
-                if (loader.xmlDoc.responseText != null)
-                    $('#title').html(loader.xmlDoc.responseText);
+                if (loader.xmlDoc.responseText != null){
+                 $("#softwareComp_source option[value='<%=request.getParameter("software_id")%>']").remove();
+                 $("#softwareComp_source option[text='"+loader.xmlDoc.responseText+"']").remove();
+                 $("select[name='sourceSoftComp'] option:selected").text('DI-Office');
+                 $("select[name='sourceSoftComp'] option:selected").val('<%=request.getParameter("software_id")%>');
+              }
             }
 
   
@@ -38,8 +67,8 @@
                 if(tree.getAllChecked().split("--").length>8) alert("You have to check only one input schema! Thank You!");
                 else if(centralTree.getAllChecked().split("--").length>8) alert("You have to check only one output schema! Thank You!");
                 else{    
-                document.forms['annotationf'].elements['selections'].value  = tree.getAllChecked();
-                document.forms['annotationf'].elements['centraltree'].value = centralTree.getAllChecked();  
+                    document.forms['annotationf'].elements['selections'].value  = tree.getAllChecked();
+                    document.forms['annotationf'].elements['centraltree'].value = centralTree.getAllChecked();  
                 }
             }
         
@@ -109,10 +138,88 @@
             </div>
             <div class="main-content" style="width:550px;">
                 <br>
-                <div id="title"> </div>
+                <div id="title"><h2>Create My Bridges at Service Level</h2></div>
                 <div><p class="info_message">In this page you can see all the exposed web services (web services that are fully annotated).</p></div>
                 <br>
-                <div id="box_tree" style="float:left;width:250px; height:400px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;"/>
+                <div>
+                    <div style="width: 250px; float: left;">
+                        <div class="st_title"><p>Source Web Service</p></div>
+                        <div>
+                            <p>Sofware Components:</p>
+                            <select name="sourceSoftComp" id="softwareComp_source" style="margin:10px;">
+                                <option></option> 
+                                <option value="All">All</option>   
+                                <%
+                                    if (session.getAttribute("softwarecomponents") != "") {
+                                        JSONObject taxonomies = (JSONObject) session.getAttribute("softwarecomponents");
+                                        for (Object o : taxonomies.keySet()) {
+                                            String key = (String) o;
+                                            String value = taxonomies.getString(key);
+                                            System.out.println("key: " + key + " value: " + value);
+                                 %> <option value="<%=key%>"><%=value%></option><%
+                                        }
+                                    }
+
+                                %> 
+                            </select>
+                            <p>Semantic taxonomies:</p>
+                            <select name="Semantic taxonomies" id="tax_source" style="margin:10px;">
+                                <option>All</option>   
+
+                                <%
+                                    if (session.getAttribute("taxonomies") != "") {
+                                        JSONObject taxonomies = (JSONObject) session.getAttribute("taxonomies");
+                                        for (Object o : taxonomies.keySet()) {
+                                            String key = (String) o;
+                                            String value = taxonomies.getString(key);
+                                            System.out.println("key: " + key + " value: " + value);
+                                %> <option><%=value%></option><%
+                                        }
+                                    }
+
+                                %> 
+                            </select>
+                        </div>
+                    </div>
+                    <div style="width: 250px; float: right;">
+                        <div class="st_title"><p>Target Web Service</p></div>
+                        <p>Sofware Components:</p>
+                        <select name="Software Components" id="softwareComp_target" style="margin:10px;">
+                            <option>All</option>   
+
+                            <%
+                                if (session.getAttribute("softwarecomponents") != "") {
+                                    JSONObject taxonomies = (JSONObject) session.getAttribute("softwarecomponents");
+                                    for (Object o : taxonomies.keySet()) {
+                                        String key = (String) o;
+                                        String value = taxonomies.getString(key);
+                                        System.out.println("key: " + key + " value: " + value);
+                            %> <option><%=value%></option><%
+                                    }
+                                }
+
+                            %> 
+                        </select>
+                        <p>Semantic taxonomies:</p>
+                        <select name="Semantic taxonomies" id="tax_target" style="margin:10px;">
+                            <option>All</option>   
+
+                            <%
+                                if (session.getAttribute("taxonomies") != "") {
+                                    JSONObject taxonomies = (JSONObject) session.getAttribute("taxonomies");
+                                    for (Object o : taxonomies.keySet()) {
+                                        String key = (String) o;
+                                        String value = taxonomies.getString(key);
+                                        System.out.println("key: " + key + " value: " + value);
+                            %> <option><%=value%></option><%
+                                    }
+                                }
+
+                            %> 
+                        </select>
+                    </div>
+                </div>
+                <div id="box_tree" style="float:left;width:250px; height:400px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;margin: 10px;"/>
                 <script>
                     tree = new dhtmlXTreeObject("box_tree", "100%", "100%", 0);
                     tree.setImagePath("./js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
@@ -120,11 +227,15 @@
                     tree.loadXML('./OrganizationManager?op=show_bridging_services&software_id=<%=request.getParameter("software_id")%>', null);
                 </script>
             </div>   
+            <div id="target_box_tree" style="width:250px; height:400px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;margin: 10px;">
+            <script>
+                    target_tree = new dhtmlXTreeObject("target_box_tree", "100%", "100%", 0);
+                    target_tree.setImagePath("./js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
+                    target_tree.enableCheckBoxes(true, false);
+                    target_tree.loadXML('./OrganizationManager?op=showexposedServicesByTaxonomy&tax=All&form=out', null);
+            </script>    
+            </div>
 
-            <div id="target_box_tree" style="width:250px; height:400px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;"/>
-        </div>
-
-        <input type="submit" value="Get Semantically coherent Target Schemas" name="get_target_schemas" id="get_target_schemas"/>
         <br>
         <br>
         <form method="post" name="create_bridge" action="./OrganizationManager?op=createBridging" onSubmit="assign_selections();">

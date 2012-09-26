@@ -473,6 +473,28 @@ public class MainControlDB {
         return name;
     }
     
+    public LinkedList<SoftwareComponent> getSoftwareComponents(){
+        ResultSet rs;
+        LinkedList<SoftwareComponent> compList = new LinkedList<SoftwareComponent>();
+
+        try {
+           this.dbHandler.dbOpen();
+           rs =  this.dbHandler.dbQuery("select * from softwarecomponent");
+      
+            if (rs != null) {
+                while (rs.next()) {
+                    compList.add(new SoftwareComponent(rs.getString("name"),rs.getString("version"),rs.getInt("software_id")));
+                    System.out.println("name "+rs.getString("name")+"version "+ rs.getString("version")+"software_id "+rs.getInt("software_id"));
+                }
+            }
+            rs.close();
+            this.dbHandler.dbClose();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+        return compList;
+    }
+    
      public Service getService(int service_id)
     {
         Service service = null;
@@ -564,6 +586,38 @@ public class MainControlDB {
         
         return false;
     } 
+         
+         
+     public LinkedList<String> getTaxonomies() {
+        ResultSet rs;
+        LinkedList<String> taxonomiesList = new LinkedList<String>();
+
+        try {
+
+            this.dbHandler.dbOpen();
+            
+            rs =  this.dbHandler.dbQuery("select taxonomy_id from operation group by taxonomy_id");
+
+            dbConnector dbHand = new dbConnector();
+
+            dbHand.dbOpen();
+
+
+            if (rs != null) {
+                while (rs.next()) {
+                    taxonomiesList.add(rs.getString("taxonomy_id"));      
+                }
+            }
+
+            rs.close();
+
+            this.dbHandler.dbClose();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+
+        return taxonomiesList;
+    }
      
     
 }

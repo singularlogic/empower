@@ -27,3 +27,12 @@ p.info_message{
 width:180px !important;    
 height:150px !important;   
 }
+
+div.st_title
+{
+  font-weight:bold;
+  text-decoration:underline;
+  margin-bottom:10px;
+  background-color:#A0D651;
+  color:white;
+}

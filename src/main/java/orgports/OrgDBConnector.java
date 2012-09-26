@@ -5,10 +5,7 @@
 package orgports;
 
 import com.google.gson.Gson;
-import dataaccesslayer.CPA;
-import dataaccesslayer.Schema;
-import dataaccesslayer.SoftwareComponent;
-import dataaccesslayer.dbConnector;
+import dataaccesslayer.*;
 import java.sql.ResultSet;
 import java.util.Collection;
 import java.util.HashMap;
@@ -121,6 +118,35 @@ public class OrgDBConnector {
         }
 
         return XSDList;
+    }
+    
+    public Collection getServicesByTaxonomy(String taxonomy_id) {
+        ResultSet rs;
+        LinkedList<Service> ServiceList = new LinkedList<Service>();
+        
+        try {
+
+            this.dbHandler.dbOpen();
+            String tax= (taxonomy_id.equalsIgnoreCase("All")) ? " IS NOT NULL": "='"+taxonomy_id+"'";
+           
+            rs = this.dbHandler.dbQuery("select ws.service_id as service_id, ws.name as service_name, ws.exposed as exposed, ws.wsdl as wsdl, ws.namespace as namespace from web_service ws,operation o where ws.service_id=o.service_id and ws.exposed=1 and o.taxonomy_id"+tax +" group by ws.service_id");
+            System.out.println("select ws.service_id as service_id, ws.name as service_name, ws.exposed as exposed, ws.wsdl as wsdl, ws.namespace as namespace from web_service ws,operation o where ws.service_id=o.service_id and ws.exposed=1 and o.taxonomy_id"+tax+" group by ws.service_id");
+            
+            
+            if (rs != null) {
+                while (rs.next()) {
+                    ServiceList.add(new Service(rs.getInt("service_id"), rs.getString("service_name"),rs.getString("wsdl"),rs.getString("namespace"),rs.getBoolean("exposed")));
+                }
+            }
+
+            rs.close();
+
+            this.dbHandler.dbClose();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+
+        return ServiceList;
     }
         
         

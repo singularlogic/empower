@@ -4,10 +4,7 @@
  */
 package maincontrol;
 
-import dataaccesslayer.DataAnnotations;
-import dataaccesslayer.Operation;
-import dataaccesslayer.Schema;
-import dataaccesslayer.Service;
+import dataaccesslayer.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -100,6 +97,8 @@ public class DIController extends HttpServlet {
                     this.annotate(request, response, session);
                 } else if (operation.equals("showAvailableSources_title")) {
                     this.showAvailableSources_title(request, response, session);
+                } else if (operation.equals("showcurrentsoftcomp")) {
+                    this.showcurrentsoftcomp(request, response, session);
                 } else if (operation.equals("get_menu")) {
                     this.getMenu(request, response, session);
                 } else if (operation.equals("show_service")) {
@@ -780,7 +779,36 @@ public class DIController extends HttpServlet {
         String software_id = request.getParameter("software_id");
 
         if (verifyUser("organization", session)) {
-            this.forwardToPage("/organization/showAvailableServices.jsp?software_id=" + software_id, request, response);
+        
+         MainControlDB mainControlDB = new MainControlDB();
+            
+        LinkedList<String> taxomonies = (LinkedList<String>) mainControlDB.getTaxonomies();
+        System.out.println("taxomonies: " + taxomonies + "lenght: " + taxomonies.size());
+        if (taxomonies.size() > 0) {
+
+            JSONObject json_taxonomies = new JSONObject();
+            Iterator tax_iterator = taxomonies.iterator();
+            while (tax_iterator.hasNext()) {
+                String tax = (String) tax_iterator.next();
+                json_taxonomies.put(tax,tax);
+            }
+            session.setAttribute("taxonomies", json_taxonomies);
+        }
+        
+         LinkedList<SoftwareComponent> softwareComponents = (LinkedList<SoftwareComponent>) mainControlDB.getSoftwareComponents();
+         if (softwareComponents.size() > 0) {
+
+            JSONObject json_softwareComp = new JSONObject();
+            Iterator softcomp_iterator = softwareComponents.iterator();
+            while (softcomp_iterator.hasNext()) {
+                SoftwareComponent sc = (SoftwareComponent) softcomp_iterator.next();
+                json_softwareComp.put(sc.getSoftware_id(),sc.getName());
+            }
+            session.setAttribute("softwarecomponents", json_softwareComp);
+        }
+         
+         
+         this.forwardToPage("/organization/showAvailableServices.jsp?software_id=" + software_id, request, response);
 
         }
     }
@@ -816,6 +844,20 @@ public class DIController extends HttpServlet {
         out.write("<h2>Available Source Schemas for the software component: " + software_name + "<h2>");
         out.flush();
     }
+    
+    protected void showcurrentsoftcomp(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws ServletException, IOException {
+
+        MainControlDB mainControlDB = new MainControlDB();
+
+        String software_name = mainControlDB.getSoftwareName(Integer.parseInt(request.getParameter("software_id")));
+
+        response.setContentType("text/xml; charset=UTF-8");
+        PrintWriter out = response.getWriter();
+        out.write(software_name);
+        out.flush();
+    }
+
 
     protected void getMenu(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws ServletException, IOException {

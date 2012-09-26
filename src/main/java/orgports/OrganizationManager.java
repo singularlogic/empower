@@ -72,6 +72,8 @@ public class OrganizationManager extends HttpServlet {
                     this.manageBridgingServices(request, response, session);
                 } else if (operation.equals("showPossibleTargets")) {
                     this.showPossibleTargets(request, response, session);
+                } else if (operation.equals("showexposedServicesByTaxonomy")) {
+                    this.showexposedServicesByTaxonomy(request, response, session);
                 } else if (operation.equals("createBridging")) {
                     this.createBridging(request, response, session);
                 } else if (operation.equals("doBridging")) {
@@ -203,6 +205,68 @@ public class OrganizationManager extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(new Gson().toJson(data));
 
+
+    }
+
+    protected void showexposedServicesByTaxonomy(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws IOException, ServletException, ParserConfigurationException, SAXException, WSDLException {
+
+        String form = request.getParameter("form");
+        System.out.println("form: "+form);
+        OrgDBConnector orgDBConnector = new OrgDBConnector();
+        String tax = request.getParameter("tax");
+        LinkedList<Service> services = (LinkedList<Service>) orgDBConnector.getServicesByTaxonomy(tax);
+        System.out.println("services: " + services + "lenght: " + services.size());
+
+
+        if (form.equalsIgnoreCase("json")) {
+
+            //String selections = request.getParameter("selections");
+            //String service_id = selections.split("\\$")[0];
+            //String operation_name = selections.split("\\$")[1];
+            String xml = "";
+            String wsdlParserString = "";
+
+            if (services.size() > 0) {
+                Iterator serv_iterator = services.iterator();
+                while (serv_iterator.hasNext()) {
+                    Service service = (Service) serv_iterator.next();
+                    System.out.println("My service id:" + service.getService_id() + " service_name: " + service.getName() + " wsdl: " + service.getWsdl() + " " + service.getNamespace());
+                    WSDLParser wsdlParser = new WSDLParser(service.getWsdl(), service.getNamespace());
+                    wsdlParser.loadService(service.getName());
+                    wsdlParserString = wsdlParserString.concat(wsdlParser.outputFunctionsToXMLFromRoot(xml, service.getName(), service.getService_id()));
+                }
+            }
+
+            xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<tree id=\"0\">" + wsdlParserString + "</tree>";
+
+            Map<String, Object> data = new HashMap<String, Object>();
+            data.put("tree", xml);
+            // Write response data as JSON.
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write(new Gson().toJson(data));
+
+        } else if (form.equalsIgnoreCase("out")) {
+
+            response.setContentType("text/xml; charset=UTF-8");
+
+            if (services.size() > 0) {
+                PrintWriter out = response.getWriter();
+                out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+                out.write("<tree id=\"0\">");
+                Iterator serv_iterator = services.iterator();
+                while (serv_iterator.hasNext()) {
+                    Service service = (Service) serv_iterator.next();
+                    System.out.println("My service id:" + service.getService_id() + " service_name: " + service.getName() + " wsdl: " + service.getWsdl() + " " + service.getNamespace());
+                    WSDLParser wsdlParser = new WSDLParser(service.getWsdl(), service.getNamespace());
+                    wsdlParser.loadService(service.getName());
+                    wsdlParser.outputFunctionsToXMLFromRoot(out, service.getName(), service.getService_id());
+               }
+                out.write("</tree>");
+                out.close();
+            }
+        }
 
     }
 
@@ -340,11 +404,13 @@ public class OrganizationManager extends HttpServlet {
     protected void manageBridgingServices(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws IOException, ServletException, ParserConfigurationException, SAXException, WSDLException {
 
+        MainControlDB mainControlDB = new MainControlDB();
+
         response.setContentType("text/xml; charset=UTF-8");
         String software_id = (String) request.getParameter("software_id");
         System.out.println("My software_id " + software_id);
 
-        MainControlDB mainControlDB = new MainControlDB();
+
         LinkedList<Service> services = (LinkedList<Service>) mainControlDB.getServices(software_id, true, "IS NOT NULL");
 
         System.out.println("services: " + services + "lenght: " + services.size());
