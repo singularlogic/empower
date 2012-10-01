@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 import javax.wsdl.*;
 import javax.wsdl.Types;
+import javax.wsdl.extensions.soap.SOAPAddress;
+import javax.wsdl.extensions.soap12.SOAP12Address;
 import javax.wsdl.factory.*;
 import javax.wsdl.xml.*;
 import javax.xml.XMLConstants;
@@ -79,7 +81,6 @@ public class WSDLParser
     {
         this.service = definitionEntity.getService(
                 new QName(this.targetNamespace, serviceName));    
-        System.out.println("Eleni service Name"+serviceName);
         Map ports = service.getPorts();
         Iterator iter = ports.keySet().iterator();
 
@@ -164,10 +165,20 @@ public class WSDLParser
                         String messagePartName = (String) keyIterator.next();  
                         Part messagePart = operation.getInput().getMessage().getPart(messagePartName);
                         
-                        System.out.println(messagePartName);                        
+                        System.out.println(messagePartName);  
+                        
+                        String messageType="";
+                        try
+                        {
+                         messageType = messagePart.getTypeName().toString().replaceAll("\\{.*\\}", "");
+                        }
+                        catch(Throwable t)
+                         {
+                           messageType = messageQname;
+                         }
                         
                         
-                        String messageType = messagePart.getTypeName().toString().replaceAll("\\{.*\\}", "");
+                        //String messageType = messagePart.getTypeName().toString().replaceAll("\\{.*\\}", "");
                         System.out.println(" ----------- " + messageType);
                         
                         out.write("<item text=\"" +
@@ -191,7 +202,19 @@ public class WSDLParser
                         Part messagePart = operation.getOutput().getMessage().getPart(messagePartName);
                         System.out.println(messagePartName);                        
 
-                        String messageType = messagePart.getTypeName().toString().replaceAll("\\{.*\\}", "");
+                        
+                        // add this so as to recognize the wsdl produced by netbeans creating webservice
+                        String messageType="";
+                        try
+                        {
+                         messageType = messagePart.getTypeName().toString().replaceAll("\\{.*\\}", "");
+                        }
+                        catch(Throwable t)
+                         {
+                          messageType = messageQname;
+                         }
+                        
+                        //String messageType = messagePart.getTypeName().toString().replaceAll("\\{.*\\}", "");
                         System.out.println(" ----------- " + messageType);
                     
                         out.write("<item text=\"" +
@@ -832,5 +855,174 @@ public class WSDLParser
         {
             e.printStackTrace();
         }
+    }
+    
+    
+    public LinkedList<String> getXSDAttibutes_Eleni(String sourceOperationName)
+    {
+        int idNum = 1;
+        int internalIdNum;
+        Map servicePorts;
+        Binding portBinding;
+        Iterator portsIterator, operationIterator;
+        LinkedList<String> xsd_to_string= new LinkedList<String>();
+        
+        try
+        {
+                                                       
+            servicePorts = returnServicePorts();
+            portsIterator = servicePorts.keySet().iterator();
+
+            // drill down the wsdl hierarchy
+            // starting from definition
+            while(portsIterator.hasNext())
+            {
+                internalIdNum = 1;
+                String portName = portsIterator.next().toString();
+                
+                System.out.println("---Trying to get the input fields--------------");
+
+                System.out.println("portName: "+ portName);
+                
+
+                portBinding = returnBinding(portName);
+
+                int internalIdNum2 = 1;
+                    
+                String binding = (String) portBinding.getQName().getLocalPart();
+                
+                System.out.println("binding: " + binding);
+               
+
+
+                operationIterator = this.returnBindingsOperations(portName);
+                while(operationIterator.hasNext())
+                {
+                        internalIdNum2 = 1;
+                        BindingOperationImpl operationBinding = 
+                                   (BindingOperationImpl)operationIterator.next();
+                        
+                        String operationName = operationBinding.getName();
+                        
+                        if (operationName.equalsIgnoreCase(sourceOperationName)){
+                        
+                        System.out.println("operationName" + operationName);
+                        
+                        xsd_to_string = outputPortMessages_Eleni(operationBinding, operationName, binding);
+                        }
+                }
+                
+                internalIdNum++;
+               
+
+                idNum++;
+               
+            }
+            
+            
+        }
+        catch(Throwable t)
+        {
+            t.printStackTrace();
+        }
+        return xsd_to_string;
+    }
+    
+    
+    public LinkedList<String> outputPortMessages_Eleni(BindingOperationImpl boperation, String operationName, String bindingName)
+    throws IOException
+    {
+          PortType portType = binding.getPortType();
+          List portOperations = portType.getOperations();
+          Iterator opIterator = portOperations.iterator();
+          Iterator keyIterator;
+          int ind = 0;
+          String messageQname = null;
+          LinkedList<String> element = new LinkedList<String>();
+
+
+
+                Operation operation = boperation.getOperation();
+
+                if (!operation.isUndefined())
+                {   
+                    keyIterator = operation.getInput().getMessage().getParts().keySet().iterator();
+
+                    //strip namespace info
+                    messageQname = operation.getInput().getMessage().getQName().toString().replaceAll("\\{.*\\}", "");
+
+                    
+                    //System.out.print(" -" + messageQname + " ");
+                    while(keyIterator.hasNext())
+                    {
+                        String messagePartName = (String) keyIterator.next();  
+                        Part messagePart = operation.getInput().getMessage().getPart(messagePartName);
+
+                        // add this so as to recognize the wsdl produced by netbeans creating webservice
+                        String messageType="";
+                        try
+                        {
+                         messageType = messagePart.getTypeName().toString().replaceAll("\\{.*\\}", "");
+                        }
+                        catch(Throwable t)
+                         {
+                          messageType = messageQname;
+                         }
+                        
+                        //String messageType = messagePart.getTypeName().toString().replaceAll("\\{.*\\}", "");
+
+                        System.out.println("INFO THAT ELENI HAS TO GET: input$" + messageType + "$" + operationName + "$" + bindingName);                                 
+                        element.add(0, "input$" + messageType + "$" + operationName + "$" + bindingName);
+                        
+                    }
+                    
+                    
+                    keyIterator = operation.getOutput().getMessage().getParts().keySet().iterator();
+                    messageQname = operation.getOutput().getMessage().getQName().toString().replaceAll("\\{.*\\}", "");
+                   
+                    while(keyIterator.hasNext())
+                    {
+                        String messagePartName = (String) keyIterator.next();  
+                        Part messagePart = operation.getOutput().getMessage().getPart(messagePartName);
+                                             
+                        // add this so as to recognize the wsdl produced by netbeans creating webservice
+                        String messageType="";
+                        try
+                        {
+                         messageType = messagePart.getTypeName().toString().replaceAll("\\{.*\\}", "");
+                        }
+                        catch(Throwable t)
+                         {
+                          messageType = messageQname;
+                         }
+                        //String messageType = messagePart.getTypeName().toString().replaceAll("\\{.*\\}", "");
+                        element.add(1, "output$" + messageType + "$" + operationName + "$" + bindingName);
+                        
+                    }
+                }
+                
+                return element;
+    }
+    
+    
+    public String getSoapAdressURL(String serviceName)
+    {
+       String actualUrl = null;
+         this.service = definitionEntity.getService(
+                new QName(this.targetNamespace, serviceName));    
+       
+            Collection<Port> ports = (service.getPorts().values());
+            for (Port port : ports) {
+                List extensions = port.getExtensibilityElements();
+                for (Object extension : extensions) {
+                    if (extension instanceof SOAP12Address) {
+                        actualUrl = ((SOAP12Address)extension).getLocationURI();
+                    } else if (extension instanceof SOAPAddress) {
+                        actualUrl = ((SOAPAddress)extension).getLocationURI();
+                    }
+                }
+            }
+            return actualUrl;
+        
     }
 }

@@ -70,7 +70,11 @@
                 <br>
                 <p>Action was successful.</p>
                 <p><%=session.getAttribute("message") %></p>
+                <% if(request.getParameter("level").equalsIgnoreCase("service")) {%>
+                <p>Use the bridging <a href='DIController?op=doBridgingServicePrepare&cpa_id=<%=request.getParameter("cpa_id") %>'>here</a></p>
+                <% } else { %>
                 <p>Use the bridging <a href='DIController?op=doBridging&cpa_id=<%=request.getParameter("cpa_id") %>'>here</a></p>
+                <% } %>
             </div>
     </div>
             <div class="footer"><p>Copyright &copy; 2012 Empower Consortium | All Rights Reserved</p></div>

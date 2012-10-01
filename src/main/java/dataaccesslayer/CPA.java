@@ -21,6 +21,10 @@ public class CPA {
         this.cpa_info = cpa_info;
     }
 
+    public CPA() {
+        
+    }
+
     public int getCpa_id() {
         return cpa_id;
     }

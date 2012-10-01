@@ -42,11 +42,26 @@ public class XSDParser  {
         return handler.getXML();
     }
     
+    public ArrayList<String> getXMLElements() throws ParserConfigurationException, SAXException, IOException{
+        
+         File x = new File(schema.getLocation());
+         SAXParserFactory f = SAXParserFactory.newInstance();
+         //System.out.println(f.toString());
+         SAXParser p = f.newSAXParser();
+         //System.out.println(p.toString());
+         myParser handler = new myParser();
+         p.parse(x, handler);
+            
+        return handler.getElements();
+    }
+    
     public class myParser extends DefaultHandler
     {
     boolean complexTypefl = false;
     boolean schemafl = false;
+    boolean elementfl = false;
     public ArrayList<String> xmlToReturn = new ArrayList<String>();
+    public ArrayList<String> elementsList = new ArrayList<String>();
     String xmlToString;
     //String schema;
     
@@ -59,6 +74,10 @@ public class XSDParser  {
         System.out.println("xmlToString of getXML() : "+xmlToString);
 
         return xmlToString;
+    }
+    public ArrayList<String> getElements(){
+        
+        return elementsList;
     }
         
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
@@ -77,8 +96,21 @@ public class XSDParser  {
 
             if (attributes != null) {
                 for (int i = 0; i < attributes.getLength(); i++) {
-                    xmlToReturn.add("<item text='" + attributes.getValue(i)+"("+schema.getInputoutput()+")" + "' id='" + attributes.getValue(i) +"--"+schema.getInputoutput()+"--"+ schema.getOperation_id()+"--"+schema.getOp_taxonomy_id()+"--"+schema.getCvp_id()+"--"+schema.getService_id()+"--"+schema.getSchema_id()+"--"+schema.getSelections()+"' >");
-                System.out.println("' id='" + attributes.getValue(i) +"--"+schema.getInputoutput()+"--"+ schema.getOperation_id()+"--"+schema.getOp_taxonomy_id()+"--"+schema.getCvp_id()+"--"+schema.getService_id()+"--"+schema.getSchema_id()+"--"+schema.getSelections());
+                    xmlToReturn.add("<item text='" + attributes.getValue(i)+"("+schema.getInputoutput()+")" + "' id='" + attributes.getValue(i) +"--"+schema.getInputoutput()+"--"+ schema.getOperation_id()+"--"+schema.getOp_taxonomy_id()+"--"+schema.getCvp_id()+"--"+schema.getService_id()+"--"+schema.getSchema_id()+"--"+schema.getSelections()+"--"+schema.getXbrl()+"' >");
+                    System.out.println("' id='" + attributes.getValue(i) +"--"+schema.getInputoutput()+"--"+ schema.getOperation_id()+"--"+schema.getOp_taxonomy_id()+"--"+schema.getCvp_id()+"--"+schema.getService_id()+"--"+schema.getSchema_id()+"--"+schema.getSelections());
+                }
+            }
+        }
+        
+        if (qName.equalsIgnoreCase("xs:element")) {
+            elementfl = true;
+
+            if (attributes != null) {
+                for (int i = 0; i < attributes.getLength(); i++) {
+                    if(attributes.getQName(i).equalsIgnoreCase("name")){
+                    elementsList.add(attributes.getValue(i));
+                    System.out.println("element from XSDParser:" +attributes.getValue(i));
+                    }
                 }
             }
         }
@@ -105,6 +137,10 @@ public class XSDParser  {
             complexTypefl = false;
         }
         if (schemafl) {
+            //schema = new String(ch, start, length);
+            schemafl = false;
+        }
+        if (elementfl) {
             //schema = new String(ch, start, length);
             schemafl = false;
         }

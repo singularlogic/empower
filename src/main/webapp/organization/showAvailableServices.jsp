@@ -6,25 +6,13 @@
         <script type="text/javascript" src="./js/jquery.js"></script>  
         <script type="text/javascript">                                          
             jQuery(document).ready(function(){
-                $("#get_target_schemas").click(function() {   
-                    $('#target_box_tree').empty(); 
-                    tax_target = $('#tax_target').val();
-                    if(tree.getAllChecked().split("--").length>8) alert("You have to check only one input schema! Thank You!");
-                    else{    $.getJSON('./OrganizationManager?op=showPossibleServiceTargets&selections='+tree.getAllChecked()+'tax_target='+tax_target, function(data) {
-                            target_tree = new dhtmlXTreeObject("target_box_tree", "100%", "100%", 0);
-                            target_tree.setImagePath("./js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
-                            target_tree.enableCheckBoxes(true, false);
-                            target_tree.loadXMLString(data.tree, null);               
-                        }); 
-                    }
-                });
-
-                $("#tax_target").change(function () {
+              $("#tax_target,#softwareComp_target").change(function () {
                     var tax = "";
                     $('#target_box_tree').empty();
                     $("#tax_target option:selected").each(function () {
-                        tax += $(this).text();    
-                        $.getJSON('./OrganizationManager?op=showexposedServicesByTaxonomy&form=json&tax='+tax, function(data) {
+                        tax += $(this).text(); 
+                        software_id = $("select[name='targetSoftComp'] option:selected").val();
+                        $.getJSON('./OrganizationManager?op=showexposedServicesByTaxonomy&form=json&tax='+tax+'&software_id='+software_id, function(data) {
                             target_tree = new dhtmlXTreeObject("target_box_tree", "100%", "100%", 0);
                             target_tree.setImagePath("./js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
                             target_tree.enableCheckBoxes(true, false);
@@ -33,12 +21,13 @@
                     });
                 })
                 
-                $("#tax_source").change(function () {
+                $("#tax_source,#softwareComp_source").change(function () {
                     var tax = "";
                     $('#box_tree').empty(); 
                     $("#tax_source option:selected").each(function () {
                         tax += $(this).text();
-                        $.getJSON('./OrganizationManager?op=showexposedServicesByTaxonomy&form=json&tax='+tax, function(data) {
+                        software_id = $("select[name='sourceSoftComp'] option:selected").val();
+                        $.getJSON('./OrganizationManager?op=showexposedServicesByTaxonomy&form=json&tax='+tax+'&software_id='+software_id, function(data) {
                             tree = new dhtmlXTreeObject("box_tree", "100%", "100%", 0);
                             tree.setImagePath("./js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
                             tree.enableCheckBoxes(true, false);
@@ -184,7 +173,7 @@
                     <div style="width: 250px; float: right;">
                         <div class="st_title"><p>Target Web Service</p></div>
                         <p>Sofware Components:</p>
-                        <select name="Software Components" id="softwareComp_target" style="margin:10px;">
+                        <select name="targetSoftComp" id="softwareComp_target" style="margin:10px;">
                             <option>All</option>   
 
                             <%
@@ -194,7 +183,7 @@
                                         String key = (String) o;
                                         String value = taxonomies.getString(key);
                                         System.out.println("key: " + key + " value: " + value);
-                            %> <option><%=value%></option><%
+                            %> <option value="<%=key%>"><%=value%></option><%
                                     }
                                 }
 
@@ -232,13 +221,13 @@
                     target_tree = new dhtmlXTreeObject("target_box_tree", "100%", "100%", 0);
                     target_tree.setImagePath("./js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
                     target_tree.enableCheckBoxes(true, false);
-                    target_tree.loadXML('./OrganizationManager?op=showexposedServicesByTaxonomy&tax=All&form=out', null);
+                    target_tree.loadXML('./OrganizationManager?op=showexposedServicesByTaxonomy&tax=All&form=out&software_id=All', null);
             </script>    
             </div>
 
         <br>
         <br>
-        <form method="post" name="create_bridge" action="./OrganizationManager?op=createBridging" onSubmit="assign_selections();">
+        <form method="post" name="create_bridge" action="./OrganizationManager?op=createBridgingServices" onSubmit="assign_selections();">
             <input type='hidden' name='selections_source'  value='null'>
             <input type='hidden' name='selections_target'  value='null'>
             <input type="submit" value="Create Bridging" name="create_bridging" id="create_bridging"/>

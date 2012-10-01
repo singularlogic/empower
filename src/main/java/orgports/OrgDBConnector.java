@@ -62,12 +62,17 @@ public class OrgDBConnector {
 
             this.dbHandler.dbOpen();
 
-            rs = this.dbHandler.dbQuery("select ws.software_id as software_id,ws.service_id as service_id,ws.name as ws_name,o.operation_id as operation_id,o.name as operation_name,o.taxonomy_id as op_taxonomy_id,os.inputoutput as inputoutput, s.schema_id as schema_id, s.location as schema_location, s.name as schema_name, cvp.cvp_id as cvp_id , da.selections as selections  from operation o LEFT JOIN web_service ws on o.service_id=ws.service_id LEFT JOIN operation_schema os  on o.operation_id = os.operation_id "
-                    + "LEFT JOIN schema_xsd  s  on os.schema_id = s.schema_id LEFT JOIN dataannotations da on da.schema_id=s.schema_id LEFT JOIN cvp cvp on cvp.cvp_id = da.cvp_id where ws.software_id="+software_id+" and os.inputoutput='input'  and cvp.cvp_id IS NOT NULL order by ws.service_id ");
+            rs = this.dbHandler.dbQuery("select ws.software_id as software_id,ws.service_id as service_id,ws.name as ws_name,o.operation_id as operation_id,o.name as operation_name,o.taxonomy_id as op_taxonomy_id,os.inputoutput as inputoutput, s.schema_id as schema_id, s.location as schema_location, s.name as schema_name, cvp.cvp_id as cvp_id , da.selections as selections, da.xbrl as xbrl  "
+                    + "from operation o "
+                    + "LEFT JOIN web_service ws on o.service_id=ws.service_id "
+                    + "LEFT JOIN operation_schema os  on o.operation_id = os.operation_id "
+                    + "LEFT JOIN schema_xsd  s  on os.schema_id = s.schema_id "
+                    + "LEFT JOIN dataannotations da on da.schema_id=s.schema_id "
+                    + "LEFT JOIN cvp cvp on cvp.cvp_id = da.cvp_id where ws.software_id="+software_id+" and os.inputoutput='input'  and cvp.cvp_id IS NOT NULL order by ws.service_id ");
 
             if (rs != null) {
                 while (rs.next()) {
-                    XSDList.add(new Schema(rs.getInt("service_id"), rs.getString("ws_name"),rs.getInt("operation_id"),rs.getString("operation_name"),rs.getString("op_taxonomy_id"),rs.getString("inputoutput"),rs.getInt("schema_id"),rs.getString("schema_location"), rs.getString("schema_name"), rs.getInt("cvp_id"),rs.getString("selections")));
+                    XSDList.add(new Schema(rs.getInt("service_id"), rs.getString("ws_name"),rs.getInt("operation_id"),rs.getString("operation_name"),rs.getString("op_taxonomy_id"),rs.getString("inputoutput"),rs.getInt("schema_id"),rs.getString("schema_location"), rs.getString("schema_name"), rs.getInt("cvp_id"),rs.getString("selections"),rs.getString("xbrl")));
                 }
             }
 
@@ -84,7 +89,7 @@ public class OrgDBConnector {
         public Collection getTargetSchemas(String inputoutput, String taxonomy_id,String xbrl_taxonomy) {
         ResultSet rs;
         LinkedList<Schema> XSDList = new LinkedList<Schema>();
-        String xbrl = xbrl_taxonomy.split("\\$")[1];
+        String xbrl = xbrl_taxonomy;
       
 
         try {
@@ -92,19 +97,17 @@ public class OrgDBConnector {
             this.dbHandler.dbOpen();
 
            
-            rs = this.dbHandler.dbQuery("select ws.software_id as software_id,ws.service_id as service_id,ws.name as ws_name,o.operation_id as operation_id,o.name as operation_name,o.taxonomy_id as op_taxonomy_id,os.inputoutput as inputoutput, s.schema_id as schema_id, s.location as schema_location, s.name as schema_name , cvp.cvp_id as cvp_id, da.selections"
+            rs = this.dbHandler.dbQuery("select ws.software_id as software_id,ws.service_id as service_id,ws.name as ws_name,o.operation_id as operation_id,o.name as operation_name,o.taxonomy_id as op_taxonomy_id,os.inputoutput as inputoutput, s.schema_id as schema_id, s.location as schema_location, s.name as schema_name , cvp.cvp_id as cvp_id, da.selections as selections, da.xbrl as xbrl"
                     + " from operation o LEFT JOIN web_service ws on o.service_id=ws.service_id "
                     + " LEFT JOIN operation_schema os  on o.operation_id =os.operation_id  "
                     + " LEFT JOIN schema_xsd  s  on os.schema_id = s.schema_id "
                     + " LEFT JOIN dataannotations da on da.schema_id = s.schema_id "
                     + " LEFT JOIN cvp cvp on cvp.cvp_id = da.cvp_id"
-                    + " where  o.taxonomy_id = '"+taxonomy_id+"' and os.inputoutput='output' and cvp.cvp_id IS NOT NULL and da.selections LIKE '%"+xbrl+"%' order by ws.service_id ");
-            
-            
-            
+                    + " where  o.taxonomy_id = '"+taxonomy_id+"' and os.inputoutput='output' and cvp.cvp_id IS NOT NULL and da.xbrl='"+xbrl+"' order by ws.service_id ");
+
             if (rs != null) {
                 while (rs.next()) {
-                    XSDList.add(new Schema(rs.getInt("service_id"), rs.getString("ws_name"),rs.getInt("operation_id"),rs.getString("operation_name"),rs.getString("op_taxonomy_id"),rs.getString("inputoutput"),rs.getInt("schema_id"),rs.getString("schema_location"), rs.getString("schema_name"),rs.getInt("cvp_id"),rs.getString("selections")));
+                    XSDList.add(new Schema(rs.getInt("service_id"), rs.getString("ws_name"),rs.getInt("operation_id"),rs.getString("operation_name"),rs.getString("op_taxonomy_id"),rs.getString("inputoutput"),rs.getInt("schema_id"),rs.getString("schema_location"), rs.getString("schema_name"),rs.getInt("cvp_id"),rs.getString("selections"),rs.getString("xbrl")));
                     System.out.println("Schema: "+ rs.getString("ws_name") + " " + rs.getInt("operation_id") + " " + rs.getString("operation_name") + " " + rs.getString("inputoutput")+ " " +rs.getInt("schema_id") + " " + rs.getString("schema_name")+ " " +rs.getInt("cvp_id") );
                 
                 }
@@ -120,7 +123,7 @@ public class OrgDBConnector {
         return XSDList;
     }
     
-    public Collection getServicesByTaxonomy(String taxonomy_id) {
+    public Collection getServicesByTaxonomy(String taxonomy_id, String softwareID) {
         ResultSet rs;
         LinkedList<Service> ServiceList = new LinkedList<Service>();
         
@@ -128,9 +131,10 @@ public class OrgDBConnector {
 
             this.dbHandler.dbOpen();
             String tax= (taxonomy_id.equalsIgnoreCase("All")) ? " IS NOT NULL": "='"+taxonomy_id+"'";
+            String software_id = (softwareID.equalsIgnoreCase("All")) ? " IS NOT NULL": "="+softwareID;
            
-            rs = this.dbHandler.dbQuery("select ws.service_id as service_id, ws.name as service_name, ws.exposed as exposed, ws.wsdl as wsdl, ws.namespace as namespace from web_service ws,operation o where ws.service_id=o.service_id and ws.exposed=1 and o.taxonomy_id"+tax +" group by ws.service_id");
-            System.out.println("select ws.service_id as service_id, ws.name as service_name, ws.exposed as exposed, ws.wsdl as wsdl, ws.namespace as namespace from web_service ws,operation o where ws.service_id=o.service_id and ws.exposed=1 and o.taxonomy_id"+tax+" group by ws.service_id");
+            rs = this.dbHandler.dbQuery("select ws.service_id as service_id, ws.name as service_name, ws.exposed as exposed, ws.wsdl as wsdl, ws.namespace as namespace from web_service ws,operation o where ws.service_id=o.service_id and ws.exposed=1 and o.taxonomy_id"+tax +" and ws.software_id"+software_id+" group by ws.service_id");
+            System.out.println("select ws.service_id as service_id, ws.name as service_name, ws.exposed as exposed, ws.wsdl as wsdl, ws.namespace as namespace from web_service ws,operation o where ws.service_id=o.service_id and ws.exposed=1 and o.taxonomy_id"+tax+" and ws.software_id"+software_id+" group by ws.service_id");
             
             
             if (rs != null) {
@@ -190,12 +194,14 @@ public class OrgDBConnector {
     }
    
    
-    public String retrieveXLST(int cpp_id,String inputoutput, String cpa_info)
+    public String retrieveXLST(int cpp_id,String inputoutput, String cpa_info, LinkedList<String> service_selections)
     {
         String xsltCode = null;
         ResultSet rs;
         
 	try{
+            
+            if (service_selections.isEmpty()){
             
             JSONObject o = new JSONObject();
             o = (JSONObject) JSONSerializer.toJSON(cpa_info); 
@@ -213,6 +219,35 @@ public class OrgDBConnector {
                 xsltCode = new String(rs.getString("xslt_annotations"));
 
             this.dbHandler.dbClose();
+            
+            }else{
+            
+             JSONObject o = new JSONObject();
+            o = (JSONObject) JSONSerializer.toJSON(cpa_info); 
+            JSONObject info= (inputoutput=="input")? (JSONObject) JSONSerializer.toJSON(o.get("cppinfo_first")):(JSONObject) JSONSerializer.toJSON(o.get("cppinfo_second")); 
+            
+            String selections = (inputoutput=="input")?service_selections.get(1):service_selections.get(2);
+            
+            System.out.println("inputoutput:"+inputoutput+" cpp_id: "+cpp_id+" service_id: "+info.get("service_id"));
+            
+            this.dbHandler.dbOpen();
+             rs = this.dbHandler.dbQuery("select da.xslt_annotations as xslt_annotations "
+                    + " from dataannotations da, cpp cpp    "
+                    + " where cpp.cvp_id=da.cvp_id and cpp.cpp_id ="+cpp_id+"  and da.selections='"+selections+"'");
+             
+             System.out.println("select da.xslt_annotations as xslt_annotations "
+                    + " from dataannotations da, cpp cpp    "
+                    + " where cpp.cvp_id=da.cvp_id and cpp.cpp_id ="+cpp_id+"  and da.selections='"+selections+"'");
+             
+             
+            if(rs.next())
+                xsltCode = new String(rs.getString("xslt_annotations"));
+
+            this.dbHandler.dbClose();
+            
+            
+            
+            }
 	}
 	catch(Throwable t)
 	{
@@ -388,6 +423,68 @@ public class OrgDBConnector {
 	}
         return cpp_id;
     }
-   
     
+    
+    
+    
+     /*
+     * Given the cvp_in we look for the cpp_id so as to create the cpa registry
+     * if ther is not no cpp we create it
+     */
+    public int getCPP(int service_id){
+        ResultSet rs,rs1;
+        int cpp_id = -1;
+        try{
+                     
+            this.dbHandler.dbOpen();
+            
+            rs = this.dbHandler.dbQuery("select cpp.cpp_id as cpp_id from cpp cpp, cvp cvp where cvp.service_id="+service_id+ " and cvp.cvp_id=cpp.cvp_id");
+
+            if(rs.next()){
+                cpp_id =rs.getInt("cpp_id");
+                rs.close();
+            }
+
+            this.dbHandler.dbClose();
+	}
+	catch(Throwable t)
+	{
+		t.printStackTrace(); 
+	}
+        return cpp_id;
+    } 
+    
+    
+    /*
+     * Given the cvp_in we look for the cpp_id so as to create the cpa registry
+     * if ther is not no cpp we create it
+     */
+    public CPA getCPA(int cpa_id){
+        ResultSet rs,rs1;
+        int cpp_id = -1;
+        CPA cpa = new CPA();
+        try{
+                     
+            this.dbHandler.dbOpen();
+            
+            rs = this.dbHandler.dbQuery("select * from cpa where cpa_id="+cpa_id);
+
+            if(rs.next()){
+                
+                cpa.setCpa_id(rs.getInt("cpa_id"));
+                cpa.setCpp_id_first(rs.getInt("cpp_id_first"));
+                cpa.setCpp_id_second(rs.getInt("cpp_id_second"));
+                cpa.setCpa_info(rs.getString("cpa_info"));
+                
+                rs.close();
+            }
+
+            this.dbHandler.dbClose();
+	}
+	catch(Throwable t)
+	{
+		t.printStackTrace(); 
+	}
+        return cpa;
+    }
 }

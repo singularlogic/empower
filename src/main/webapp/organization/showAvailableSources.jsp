@@ -7,7 +7,7 @@
             $(document).ready(function() {
                 $("#get_target_schemas").click(function() {   
                     $('#target_box_tree').empty();  
-                    if(tree.getAllChecked().split("--").length>8) alert("You have to check only one input schema! Thank You!");
+                    if(tree.getAllChecked().split("--").length>9) alert("You have to check only one input schema! Thank You!");
                     else{    $.getJSON('./OrganizationManager?op=showPossibleTargets&selections='+tree.getAllChecked(), function(data) {
                             target_tree = new dhtmlXTreeObject("target_box_tree", "100%", "100%", 0);
                             target_tree.setImagePath("./js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");

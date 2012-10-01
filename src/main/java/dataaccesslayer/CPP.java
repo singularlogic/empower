@@ -39,8 +39,14 @@ public class CPP {
         this.schema = orgDBConnector.getSchemaName(schema_id);
         this.schema_id = schema_id;
         this.schema_complexType = schema_complexType;
-        
-       
+    }
+    
+     public CPP(int cppID, int service_id, String operation_name ) {
+        OrgDBConnector orgDBConnector = new OrgDBConnector();
+        this.cppID = cppID;
+        this.service = orgDBConnector.getServiceName(service_id);
+        this.service_id = service_id;
+        this.operation = operation_name;
     }
 
     public int getCppID() {

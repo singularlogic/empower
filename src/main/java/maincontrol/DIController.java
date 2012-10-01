@@ -5,12 +5,10 @@
 package maincontrol;
 
 import dataaccesslayer.*;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -21,14 +19,17 @@ import javax.wsdl.WSDLException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 import org.xml.sax.SAXException;
+import orgports.OrgDBConnector;
 import vendorports.VendorDBConnector;
 import xml.WSDLParser;
 import xml.XSDParser;
 
 /**
  *
- * @author eleni
+ * @author elenithis.forwardToPage("/VendorManager?op=schema_reg&software_id=" + softwareID, request, response);
+     
  */
 public class DIController extends HttpServlet {
 
@@ -81,7 +82,9 @@ public class DIController extends HttpServlet {
                     this.manageBridgingServices(request, response, session);
                 }else if (operation.equals("doBridging")) {
                     this.doBridging(request, response, session);
-                } else if (operation.equals("showMyBridges")) {
+                }else if (operation.equals("doBridgingServicePrepare")) {
+                    this.doBridgingServicePrepare(request, response, session);
+                }else if (operation.equals("showMyBridges")) {
                     this.showMyBridges(request, response, session);
                 } else if (operation.equals("present_service_operations")) {
                     this.presentServiceOperationsTree(request, response, session);
@@ -681,7 +684,7 @@ public class DIController extends HttpServlet {
         xsdFile.close();
  
               
-        if(inputoutput.equalsIgnoreCase("output")){
+        if(inputoutput.equalsIgnoreCase("input")){
             request.setAttribute("output", "xsd/" + filename);
             request.setAttribute("input", "xsd/XBRL-GL-PR-2010-04-12/plt/case-c-b-m/gl-cor-content-2010-04-12.xsd");
             request.setAttribute("outputType", choice);
@@ -820,6 +823,67 @@ public class DIController extends HttpServlet {
 
         if (verifyUser("organization", session)) {
             this.forwardToPage("/organization/doBridging.jsp?cpa_id=" + cpa_id, request, response);
+        }
+
+    }
+    
+    protected void doBridgingServicePrepare(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws ServletException, IOException, WSDLException, FileNotFoundException, ParserConfigurationException, SAXException, XPathExpressionException {
+
+        int cpa_id = Integer.parseInt(request.getParameter("cpa_id"));
+
+        if (verifyUser("organization", session)) {
+            
+            OrgDBConnector orgDBConnector = new OrgDBConnector();
+            MainControlDB mainControlDB = new MainControlDB();
+            
+             CPA cpa = orgDBConnector.getCPA(cpa_id);
+             
+             String cpa_info = cpa.getCpa_info();
+             
+            JSONObject o = new JSONObject();
+            o = (JSONObject) JSONSerializer.toJSON(cpa_info); 
+            JSONObject info=  (JSONObject) JSONSerializer.toJSON(o.get("cppinfo_first"));
+            
+            int service_id = Integer.parseInt(info.get("service_id").toString());
+            String source_operation_name = (String) info.get("operation");
+            
+            Service service= mainControlDB.getService(service_id);
+
+            WSDLParser wsdlParser = new WSDLParser(service.getWsdl(), service.getNamespace());
+            wsdlParser.loadService(service.getName());
+            LinkedList<String> complexType = wsdlParser.getXSDAttibutes_Eleni(source_operation_name);
+            
+           String complexType_input = complexType.get(0).split("\\$")[1];
+            String xsdTypes = wsdlParser.extractXSD(complexType_input);
+            
+           
+               
+            String filename = new String("cvp_" + service.getName() + "_" + ((int)(100000*Math.random())) + ".xsd"); 
+            String xsdFilename = new String(xml_rep_path + "/xsd/" + filename);
+            PrintWriter xsdFile = new PrintWriter(xsdFilename);
+            xsdFile.write(xsdTypes);
+            xsdFile.close();
+            
+            
+            
+            XSDParser p = new XSDParser(new Schema(xsdFilename));
+            ArrayList<String> xml_string = p.getXMLElements();
+            
+            System.out.println("source_operation_name:" +source_operation_name);
+            System.out.println("Finally i got:" +complexType);
+            
+            JSONObject json_service_input_arg0 = new JSONObject();
+            Iterator field_iterator = xml_string.iterator();
+            while (field_iterator.hasNext()) {
+                String field =  (String) field_iterator.next();
+                json_service_input_arg0.put(field,field);
+                System.out.println("field: " + field);
+            }
+            session.setAttribute("serviceInputArgs", json_service_input_arg0);
+
+
+            this.forwardToPage("/organization/doBridgingService.jsp?cpa_id=" + cpa_id, request, response);
         }
 
     }

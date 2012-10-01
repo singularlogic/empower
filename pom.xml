@@ -71,7 +71,74 @@
             <artifactId>mysql-connector-java</artifactId>
             <version>5.1.21</version>
         </dependency>
-
+        
+ 
+        <dependency>
+            <groupId>net.sf.json-lib</groupId>
+            <artifactId>json-lib</artifactId>
+            <version>2.4</version>
+            <classifier>jdk15</classifier>
+        </dependency>
+        
+        <dependency>
+            <groupId>net.sf.flexjson</groupId>
+            <artifactId>flexjson</artifactId>
+            <version>2.1</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>net.disy.jquery</groupId>
+            <artifactId>jquery-ui</artifactId>
+            <version>1.8.6</version>
+        </dependency>
+        <dependency>
+	<groupId>com.google.code.gson</groupId>
+	<artifactId>gson</artifactId>
+	<version>2.2.2</version>
+        </dependency>
+        <dependency>
+	<groupId>wsdl4j</groupId>
+	<artifactId>wsdl4j</artifactId>
+	<version>1.6.2</version>
+        </dependency>
+        <dependency>
+	<groupId>org.apache.axis</groupId>
+	<artifactId>axis-jaxrpc</artifactId>
+	<version>1.4</version>
+        </dependency>
+        <dependency>
+	<groupId>org.apache.axis</groupId>
+	<artifactId>axis</artifactId>
+	<version>1.4</version>
+        </dependency>
+        <dependency>
+	<groupId>commons-logging</groupId>
+	<artifactId>commons-logging</artifactId>
+	<version>1.1.1</version>
+        </dependency>
+        <dependency>
+	<groupId>commons-discovery</groupId>
+	<artifactId>commons-discovery</artifactId>
+	<version>20040218.194635</version>
+        </dependency>     
+        <dependency>
+	<groupId>javax.activation</groupId>
+	<artifactId>activation</artifactId>
+	<version>1.1-rev-1</version>
+        </dependency>
+        <dependency>
+	<groupId>javax.mail</groupId>
+	<artifactId>mail</artifactId>
+	<version>1.4.5</version>
+        </dependency>
+        <dependency>
+	<groupId>dom4j</groupId>
+	<artifactId>dom4j</artifactId>
+	<version>1.6.1</version>
+        </dependency>
+            
+       
+            
     </dependencies>
 
     <build>
@@ -126,14 +193,14 @@
                             <filename>empower.war</filename>
                         </configuration>
                         
-                        <!-- Local configuration 
+                        <!-- Local configuration
                         <configuration>
                             <hostname>127.0.0.1</hostname>
                             <port>9999</port>
                             <username>jboss</username>
                             <password>ego</password>
-                        </configuration>
-                        -->
+                        </configuration> -->
+                        
 
                     </execution>
                 </executions>
