@@ -858,7 +858,7 @@ public class WSDLParser
     }
     
     
-    public LinkedList<String> getXSDAttibutes_Eleni(String sourceOperationName)
+    public LinkedList<String> getXSDAttibutes(String sourceOperationName)
     {
         int idNum = 1;
         int internalIdNum;

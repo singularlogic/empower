@@ -43,7 +43,7 @@
                 if (loader.xmlDoc.responseText != null){
                  $("#softwareComp_source option[value='<%=request.getParameter("software_id")%>']").remove();
                  $("#softwareComp_source option[text='"+loader.xmlDoc.responseText+"']").remove();
-                 $("select[name='sourceSoftComp'] option:selected").text('DI-Office');
+                 $("select[name='sourceSoftComp'] option:selected").text(loader.xmlDoc.responseText);
                  $("select[name='sourceSoftComp'] option:selected").val('<%=request.getParameter("software_id")%>');
               }
             }

@@ -71,7 +71,7 @@
                 <p>Action was successful.</p>
                 <p><%=session.getAttribute("message") %></p>
                 <% if(request.getParameter("level").equalsIgnoreCase("service")) {%>
-                <p>Use the bridging <a href='DIController?op=doBridgingServicePrepare&cpa_id=<%=request.getParameter("cpa_id") %>'>here</a></p>
+                <p>Use the bridging <a href='OrganizationManager?op=doBridgingServicePrepare&cpa_id=<%=request.getParameter("cpa_id") %>'>here</a></p>
                 <% } else { %>
                 <p>Use the bridging <a href='DIController?op=doBridging&cpa_id=<%=request.getParameter("cpa_id") %>'>here</a></p>
                 <% } %>

@@ -6,6 +6,7 @@ package orgports;
 
 import com.google.gson.Gson;
 import dataaccesslayer.*;
+import flexjson.JSONException;
 import java.io.*;
 import java.util.*;
 import java.util.logging.Level;
@@ -92,6 +93,8 @@ public class OrganizationManager extends HttpServlet {
                     this.doBridging(request, response, session);
                 } else if (operation.equals("showMyBridges")) {
                     this.showMyBridges(request, response, session);
+                } else if (operation.equals("doBridgingServicePrepare")) {
+                    this.doBridgingServicePrepare(request, response, session);
                 } else if (operation.equals("doBridgingService")) {
                     this.doBridgingService(request, response, session);
                 }
@@ -426,20 +429,28 @@ public class OrganizationManager extends HttpServlet {
             }
         }
 
-        String target_xml = this.transform(cpp_a, cpp_b, data, cpainfo.getCpa_info(), new LinkedList<String>()).toString();
+        JSONObject transform_response = this.transform(cpp_a, cpp_b, data, cpainfo.getCpa_info(), new LinkedList<String>());
+        String target_xml = transform_response.getString("xml");
+        
+        transform_response.remove("xml");
+        
         session.setAttribute("source_xml", data.toString());
         session.setAttribute("target_xml", target_xml);
-        this.forwardToPage("/organization/showBridging.jsp", request, response);
-
+        session.removeAttribute("infoBridgingProcess");
+        session.setAttribute("infoBridgingProcess", transform_response);
+        this.forwardToPage("/organization/showBridging.jsp?type=schema", request, response);
     }
 
-    private String transform(int cpp_a, int cpp_b, String xmlData, String cpa_info, LinkedList<String> service_selections) {
+    private JSONObject transform(int cpp_a, int cpp_b, String xmlData, String cpa_info, LinkedList<String> service_selections) {
 
-
+        JSONObject trasform_response = new JSONObject();
         OrgDBConnector orgDBConnector = new OrgDBConnector();
 
         String xsltRulesFirst = orgDBConnector.retrieveXLST(cpp_a, "input", cpa_info, service_selections);//input
         String xsltRulesSecond = orgDBConnector.retrieveXLST(cpp_b, "output", cpa_info, service_selections);//output
+        
+        trasform_response.put("xsltRulesFirst",xsltRulesFirst);
+        trasform_response.put("xsltRulesSecond",xsltRulesSecond);
 
         System.out.println("CHECK " + xsltRulesFirst);
         System.out.println("CHECK " + xsltRulesSecond);
@@ -466,7 +477,10 @@ public class OrganizationManager extends HttpServlet {
             //t.printStackTrace();
             System.out.println("Hola" + t);
         }
-        return stwRes.toString();
+        
+        trasform_response.put("xml",stwRes.toString());
+        return trasform_response;
+        //return stwRes.toString();
     }
 
     protected void manageBridgingServices(HttpServletRequest request, HttpServletResponse response, HttpSession session)
@@ -556,7 +570,7 @@ public class OrganizationManager extends HttpServlet {
                     + "<cell></cell>"
                     + "</row>";
 
-            dobridging_url = (o_first.get("schema") == null) ? "<cell> Do Brindging^../DIController?op=doBridgingServicePrepare&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
+            dobridging_url = (o_first.get("schema") == null) ? "<cell> Do Brindging^../OrganizationManager?op=doBridgingServicePrepare&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
                     : "<cell> Do Brindging^../DIController?op=doBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>";
 
 
@@ -592,63 +606,10 @@ public class OrganizationManager extends HttpServlet {
         out.flush();
     }
 
-    protected void doBridgingService(HttpServletRequest request, HttpServletResponse response, HttpSession session)
-            throws ServletException, IOException, WSDLException, FileNotFoundException, ParserConfigurationException, SAXException, XPathExpressionException, FileUploadException, DocumentException {
+    protected void doBridgingServicePrepare(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws ServletException, IOException, WSDLException, FileNotFoundException, ParserConfigurationException, SAXException, XPathExpressionException {
 
-        String xml_input="";
         int cpa_id = Integer.parseInt(request.getParameter("cpa_id"));
-
-        JSONObject inputargs = (JSONObject) session.getAttribute("serviceInputArgs");
-
-        boolean isMultipart = ServletFileUpload.isMultipartContent(request);
-
-        // Create a factory for disk-based file items
-        DiskFileItemFactory factory = new DiskFileItemFactory();
-
-        // Set factory constraints
-        factory.setSizeThreshold(30000);
-        factory.setRepository(new File("/home/eleni/Desktop/"));
-        ServletFileUpload upload = new ServletFileUpload(factory);
-
-        upload.setSizeMax(30000);
-
-        // Parse the request
-        List items = upload.parseRequest(request);
-
-        // fill the json object with the values of the request
-
-        Iterator iter = items.iterator();
-
-        while (iter.hasNext()) {
-            FileItem item = (FileItem) iter.next();
-
-            if (item.isFormField()) {
-
-                if (inputargs.containsKey(item.getFieldName())) {
-                    inputargs.put(item.getFieldName(), item.getString());
-                }
-            } else {
-                /*
-                 * System.out.println("Here we put the file ");
-                 *
-                 * schemaFilename = new String(this.xml_rep_path + "/xsd/" +
-                 * software_id + "_" + schemaName + "_" + ((int) (100000 *
-                 * Math.random())) + ".xsd");
-                 * System.out.println("schemaFilename: " + schemaFilename); File
-                 * uploadedFile = new File(schemaFilename);
-                 * item.write(uploadedFile);
-                *
-                 */
-            }
-        }
-
-        //print the key value pairs 
-        for (Object o : inputargs.keySet()) {
-            String key = (String) o;
-            String value = inputargs.getString(key);
-            xml_input += "<"+key+">"+value+"</"+key+">";
-            System.out.println("key " + key + " value: " + value);
-        }
 
         OrgDBConnector orgDBConnector = new OrgDBConnector();
         MainControlDB mainControlDB = new MainControlDB();
@@ -659,68 +620,220 @@ public class OrganizationManager extends HttpServlet {
 
         JSONObject o = new JSONObject();
         o = (JSONObject) JSONSerializer.toJSON(cpa_info);
+        JSONObject info = (JSONObject) JSONSerializer.toJSON(o.get("cppinfo_first"));
+
+        JSONObject webServiceInfo = this.getWebServiceInfo(info);
+
+        String filename = new String("cvp_" + webServiceInfo.getString("service_name") + "_" + ((int) (100000 * Math.random())) + ".xsd");
+        String xsdFilename = new String(xml_rep_path + "/xsd/" + filename);
+        PrintWriter xsdFile = new PrintWriter(xsdFilename);
+        xsdFile.write(webServiceInfo.getString("xsdTypes"));
+        xsdFile.close();
+
+        XSDParser p = new XSDParser(new Schema(xsdFilename));
+        ArrayList<String> xml_string = p.getXMLElements();
+
+        System.out.println("source_operation_name:" + webServiceInfo.getString("operation_name"));
+
+        JSONObject json_service_input_arg0 = new JSONObject();
+        Iterator field_iterator = xml_string.iterator();
+        while (field_iterator.hasNext()) {
+            String field = (String) field_iterator.next();
+            json_service_input_arg0.put(field, field);
+            System.out.println("field: " + field);
+        }
+        session.setAttribute("serviceInputArgs", json_service_input_arg0);
+
+
+        this.forwardToPage("/organization/doBridgingService.jsp?cpa_id=" + cpa_id, request, response);
+    }
+
+    protected void doBridgingService(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws ServletException, IOException, WSDLException, FileNotFoundException, ParserConfigurationException, SAXException, XPathExpressionException, FileUploadException, DocumentException {
+
+        String xml_input = "";
+        int cpa_id = Integer.parseInt(request.getParameter("cpa_id"));
+        JSONObject inputargs = (JSONObject) session.getAttribute("serviceInputArgs");
+        JSONObject infoBridgingProcess = new JSONObject();
+
+        /*
+         * 1. Get the request form parameters
+         */        
+        boolean isMultipart = ServletFileUpload.isMultipartContent(request);
+            // Create a factory for disk-based file items
+        DiskFileItemFactory factory = new DiskFileItemFactory();
+        factory.setSizeThreshold(30000);
+        factory.setRepository(new File("/home/eleni/Desktop/"));
+        ServletFileUpload upload = new ServletFileUpload(factory);
+        upload.setSizeMax(30000);
+
+        // fill the json object with the values of the request
+        List items = upload.parseRequest(request);
+        String xml_data = "";
+        Iterator iter = items.iterator();
+
+        while (iter.hasNext()) {
+            FileItem item = (FileItem) iter.next();
+
+            if (item.isFormField()) {
+
+                if (inputargs.containsKey(item.getFieldName())) {
+                    inputargs.put(item.getFieldName(), item.getString());
+                    xml_input += "<" + item.getFieldName() + ">" + item.getString() + "</" + item.getFieldName() + ">";
+                }
+            }
+            //for the source xml i parse it so as to fill the json inputargs
+            if (!item.isFormField() && !item.getString().equalsIgnoreCase("")) {
+                xml_data = item.getString();
+                
+                inputargs = parseXML(xml_data,inputargs);
+            }
+        }
+        /*
+         * 2. Get info of the web services {service_id operation_name service_namespace SoapAdressURL complexType_input complexType_output}
+         */
+        OrgDBConnector orgDBConnector = new OrgDBConnector();
+        CPA cpa = orgDBConnector.getCPA(cpa_id);
+        String cpa_info = cpa.getCpa_info();
+
+        JSONObject o = new JSONObject();
+        o = (JSONObject) JSONSerializer.toJSON(cpa_info);
         JSONObject info_first = (JSONObject) JSONSerializer.toJSON(o.get("cppinfo_first"));
 
-        int service_id = Integer.parseInt(info_first.get("service_id").toString());
-        String source_operation_name = (String) info_first.get("operation");
-        System.out.println("source_operation_name: " + source_operation_name);
-        Service service = mainControlDB.getService(service_id);
-        WSDLParser wsdlParser = new WSDLParser(service.getWsdl(), service.getNamespace());
-        wsdlParser.loadService(service.getName());
-        String SoapAdressURL = wsdlParser.getSoapAdressURL(service.getName());
-        LinkedList<String> complexType = wsdlParser.getXSDAttibutes_Eleni(source_operation_name);
-        String complexType_input = complexType.get(0).split("\\$")[1];
-        String complexType_output = complexType.get(1).split("\\$")[1];
-        String xsdTypes = wsdlParser.extractXSD(complexType_input);
-        System.out.println("SoapAdressURL: " + SoapAdressURL);
+        JSONObject first_webServiceInfo = this.getWebServiceInfo(info_first);
+        
+       // case is not submitted a xml file i create it by the input args
+        String xml_input_to_print = (xml_data == "") ? "<" + first_webServiceInfo.getString("complexType_input").split("\\$")[1] + ">" + xml_input + "</" + first_webServiceInfo.getString("complexType_input").split("\\$")[1] + ">" : xml_data;
+
+        System.out.println("xml_input_to_print" + xml_input_to_print);
+
+        JSONObject info_second = (JSONObject) JSONSerializer.toJSON(o.get("cppinfo_second"));
+        JSONObject second_webServiceInfo = this.getWebServiceInfo(info_second);
+        
+
+        LinkedList complexType = new LinkedList();
+        complexType.add(first_webServiceInfo.getString("complexType_input"));
+        complexType.add(first_webServiceInfo.getString("complexType_output"));
+        complexType.add(second_webServiceInfo.getString("complexType_input"));
+        complexType.add(second_webServiceInfo.getString("complexType_output"));
 
         
-         String xml_input_to_print = "<"+complexType_input+">"+xml_input+"</"+complexType_input+">";
-         
-         System.out.println("xml_input_to_print"+xml_input_to_print);
-             
-                     
-        JSONObject info_second = (JSONObject) JSONSerializer.toJSON(o.get("cppinfo_second"));
-        int service_id_second = Integer.parseInt(info_second.get("service_id").toString());
-        String target_operation_name = (String) info_second.get("operation");
-        System.out.println("target_operation_name: " + target_operation_name);
-        Service service_second = mainControlDB.getService(service_id_second);
-        WSDLParser wsdlParser_second = new WSDLParser(service_second.getWsdl(), service_second.getNamespace());
-        wsdlParser_second.loadService(service_second.getName());
-        String target_SoapAdressURL = wsdlParser_second.getSoapAdressURL(service_second.getName());
-        LinkedList<String> complexType_second = wsdlParser_second.getXSDAttibutes_Eleni(target_operation_name);
+        /*
+         * 3.Call the web services (SOAP request response and the respective xmls)
+         */
+        SOAPEnvelopeInvoker soapEnvelopeInvoker = new SOAPEnvelopeInvoker(first_webServiceInfo.getString("SoapAdressURL"),
+                first_webServiceInfo.getString("operation_name"),first_webServiceInfo.getString("complexType_input").split("\\$")[1] , 
+                first_webServiceInfo.getString("complexType_output").split("\\$")[1], inputargs, first_webServiceInfo.getString("service_namespace"));
+        
+       JSONObject SOAPEnvelopeInvokerResponse = soapEnvelopeInvoker.callWebService();
+       
+       
+       /*
+        * 4. In  case of that the call to the web service erases 
+        * an exception (ex.404 Not Found) redirect to Error page with the respective message
+        */
 
-        complexType.addAll(complexType_second);
+        if (SOAPEnvelopeInvokerResponse.containsKey("ErrorMessage")) {
+            this.forwardToPage("/error/generic_error.jsp?errormsg=" + SOAPEnvelopeInvokerResponse.getString("ErrorMessage"), request, response);
+        } else {
 
-
-        String complexType_second_input = complexType_second.get(0).split("\\$")[1];
-        String complexType_second_output = complexType_second.get(1).split("\\$")[1];
-        String target_xsdTypes = wsdlParser_second.extractXSD(complexType_second_input);
-        System.out.println("target_SoapAdressURL: " + target_SoapAdressURL);
-
-
-        SOAPEnvelopeInvoker soapEnvelopeInvoker = new SOAPEnvelopeInvoker(SoapAdressURL, source_operation_name, complexType_input, complexType_output, inputargs, service.getNamespace());
-
-
-        JSONObject SOAPEnvelopeInvokerResponse = soapEnvelopeInvoker.callWebService();
+            /*
+            * 5. Recolect all the important info of the requests in the infoBridgingProcess JSONObject
+            */
+            infoBridgingProcess.put("FirstSoapRequest", SOAPEnvelopeInvokerResponse.get("Soap:EnvelopeRequest"));
+            infoBridgingProcess.put("FirstSoapResponse", SOAPEnvelopeInvokerResponse.get("Soap:EnvelopeResponse"));
+            infoBridgingProcess.put("Output XML from First Web Service for XBRL UPCasting", SOAPEnvelopeInvokerResponse.get("outputXML"));
 
 
+            CPA cpainfo = orgDBConnector.getinfocpa(cpa_id);
 
-        CPA cpainfo = orgDBConnector.getinfocpa(cpa_id);
+            int cpp_a = cpainfo.getCpp_id_first();
+            int cpp_b = cpainfo.getCpp_id_second();
 
-        int cpp_a = cpainfo.getCpp_id_first();
-        int cpp_b = cpainfo.getCpp_id_second();
+            /*
+            * 5. Do upcasting and Downcasting and transform the output of the source web service to an input of the target Web service
+            */
+            JSONObject transform_response = this.transform(cpp_a, cpp_b, SOAPEnvelopeInvokerResponse.getString("outputXML"), cpainfo.getCpa_info(), complexType);
+            String target_xml = transform_response.getString("xml");
+            
+            infoBridgingProcess.put("XML after XBRL DownCasting - Input to Second Web Service",target_xml);
+                
+            inputargs = parseXML(target_xml,inputargs);
+
+            SOAPEnvelopeInvoker targetsoapEnvelopeInvoker = new SOAPEnvelopeInvoker(second_webServiceInfo.getString("SoapAdressURL"), 
+                    second_webServiceInfo.getString("operation_name"), 
+                    second_webServiceInfo.getString("complexType_input").split("\\$")[1],second_webServiceInfo.getString("complexType_output").split("\\$")[1],
+                    inputargs, second_webServiceInfo.getString("service_namespace"));
+
+            JSONObject targetsoapEnvelopeInvokerResponse = targetsoapEnvelopeInvoker.callWebService();
+            if (targetsoapEnvelopeInvokerResponse.containsKey("ErrorMessage")) {
+                this.forwardToPage("/error/generic_error.jsp?errormsg=" + targetsoapEnvelopeInvokerResponse.getString("ErrorMessage"), request, response);
+            } else {
+
+                transform_response.getString("xml");
+                infoBridgingProcess.put("Upcasting xslt", transform_response.get("xsltRulesFirst"));
+                infoBridgingProcess.put("Downcasting xslt", transform_response.get("xsltRulesSecond"));
+                
+                infoBridgingProcess.put("SecondSoapRequest", targetsoapEnvelopeInvokerResponse.get("Soap:EnvelopeRequest"));
+                infoBridgingProcess.put("SecondSoapResponse", targetsoapEnvelopeInvokerResponse.get("Soap:EnvelopeResponse"));
+                infoBridgingProcess.put("SecondoutputXML", targetsoapEnvelopeInvokerResponse.get("outputXML"));
 
 
-        String target_xml = this.transform(cpp_a, cpp_b, SOAPEnvelopeInvokerResponse.getString("outputXML"), cpainfo.getCpa_info(), complexType).toString();
+                session.setAttribute("source_xml", xml_input_to_print);
+                session.setAttribute("target_xml", targetsoapEnvelopeInvokerResponse.getString("outputXML"));
+                session.removeAttribute("infoBridgingProcess");
+                session.setAttribute("infoBridgingProcess", infoBridgingProcess);
+                this.forwardToPage("/organization/showBridging.jsp?type=service", request, response);
+            }
+        }
 
-
-
+    }
+    
+    private JSONObject getWebServiceInfo(JSONObject info) throws WSDLException, FileNotFoundException, IOException, ParserConfigurationException, SAXException, XPathExpressionException
+    {
+        MainControlDB mainControlDB = new MainControlDB();
+        int service_id = Integer.parseInt(info.get("service_id").toString());
+        
+        String operation_name = (String) info.get("operation");
+        System.out.println("operation_name: " + operation_name);
+        
+        Service service = mainControlDB.getService(service_id);
+        WSDLParser wsdlParser = new WSDLParser(service.getWsdl(), service.getNamespace());
+        String service_name = service.getName();
+        wsdlParser.loadService(service.getName());
+        String service_namespace = service.getNamespace();
+        
+        String SoapAdressURL = wsdlParser.getSoapAdressURL(service.getName());
+        
+        LinkedList<String> complexType = wsdlParser.getXSDAttibutes(operation_name);
+        //String complexType_input = complexType.get(0).split("\\$")[1];
+        //String complexType_output = complexType.get(1).split("\\$")[1];
+        String complexType_input = complexType.get(0);
+        String complexType_output = complexType.get(1);
+        String xsdTypes = wsdlParser.extractXSD(complexType_input.split("\\$")[1]);
+        System.out.println("SoapAdressURL: " + SoapAdressURL);
+        
+        JSONObject webServiceInfo = new JSONObject();
+        webServiceInfo.put("service_id", service_id);
+        webServiceInfo.put("operation_name", operation_name);
+        webServiceInfo.put("service_name", service_name);
+        webServiceInfo.put("service_namespace", service_namespace);
+        webServiceInfo.put("SoapAdressURL", SoapAdressURL);
+        webServiceInfo.put("complexType", complexType);
+        webServiceInfo.put("complexType_input", complexType_input);
+        webServiceInfo.put("complexType_output", complexType_output);
+        webServiceInfo.put("xsdTypes", xsdTypes);
+        return webServiceInfo;
+    }
+    
+    /*
+     parse the input xml add its elements to the inputargs JSONObject
+     */
+    private JSONObject  parseXML(String xml,JSONObject inputargs) throws DocumentException{
+        
         SAXReader reader = new SAXReader();
-        InputStream txml = new ByteArrayInputStream(target_xml.getBytes());
-        Document document = reader.read(txml);
-
-        System.out.println("Here i ammmmmmmmmm: " + document.getText());
+        InputStream xml_stream = new ByteArrayInputStream(xml.getBytes());
+        Document document = reader.read(xml_stream);
 
         Element root = document.getRootElement();
         inputargs.clear();
@@ -729,19 +842,10 @@ public class OrganizationManager extends HttpServlet {
         for (Iterator i = root.elementIterator(); i.hasNext();) {
             Element element = (Element) i.next();
             inputargs.put(element.getName(), element.getText());
-
-            System.out.println("Elements of Return XML: " + element.getName() + element.getText());
-        }
-
-
-        SOAPEnvelopeInvoker targetsoapEnvelopeInvoker = new SOAPEnvelopeInvoker(target_SoapAdressURL, target_operation_name, complexType_second_input, complexType_second_output, inputargs, service_second.getNamespace());
-
-        JSONObject targetsoapEnvelopeInvokerResponse = targetsoapEnvelopeInvoker.callWebService();
+            System.out.println("Elements of XML to parse: " + element.getName() + element.getText());
+          }
         
-        session.setAttribute("source_xml", xml_input_to_print);
-        session.setAttribute("target_xml", targetsoapEnvelopeInvokerResponse.getString("outputXML"));
-        this.forwardToPage("/organization/showBridging.jsp", request, response);
-
+        return inputargs;
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

@@ -51,14 +51,14 @@ public class SOAPEnvelopeInvoker {
      *
      * http://ws.eleni.com/getInvoice
      */
-    public SOAPEnvelopeInvoker(String SoapAdressURL, String source_operation_name, String complexType_input, String complexType_output,JSONObject inputargs, String namespace) {
+    public SOAPEnvelopeInvoker(String SoapAdressURL, String source_operation_name, String complexType_input, String complexType_output, JSONObject inputargs, String namespace) {
         this.SoapAdressURL = SoapAdressURL;
         this.source_operation_name = source_operation_name;
         this.complexType_input = complexType_input;
         this.complexType_output = complexType_output;
         this.inputargs = inputargs;
 
-
+        
         for (Object o : inputargs.keySet()) {
             String key = (String) o;
             String value = inputargs.getString(key);
@@ -90,6 +90,7 @@ public class SOAPEnvelopeInvoker {
     public JSONObject callWebService() {
         JSONObject SOAPEnvelopeInvokerResponse = new JSONObject();
         try {
+            SOAPEnvelopeInvokerResponse.put("Soap:EnvelopeRequest", SOAP_REQUEST);
             byte[] reqBytes = SOAP_REQUEST.getBytes();
             ByteArrayInputStream bis = new ByteArrayInputStream(reqBytes);
             StreamSource ss = new StreamSource(bis);
@@ -115,19 +116,21 @@ public class SOAPEnvelopeInvoker {
             
             
             //Reading result
-            System.out.println(resp.toString());
-
-
+            System.out.println("EnvelopeResponse: "+resp.toString());
+            SOAPEnvelopeInvokerResponse.put("Soap:EnvelopeResponse", resp.toString());
+                
             SOAPBody sb = resp.getBody();
 
             
-            
             String outputXML ="<"+complexType_output+">";
+            
+            System.out.println("outputXML start:  "+outputXML);
                     
 
             Iterator output = sb.getChildElements();
             while (output.hasNext()) {
-
+                System.out.println("lalala:");
+                
                 Node rt = (Node) output.next();
 
                 NodeList children = rt.getChildNodes();
@@ -152,20 +155,18 @@ public class SOAPEnvelopeInvoker {
             System.out.println("outputXML  "+outputXML);
             
             
-            
-            SOAPEnvelopeInvokerResponse.put("outputXML", outputXML);
-            SOAPEnvelopeInvokerResponse.put("Soap:Envelope", resp.toString());
-            
-            
            
-
+            SOAPEnvelopeInvokerResponse.put("outputXML", outputXML);
 
         } catch (AxisFault ex) {
             System.out.println(ex.getMessage());
+            SOAPEnvelopeInvokerResponse.put("ErrorMessage", "SOAP Request to "+HOST_ADDRESS+"  "+ ex.getMessage());
         } catch (ServiceException ex) {
             System.out.println(ex.getMessage());
+              SOAPEnvelopeInvokerResponse.put("ErrorMessage","SOAP Request to "+HOST_ADDRESS+"  "+ ex.getMessage());
         } catch (SOAPException ex) {
             System.out.println(ex.getMessage());
+            SOAPEnvelopeInvokerResponse.put("ErrorMessage","SOAP Request to "+HOST_ADDRESS+"  "+ ex.getMessage());
         }
        
         return SOAPEnvelopeInvokerResponse;
