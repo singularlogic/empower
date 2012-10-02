@@ -487,4 +487,24 @@ public class OrgDBConnector {
 	}
         return cpa;
     }
+    
+    
+    public void deleteBridge(int cpa_id){
+       int return_id=-1;
+        try{
+                     
+            this.dbHandler.dbOpen();
+            
+            return_id = this.dbHandler.dbUpdate("delete from cpa where cpa_id="+cpa_id);
+
+            this.dbHandler.dbClose();
+	}
+	catch(Throwable t)
+	{
+		t.printStackTrace(); 
+	}
+    
+    
+    }
+    
 }

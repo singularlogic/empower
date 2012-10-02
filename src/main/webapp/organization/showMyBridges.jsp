@@ -62,11 +62,11 @@
                 <script>
                     grid = new dhtmlXGridObject("box_grid");
                     grid.setImagePath("/js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");
-                    grid.setHeader(",Input Info,Output Info,");//set column names
+                    grid.setHeader(",Input Info,Output Info,Use Brindge,Delete Brindge");//set column names
                     //grid.setNoHeader(true);
                     //grid.attachEvent("onRowSelect", doOnRowSelected);
                     // grid.setColTypes("sub_row,ro,link");
-                    grid.setColTypes("ro,ro,ro,link");
+                    grid.setColTypes("ro,ro,ro,link,link");
                     grid.setSkin("light");//set grid skin
                     grid.init();//initialize grid
                     grid.loadXML("../DIController?op=showMyBridges");

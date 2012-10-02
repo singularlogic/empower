@@ -97,6 +97,8 @@ public class OrganizationManager extends HttpServlet {
                     this.doBridgingServicePrepare(request, response, session);
                 } else if (operation.equals("doBridgingService")) {
                     this.doBridgingService(request, response, session);
+                } else if (operation.equals("deleteBridging")) {
+                    this.deleteBridging(request, response, session);
                 }
 
 
@@ -346,24 +348,36 @@ public class OrganizationManager extends HttpServlet {
             throws IOException, ServletException {
 
         OrgDBConnector orgDBConnector = new OrgDBConnector();
+        MainControlDB mainControlDB = new MainControlDB();
+        
 
         int cpa_id = -1;
+        String organization_name = (String) session.getAttribute("name");
         String selections_source = request.getParameter("selections_source");
         int service_id_source = Integer.parseInt(selections_source.split("\\$")[0]);
         String operation_name_source = (String) selections_source.split("\\$")[1];
 
         int cpp_source = orgDBConnector.getCPP(service_id_source);
+        
+        //create the cpp entity in case the org user type has not changed the annotations
+        if (cpp_source==-1) cpp_source = mainControlDB.insertCPP(-1, service_id_source, organization_name);
+        
         System.out.println("cpp_source: " + cpp_source);
 
 
         String selections_target = request.getParameter("selections_target");
         int service_id_target = Integer.parseInt(selections_target.split("\\$")[0]);
         String operation_name_target = (String) selections_target.split("\\$")[1];
-
+        
+        
         int cpp_target = orgDBConnector.getCPP(service_id_target);
+        
+        if (cpp_target==-1) cpp_target = mainControlDB.insertCPP(-1, service_id_target, organization_name);
+              
+                
         System.out.println("cpp_target: " + cpp_target);
 
-        String organization_name = (String) session.getAttribute("name");
+        
 
         Map<String, CPP> CPPList = new HashMap<String, CPP>();
 
@@ -560,6 +574,7 @@ public class OrganizationManager extends HttpServlet {
                     + "<cell>" + o_second.get("schema")
                     + "</cell>"
                     + "<cell> </cell>"
+                    + "<cell> </cell>"
                     + "</row>"
                     + "<row id=\"" + cpa.getCpa_id() + "\">"
                     + "<cell>Element:</cell>"
@@ -567,13 +582,21 @@ public class OrganizationManager extends HttpServlet {
                     + "</cell>"
                     + " <cell>" + o_second.get("schema_complexType")
                     + "</cell>"
-                    + "<cell></cell>"
+                    +"<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/usebridge.png^Use Brindge^../DIController?op=doBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
+                    +"<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/deletebridge.png^Delete Brindge^../OrganizationManager?op=deleteBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
                     + "</row>";
 
-            dobridging_url = (o_first.get("schema") == null) ? "<cell> Do Brindging^../OrganizationManager?op=doBridgingServicePrepare&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
-                    : "<cell> Do Brindging^../DIController?op=doBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>";
-
-
+           
+            /*
+            dobridging_url = (o_first.get("schema") == null) ? "<cell> Use Brindge^../OrganizationManager?op=doBridgingServicePrepare&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
+                    + "<cell> Delete Brindge^../OrganizationManager?op=deleteBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
+                    : "<cell> Use Brindge^../DIController?op=doBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
+                    + "<cell> Delete Brindge^../DIController?op=deleteBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>";
+            */
+             dobridging_url = (o_first.get("schema") == null) ? "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/usebridge.png^Use Brindge^../OrganizationManager?op=doBridgingServicePrepare&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
+                     +"<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/deletebridge.png^Delete Brindge^../OrganizationManager?op=deleteBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
+                     :"<cell></cell>"
+                     + "<cell></cell>";
 
             out.write("<row id=\"" + cpa.getCpa_id() + "1\">"
                     + "<cell> Web Service:</cell>"
@@ -582,6 +605,7 @@ public class OrganizationManager extends HttpServlet {
                     + "<cell>" + o_second.get("service")
                     + "</cell>"
                     + "<cell> </cell>"
+                    + "<cell> </cell>"
                     + "</row>"
                     + "<row id=\"" + cpa.getCpa_id() + "2\">"
                     + "<cell>Operation:</cell>"
@@ -589,16 +613,17 @@ public class OrganizationManager extends HttpServlet {
                     + "</cell>"
                     + "<cell>" + o_second.get("operation")
                     + "</cell>"
-                    + "<cell></cell>"
+                    + dobridging_url
                     + "</row>"
                     + additional_schema_info
-                    + "<row id=\"" + cpa.getCpa_id() + "4\">"
+                     + "<row id=\"" + cpa.getCpa_id() + "6\">"
                     + "<cell></cell>"
                     + "<cell></cell>"
                     + "<cell></cell>"
-                    //+ "<cell> Do Brindging^../DIController?op=doBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
-                    + dobridging_url
-                    + "</row>");
+                    + "<cell></cell>"
+                    + "<cell></cell>"
+                    + "</row>"
+                   );
 
         }
 
@@ -643,7 +668,6 @@ public class OrganizationManager extends HttpServlet {
             System.out.println("field: " + field);
         }
         session.setAttribute("serviceInputArgs", json_service_input_arg0);
-
 
         this.forwardToPage("/organization/doBridgingService.jsp?cpa_id=" + cpa_id, request, response);
     }
@@ -730,7 +754,7 @@ public class OrganizationManager extends HttpServlet {
        
        /*
         * 4. In  case of that the call to the web service erases 
-        * an exception (ex.404 Not Found) redirect to Error page with the respective message
+        * adoBridgingServicen exception (ex.404 Not Found) redirect to Error page with the respective message
         */
 
         if (SOAPEnvelopeInvokerResponse.containsKey("ErrorMessage")) {
@@ -757,7 +781,7 @@ public class OrganizationManager extends HttpServlet {
             String target_xml = transform_response.getString("xml");
             
             infoBridgingProcess.put("XML after XBRL DownCasting - Input to Second Web Service",target_xml);
-                
+          
             inputargs = parseXML(target_xml,inputargs);
 
             SOAPEnvelopeInvoker targetsoapEnvelopeInvoker = new SOAPEnvelopeInvoker(second_webServiceInfo.getString("SoapAdressURL"), 
@@ -847,6 +871,17 @@ public class OrganizationManager extends HttpServlet {
         
         return inputargs;
     }
+    
+    protected void deleteBridging(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws IOException, ServletException {
+    
+     int cpa_id = Integer.parseInt(request.getParameter("cpa_id"));
+     OrgDBConnector orgDBConnector = new OrgDBConnector();
+     orgDBConnector.deleteBridge(cpa_id);
+     
+      this.forwardToPage("/organization/succ.jsp?level=delete&cpa_id=" + cpa_id, request, response);
+    }
+
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**

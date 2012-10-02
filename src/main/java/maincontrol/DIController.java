@@ -693,9 +693,8 @@ public class DIController extends HttpServlet {
             request.setAttribute("outputType", centralTree);
             request.setAttribute("inputType", choice);  
         }
-        
-        
-        if (!centralTree.equalsIgnoreCase(dataannotations.getXbrl())) xbrl_mismatch= dataannotations.getXbrl()+"$"+centralTree; 
+
+        if (!centralTree.equalsIgnoreCase(dataannotations.getXbrl()) && dataannotations.getXbrl()!=null) xbrl_mismatch= dataannotations.getXbrl()+"$"+centralTree; 
         this.forwardToPage("/proceedDataTree.jsp?schema_id=-1&service_id="+ service_id+"&xbrl_mismatch="+xbrl_mismatch, request, response);
     
     }

@@ -50,7 +50,7 @@
         </div>
         <div class="main">
         <div class="main-navigation">
-              <div id="menu_grid" style="width:180px; height:120px" class='glossymenu <%=session.getAttribute("userType")%>'>
+              <div id="menu_grid" style="width:180px; height:150px" class='glossymenu <%=session.getAttribute("userType")%>'>
                     <script>
                         menu_grid = new dhtmlXGridObject("menu_grid");
                         menu_grid.setImagePath("./js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");
@@ -69,12 +69,15 @@
                 <p><h2>Information</h2></p>
                 <br>
                 <p>Action was successful.</p>
-                <p><%=session.getAttribute("message") %></p>
                 <% if(request.getParameter("level").equalsIgnoreCase("service")) {%>
+                 <p><%=session.getAttribute("message") %></p>
                 <p>Use the bridging <a href='OrganizationManager?op=doBridgingServicePrepare&cpa_id=<%=request.getParameter("cpa_id") %>'>here</a></p>
-                <% } else { %>
+                <% } else if(request.getParameter("level").equalsIgnoreCase("schema")){ %>
+                 <p><%=session.getAttribute("message") %></p>
                 <p>Use the bridging <a href='DIController?op=doBridging&cpa_id=<%=request.getParameter("cpa_id") %>'>here</a></p>
-                <% } %>
+                <% } else if(request.getParameter("level").equalsIgnoreCase("delete")){%>
+                <p>The bridge was successfully deleted.</p>
+                <%}%>
             </div>
     </div>
             <div class="footer"><p>Copyright &copy; 2012 Empower Consortium | All Rights Reserved</p></div>
