@@ -52,7 +52,6 @@
                         menu_grid.setSkin("inverse");
                         menu_grid.init();//initialize grid
                         menu_grid.loadXML('../DIController?op=get_menu&level=2');
-
                     </script>
                 </div>
             </div>    

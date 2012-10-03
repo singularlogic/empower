@@ -5,8 +5,15 @@
 <script>
         function replaceValue()
         {
+           
+           if(tree.getAllChecked().split(",").length!=1 || tree.getAllChecked()=="" || treeFunc.getAllChecked().split(",").length!=1 || treeFunc.getAllChecked()==""){ 
+              alert("You have to check one Operation and only one Operation Taxonomy! Thank You!");
+              return false;
+            }else{       
             document.forms['annotationf'].elements['selections'].value     = tree.getAllChecked();
-            document.forms['annotationf'].elements['funcselections'].value = treeFunc.getAllChecked();            
+            document.forms['annotationf'].elements['funcselections'].value = treeFunc.getAllChecked(); 
+            return true;
+            }
         }
 </script>
 <title>Presenting service in tree form</title>
@@ -99,7 +106,7 @@
                 </div>     
 
                 <br><br>
-                <form method="post" name="annotationf" action="./DIController?op=annotate_operations" onClick="replaceValue();">
+                <form method="post" name="annotationf" action="./DIController?op=annotate_operations" onClick="return replaceValue();">
                     
                     <input type='hidden' name='schema_id' value='<%= request.getParameter("schema_id") %>'>
                     <input type='hidden' name='service_id' value='<%= request.getParameter("service_id") %>'>

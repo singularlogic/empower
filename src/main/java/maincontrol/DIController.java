@@ -482,8 +482,8 @@ public class DIController extends HttpServlet {
             service_id = Integer.parseInt((String) request.getParameter("service_id"));
             operation_name = (String) request.getParameter("selections");
             this.annotateOperations_service(service_id,operation_name,funcSelections,name,userType);
-            this.forwardToPage("/wsannotationResult.jsp?service_id=" + service_id, request, response);
-        }
+            this.forwardToPage("/annotationResult.jsp?schema_id=-1&service_id=" + service_id+"&dataannotation=false", request, response);
+           }
         //System.out.println(funcSelections + " " + schema_id + " " + operation_id + " " + name);
 
        

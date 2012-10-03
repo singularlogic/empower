@@ -6,7 +6,7 @@
         <script type="text/javascript" src="./js/jquery.js"></script>  
         <script type="text/javascript">                                          
             jQuery(document).ready(function(){
-              $("#tax_target,#softwareComp_target").change(function () {
+                $("#tax_target,#softwareComp_target").change(function () {
                     var tax = "";
                     $('#target_box_tree').empty();
                     $("#tax_target option:selected").each(function () {
@@ -41,32 +41,27 @@
 
             function putTitle(loader) {
                 if (loader.xmlDoc.responseText != null){
-                 $("#softwareComp_source option[value='<%=request.getParameter("software_id")%>']").remove();
-                 $("#softwareComp_source option[text='"+loader.xmlDoc.responseText+"']").remove();
-                 $("select[name='sourceSoftComp'] option:selected").text(loader.xmlDoc.responseText);
-                 $("select[name='sourceSoftComp'] option:selected").val('<%=request.getParameter("software_id")%>');
-              }
+                    $("#softwareComp_source option[value='<%=request.getParameter("software_id")%>']").remove();
+                    $("#softwareComp_source option[text='"+loader.xmlDoc.responseText+"']").remove();
+                    $("select[name='sourceSoftComp'] option:selected").text(loader.xmlDoc.responseText);
+                    $("select[name='sourceSoftComp'] option:selected").val('<%=request.getParameter("software_id")%>');
+                }
             }
 
   
         </script>    
         <script>
-            function replaceValue()
-            {
-                if(tree.getAllChecked().split("--").length>8) alert("You have to check only one input schema! Thank You!");
-                else if(centralTree.getAllChecked().split("--").length>8) alert("You have to check only one output schema! Thank You!");
-                else{    
-                    document.forms['annotationf'].elements['selections'].value  = tree.getAllChecked();
-                    document.forms['annotationf'].elements['centraltree'].value = centralTree.getAllChecked();  
-                }
-            }
-        
             function assign_selections()
             {
-                document.forms['create_bridge'].elements['selections_source'].value  = tree.getAllChecked();
-                document.forms['create_bridge'].elements['selections_target'].value = target_tree.getAllChecked();  
-                
-                return true;
+               
+                if(tree.getAllChecked().split("\\$").length!=2 || target_tree.getAllChecked().split("\\$").length!=2){
+                    alert("You have to check only one input and one output web service! Thank You!");
+                    return false;  
+                }  else{ 
+                    document.forms['create_bridge'].elements['selections_source'].value  = tree.getAllChecked();
+                    document.forms['create_bridge'].elements['selections_target'].value = target_tree.getAllChecked();  
+                    return true;
+                }  
             }
         </script>
         <title>Presenting service in tree form</title>
@@ -145,10 +140,9 @@
                                             String key = (String) o;
                                             String value = taxonomies.getString(key);
                                             System.out.println("key: " + key + " value: " + value);
-                                 %> <option value="<%=key%>"><%=value%></option><%
-                                        }
-                                    }
-
+                                %> <option value="<%=key%>"><%=value%></option><%
+                                         }
+                                     }
                                 %> 
                             </select>
                             <p>Semantic taxonomies:</p>
@@ -217,24 +211,24 @@
                 </script>
             </div>   
             <div id="target_box_tree" style="width:250px; height:400px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;margin: 10px;">
-            <script>
+                <script>
                     target_tree = new dhtmlXTreeObject("target_box_tree", "100%", "100%", 0);
                     target_tree.setImagePath("./js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
                     target_tree.enableCheckBoxes(true, false);
                     target_tree.loadXML('./OrganizationManager?op=showexposedServicesByTaxonomy&tax=All&form=out&software_id=All', null);
-            </script>    
+                </script>    
             </div>
 
-        <br>
-        <br>
-        <form method="post" name="create_bridge" action="./OrganizationManager?op=createBridgingServices" onSubmit="assign_selections();">
-            <input type='hidden' name='selections_source'  value='null'>
-            <input type='hidden' name='selections_target'  value='null'>
-            <input type="submit" value="Create Bridging" name="create_bridging" id="create_bridging"/>
-        </form>
+            <br>
+            <br>
+            <form method="post" name="create_bridge" action="./OrganizationManager?op=createBridgingServices" onSubmit=" return assign_selections();">
+                <input type='hidden' name='selections_source'  value='null'>
+                <input type='hidden' name='selections_target'  value='null'>
+                <input type="submit" value="Create Bridging" name="create_bridging" id="create_bridging"/>
+            </form>
+        </div>
     </div>
-</div>
-<div class="footer"><p>Copyright &copy; 2012 Empower Consortium | All Rights Reserved</p></div>
+    <div class="footer"><p>Copyright &copy; 2012 Empower Consortium | All Rights Reserved</p></div>
 </center>                
 </body>
 </html>

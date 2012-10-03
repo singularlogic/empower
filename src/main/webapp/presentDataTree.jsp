@@ -5,18 +5,24 @@
 <script>
         function replaceValue()
         {
+           if(<%=request.getParameter("service_id")%>){
+               split_var="\\$";
+               lenght_var =4; 
+           }else{
+               split_var="--";
+               lenght_var =9; 
+           }
+           
+           if(tree.getAllChecked().split(split_var).length!=lenght_var || tree.getAllChecked()=="" || centralTree.getAllChecked().split(",").length!=1 || centralTree.getAllChecked()==""){ 
+              alert("You have to check one schema and only one XBRL Taxonomy! Thank You!");
+              return false;
+            }else{
             document.forms['annotationf'].elements['selections'].value  = tree.getAllChecked();
             document.forms['annotationf'].elements['centraltree'].value = centralTree.getAllChecked();                
 //            alert(centraltree.getAllChecked());
+            return true;
+            }
         }
-        
-        function msg()
-        {
-            alert(centralTree.getAllChecked());
-        }
-        
-       
-        
 </script>
 <title>Presenting service in tree form</title>
         <link rel="stylesheet" type="text/css" href="./style/menu_style.css"/>
@@ -102,7 +108,7 @@
                 </div>                
                 <br>
                 
-                <form method="post" name="annotationf" action="./DIController?op=annotate" onClick="replaceValue();">
+                <form method="post" name="annotationf" action="./DIController?op=annotate" onClick="return replaceValue();">
                     <input type='hidden' name='schema_id' value='<%= request.getParameter("schema_id") %>'>
                     <input type='hidden' name='service_id' value='<%= request.getParameter("service_id") %>'>
                     <!--<input type='hidden' name='exposed'  value='< %= request.getParameter("exposed") %>'>-->
