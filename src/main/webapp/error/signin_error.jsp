@@ -55,7 +55,7 @@
                     </form>  
                     <div>
                         <br>
-                        <p><h2>Error occured</h2>
+                        <p><h2>User Information</h2>
                         <br>
                         <p><%= ((String) request.getParameter("errormsg")).toString()%>
                     </div>

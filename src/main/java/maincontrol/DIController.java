@@ -170,13 +170,21 @@ public class DIController extends HttpServlet {
         String userType = request.getParameter("user_type");
 
         MainControlDB mainControlDB = new MainControlDB();
-        mainControlDB.insertUser(name, password, userType);
-
+        int user_id = mainControlDB.insertUser(name, password, userType);
+        
+        if (user_id!=-1){
+            
         session = request.getSession(true);
         session.setAttribute("userType", userType);
         session.setAttribute("name", name);
         String redirectionURL = new String("/" + userType + "/" + userType + "menu.jsp");
         this.forwardToPage(redirectionURL, request, response);
+        
+        }else {
+            this.forwardToPage("/error/signin_error.jsp?errormsg=Already exists a user with the same name.Please try to Sing Up with a different name.", request, response);
+        }
+
+       
     }
 
     private boolean verifyUser(String userType, HttpSession session) {
