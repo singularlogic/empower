@@ -129,7 +129,7 @@
                     <div style="width: 250px; float: left;">
                         <div class="st_title"><p>Source Web Service</p></div>
                         <div>
-                            <p>Sofware Components:</p>
+                            <p>Software Components:</p>
                             <select name="sourceSoftComp" id="softwareComp_source" style="margin:10px;">
                                 <option></option> 
                                 <option value="All">All</option>   
@@ -166,7 +166,7 @@
                     </div>
                     <div style="width: 250px; float: right;">
                         <div class="st_title"><p>Target Web Service</p></div>
-                        <p>Sofware Components:</p>
+                        <p>Software Components:</p>
                         <select name="targetSoftComp" id="softwareComp_target" style="margin:10px;">
                             <option>All</option>   
 

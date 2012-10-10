@@ -479,11 +479,11 @@ public class MainControlDB {
 
             System.out.println("name: " + name);
             this.dbHandler.dbOpen();
-            rs = this.dbHandler.dbQuery("select name from softwarecomponent where software_id='" + software_id + "'");
+            rs = this.dbHandler.dbQuery("select name, version from softwarecomponent where software_id='" + software_id + "'");
 
             if (rs != null) {
                 rs.next();
-                name = rs.getString("name");
+                name = rs.getString("name")+" V"+rs.getString("version");
             }
 
             rs.close();

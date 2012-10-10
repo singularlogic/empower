@@ -143,12 +143,8 @@ public class OrganizationManager extends HttpServlet {
 
 
             } else {
-                //out.write("<cell>Schemas^../DIController?op=show_schema&amp;xsd=1_1_" + comp.getSoftwareID() + "^_self</cell>"
-                  //      + "<cell>Services^../DIController?op=show_service&amp;service=1_1_" + comp.getSoftwareID() + "^_self</cell>");
-           
                 out.write("<cell type=\"img\">../js/dhtmlxSuite/dhtmlxTree/codebase/imgs/xsd.png^Schemas^../DIController?op=show_schema&amp;xsd=1_1_" + comp.getSoftwareID() + "^_self</cell>"
                        + "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxTree/codebase/imgs/wsdl.png^Services^../DIController?op=show_service&amp;service=1_1_" + comp.getSoftwareID() + "^_self</cell>");
-            
             }
             out.write(" </row>");
         }
@@ -583,16 +579,15 @@ public class OrganizationManager extends HttpServlet {
 
         response.setContentType("text/xml; charset=UTF-8");
         String software_id = (String) request.getParameter("software_id");
-        System.out.println("My software_id " + software_id);
-
 
         LinkedList<Service> services = (LinkedList<Service>) mainControlDB.getServices(software_id, true, "IS NOT NULL");
 
         System.out.println("services: " + services + "lenght: " + services.size());
+        PrintWriter out = response.getWriter();
+        out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+        out.write("<tree id=\"0\">");
         if (services.size() > 0) {
-            PrintWriter out = response.getWriter();
-            out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-            out.write("<tree id=\"0\">");
+           
             Iterator serv_iterator = services.iterator();
             while (serv_iterator.hasNext()) {
                 Service service = (Service) serv_iterator.next();
@@ -604,9 +599,10 @@ public class OrganizationManager extends HttpServlet {
                 }
             }
 
-            out.write("</tree>");
-            out.close();
+            
         }
+        out.write("</tree>");
+        out.close();
     }
 
     private void forwardToPage(String url, HttpServletRequest req, HttpServletResponse resp)
@@ -670,28 +666,10 @@ public class OrganizationManager extends HttpServlet {
                     + "</row>";
             
 
-            /*
-             * dobridging_url = (o_first.get("schema") == null) ? "<cell> Use
-             * Brindge^../OrganizationManager?op=doBridgingServicePrepare&amp;cpa_id="
-             * + cpa.getCpa_id() + "^_self</cell>" + "<cell> Delete
-             * Brindge^../OrganizationManager?op=deleteBridging&amp;cpa_id=" +
-             * cpa.getCpa_id() + "^_self</cell>" : "<cell> Use
-             * Brindge^../DIController?op=doBridging&amp;cpa_id=" +
-             * cpa.getCpa_id() + "^_self</cell>" + "<cell> Delete
-             * Brindge^../DIController?op=deleteBridging&amp;cpa_id=" +
-             * cpa.getCpa_id() + "^_self</cell>";
-             */
-            
             String active_bridge = (cpa.isDisabled())?"<cell>Disabled</cell>":
                     "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/usebridge.png^Use Brindge^../OrganizationManager?op=doBridgingServicePrepare&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"; 
-            /*
-            dobridging_url = (o_first.get("schema") == null) ? "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/usebridge.png^Use Brindge^../OrganizationManager?op=doBridgingServicePrepare&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
-                    + "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/deletebridge.png^Delete Brindge^../OrganizationManager?op=deleteBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
-                    : "<cell></cell>"
-                    + "<cell></cell>";
-            */
-            
-            
+           
+
             dobridging_url = (o_first.get("schema") == null) ? active_bridge+"<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/deletebridge.png^Delete Brindge^../OrganizationManager?op=deleteBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
                     : "<cell></cell>"
                     + "<cell></cell>";

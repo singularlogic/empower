@@ -9,6 +9,8 @@ import java.sql.ResultSet;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 import xml.WSDLParser;
 
 /**
@@ -110,7 +112,7 @@ public class VendorDBConnector {
             message = "Schema component is deleted. ";
             this.dbHandler.dbClose();
 
-            message = message + this.deleteSchemaService(service_id,operation_id);
+            message = message + this.deleteSchemaService(service_id,operation_id,schema_id);
         } catch (Throwable t) {
             t.printStackTrace();
         }
@@ -118,7 +120,7 @@ public class VendorDBConnector {
         return message;
     }
 
-    public String deleteSchemaService(int service_id,int operation_id) {
+    public String deleteSchemaService(int service_id,int operation_id, String schema_id) {
         ResultSet rs,rs1;
         String message = "";
         int cpp_id=-1;
@@ -161,24 +163,11 @@ public class VendorDBConnector {
                 this.dbHandler.dbUpdate("delete from operation where operation_id=" + operation_id);
             }
 
-            /*rs = this.dbHandler.dbQuery("select o.operation_id as operation_id "
-              //      + "from operation o where o.service_id=" + service_id);
-            
-            System.out.println("rs size: ");
-
-            if (!rs.next() && rs.getFetchSize()==1) {
-                int cvp_id = this.dbHandler.dbUpdate("delete from cvp where service_id=" + service_id);
-                cpp_id = this.dbHandler.dbUpdate("delete from cpp where cvp_id=" + cvp_id);
-                this.dbHandler.dbUpdate("delete from web_service where service_id=" + service_id);
-                disable_bridge=true;
-                message = " The web service has no schemas any more and is deleted too. ";
-            }*/
-            
-             
             this.dbHandler.dbClose();
             
             if (disable_bridge)   message = message + this.desactivateBridge(cpp_id);
             
+            this.desactivateBridgeSchema(service_id,schema_id);
             
         } catch (Throwable t) {
             t.printStackTrace();
@@ -260,6 +249,43 @@ public class VendorDBConnector {
 
         return message;
     }
+    
+    public String desactivateBridgeSchema(int service_id, String schema_id) {
+        ResultSet rs;
+        String message = "";
+
+        try {
+            //check if there is any cpa that includes the deleted schema_id
+            this.dbHandler.dbOpen();
+
+            rs = this.dbHandler.dbQuery("SELECT cpa.cpa_id,cpa.cpa_info FROM cpa cpa , cvp cvp , cpp cpp WHERE (cpa.cpp_id_first=cpp.cpp_id or cpa.cpp_id_second=cpp.cpp_id) and cpp.cvp_id=cvp.cvp_id and cvp.service_id="+service_id);
+
+            if (rs != null) {
+                while (rs.next()) {
+
+                    String cpa_info = rs.getString("cpa_info");
+                    int cpa_id = rs.getInt("cpa_id");
+                    
+                    JSONObject o = new JSONObject();
+                    o = (JSONObject) JSONSerializer.toJSON(cpa_info);
+                    JSONObject o_first = (JSONObject) JSONSerializer.toJSON(o.get("cppinfo_first"));
+                    JSONObject o_second = (JSONObject) JSONSerializer.toJSON(o.get("cppinfo_second"));
+
+                    if (o_first.getString("schema_id").equalsIgnoreCase(schema_id) || o_second.getString("schema_id").equalsIgnoreCase(schema_id)){
+                       this.dbHandler.dbUpdate("update cpa set disabled=true where cpa_id=" + cpa_id);
+                        }
+                }
+            }
+            rs.close();
+            this.dbHandler.dbClose();
+
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+
+        return message;
+    }
+    
 
     /*
      * Get the software components that belong to a vendor with the schemas and

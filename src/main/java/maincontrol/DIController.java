@@ -810,7 +810,7 @@ public class DIController extends HttpServlet {
             Iterator softcomp_iterator = softwareComponents.iterator();
             while (softcomp_iterator.hasNext()) {
                 SoftwareComponent sc = (SoftwareComponent) softcomp_iterator.next();
-                json_softwareComp.put(sc.getSoftware_id(),sc.getName());
+                json_softwareComp.put(sc.getSoftware_id(),sc.getName() +" V"+sc.getVersion());
             }
             session.setAttribute("softwarecomponents", json_softwareComp);
         }
