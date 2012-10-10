@@ -30,7 +30,7 @@ public class VendorDBConnector {
         try {
             this.dbHandler.dbOpen();
 
-            rs = this.dbHandler.dbQuery("select * from vendor where name='" + vendor + "';");
+            rs = this.dbHandler.dbQuery("select * from vendor where name='" + vendor + "'");
 
             rs.next();
             vendor_id = rs.getInt("vendor_id");
@@ -62,27 +62,211 @@ public class VendorDBConnector {
         return num;
     }
 
-    public void deleteSoftware(String softwareID) {
+    public String deleteSoftware(String software_id) {
+        ResultSet rs;
+        String message = "";
         try {
+            //check if the software has web services
             this.dbHandler.dbOpen();
-            //this.dbHandler.dbUpdate("delete from dataannotations where cvp_id in (select cvp_id from cvp where service_id in (select service_id from services where softwarecomponent_software_id=" + softwareID + "));");            
-            //this.dbHandler.dbUpdate("delete from funcannotations where cvp_cvp_id in (select cvp_id from cvp where service_id in (select service_id from services where softwarecomponent_software_id=" + softwareID + "));");                        
-            this.dbHandler.dbUpdate("delete from dataannotations where xsd_id in (select xsd_id from xsd where software_id=" + softwareID + ");");
-            this.dbHandler.dbUpdate("delete from cvp where xsd_id in (select xsd_id from xsd where software_id=" + softwareID + ");");
-            this.dbHandler.dbUpdate("delete from xsd where software_id=" + softwareID + ";");
-            this.dbHandler.dbUpdate("delete from softwarecomponent where software_id=" + softwareID + ";");
+            rs = this.dbHandler.dbQuery("SELECT sc.software_id as software_id FROM softwarecomponent sc, web_service ws WHERE  sc.software_id=ws.software_id and  sc.software_id=" + software_id);
+            if (rs.next()) {
+                message = "The software Component you want to delete has assigned some web services.Please delete first the web services!";
+
+            } else {
+                this.dbHandler.dbUpdate("delete from softwarecomponent where software_id=" + software_id);
+                message = "Software component is deleted";
+            }
+
             this.dbHandler.dbClose();
         } catch (Throwable t) {
             t.printStackTrace();
         }
+
+        return message;
+    }
+
+    public String deleteSchema(String schema_id) {
+        ResultSet rs;
+        String message = "";
+        int operation_id = -1;
+        int service_id = -1;
+
+        try {
+            //get the schema operation and web service
+            this.dbHandler.dbOpen();
+
+            rs = this.dbHandler.dbQuery("select os.operation_id as operation_id, o.service_id as service_id "
+                    + "from operation_schema os, schema_xsd s, operation o where os.operation_id=o.operation_id "
+                    + "and os.schema_id=s.schema_id and s.schema_id=" + schema_id);
+            if (rs.next()) {
+                operation_id = rs.getInt("operation_id");
+                service_id = rs.getInt("service_id");
+            }
+            this.dbHandler.dbUpdate("delete from dataannotations where schema_id=" + schema_id);
+            this.dbHandler.dbUpdate("delete from schema_xsd where schema_id=" + schema_id);
+            this.dbHandler.dbUpdate("delete from operation_schema where schema_id=" + schema_id);
+            //this.dbHandler.dbUpdate("delete from operation where operation_id=" + operation_id);
+            rs.close();
+            message = "Schema component is deleted. ";
+            this.dbHandler.dbClose();
+
+            message = message + this.deleteSchemaService(service_id,operation_id);
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+
+        return message;
+    }
+
+    public String deleteSchemaService(int service_id,int operation_id) {
+        ResultSet rs,rs1;
+        String message = "";
+        int cpp_id=-1;
+        boolean disable_bridge= false;
+        int op_num=-1;
+        try {
+            //delete web service of schema only if has no other operation assigned to it
+            this.dbHandler.dbOpen();
+            
+            rs = this.dbHandler.dbQuery("select count(*) as op_num "
+                    + "from operation o where o.service_id=" + service_id);
+            
+            if (rs.next()){
+                op_num = rs.getInt("op_num");
+            }
+            rs.close();
+            System.out.println("op_num"+op_num+"    "+"select count(*) as op_num "
+                    + "from operation o where o.service_id=" + service_id);
+            if (op_num==1){
+                
+                
+                //int cvp_id = this.dbHandler.dbUpdate("delete from cvp where service_id=" + service_id);
+                //cpp_id = this.dbHandler.dbUpdate("delete from cpp where cvp_id=" + cvp_id);
+                rs1 = this.dbHandler.dbQuery("select cpp.cpp_id as cpp_id  from cpp cpp, cvp cvp where cpp.cvp_id=cvp.cvp_id and cvp.service_id=" + service_id);
+                if (rs1.next()){
+                cpp_id = rs1.getInt("cpp_id");
+                } 
+                rs1.close();
+                 
+                this.dbHandler.dbUpdate("delete cpp.* from cpp,cvp where cpp.cvp_id=cvp.cvp_id and  service_id="+service_id);
+                System.out.println("cpp deleted id: "+cpp_id);
+                this.dbHandler.dbUpdate("delete from cvp where service_id=" + service_id);
+                this.dbHandler.dbUpdate("delete from operation where operation_id=" + operation_id);
+                this.dbHandler.dbUpdate("delete from web_service where service_id=" + service_id);
+                disable_bridge=true;
+                message = " The web service has no schemas any more and is deleted too. ";
+            
+            
+            }else{
+                this.dbHandler.dbUpdate("delete from operation where operation_id=" + operation_id);
+            }
+
+            /*rs = this.dbHandler.dbQuery("select o.operation_id as operation_id "
+              //      + "from operation o where o.service_id=" + service_id);
+            
+            System.out.println("rs size: ");
+
+            if (!rs.next() && rs.getFetchSize()==1) {
+                int cvp_id = this.dbHandler.dbUpdate("delete from cvp where service_id=" + service_id);
+                cpp_id = this.dbHandler.dbUpdate("delete from cpp where cvp_id=" + cvp_id);
+                this.dbHandler.dbUpdate("delete from web_service where service_id=" + service_id);
+                disable_bridge=true;
+                message = " The web service has no schemas any more and is deleted too. ";
+            }*/
+            
+             
+            this.dbHandler.dbClose();
+            
+            if (disable_bridge)   message = message + this.desactivateBridge(cpp_id);
+            
+            
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+
+        return message;
+    }
+
+    public String deleteWebService(int service_id) {
+        ResultSet rs;
+        String message = "";
+        int cvp_id = -1;
+        int cpp_id = -1;
+        try {
+            //check if the web service has a cvp created
+            this.dbHandler.dbOpen();
+
+            rs = this.dbHandler.dbQuery("select cvp.cvp_id as cvp_id , cpp.cpp_id as cpp_id from cvp cvp "
+                    + "LEFT JOIN cpp cpp on cvp.cvp_id=cpp.cvp_id "
+                    + "where   cvp.service_id=" + service_id);
+
+            if (rs.next()) {
+
+                //delete  --operation -- dataannotations -- cpp -- cvp
+                cvp_id = rs.getInt("cvp_id");
+                cpp_id = rs.getInt("cpp_id");
+                System.out.println("info cvp_id: " + cvp_id + "cpp_id" + cpp_id);
+                this.dbHandler.dbUpdate("delete from operation where service_id=" + service_id);
+                this.dbHandler.dbUpdate("delete from dataannotations where cvp_id=" + cvp_id);
+                this.dbHandler.dbUpdate("delete from cpp where cvp_id=" + cvp_id);
+                this.dbHandler.dbUpdate("delete from cvp where cvp_id=" + cvp_id);
+
+            }
+            //delete in any case operation -- installedbinding and web service
+
+            this.dbHandler.dbUpdate("delete from installedbinding where service_id=" + service_id);
+            this.dbHandler.dbUpdate("delete from web_service where service_id=" + service_id);
+
+            //desactivate possible bridge if any
+            rs.close();
+            this.dbHandler.dbClose();
+
+            message = this.desactivateBridge(cpp_id);
+
+            message = " The web service has been deleted. " + message;
+
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+
+        return message;
+    }
+
+    public String desactivateBridge(int cpp_id) {
+        ResultSet rs;
+        String message = "";
+
+        try {
+            //check if there is any cpa with cpp first or second the input cpp_id
+            this.dbHandler.dbOpen();
+
+            rs = this.dbHandler.dbQuery("SELECT cpa.cpa_id as cpa_id FROM cpa cpa WHERE cpp_id_first=" + cpp_id + " || cpp_id_second=" + cpp_id);
+
+            System.out.println("SELECT cpa.cpa_id as cpa_id FROM cpa cpa WHERE cpp_id_first=" + cpp_id + " || cpp_id_second=" + cpp_id);
+            if (rs != null) {
+                while (rs.next()) {
+
+                    int cpa_id = rs.getInt("cpa_id");
+                    this.dbHandler.dbUpdate("update cpa set disabled=true where cpa_id=" + cpa_id);
+                    message = " And the Bridges that participates have been disabled. ";
+                }
+            }
+            rs.close();
+            this.dbHandler.dbClose();
+
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+
+        return message;
     }
 
     /*
-     * Get the software components that belong to a vendor with the schemas and services of each component
+     * Get the software components that belong to a vendor with the schemas and
+     * services of each component
      */
-    
     public Collection getSoftwareComponents(String vendor) {
-        ResultSet rs, rsServ , rsSchemas;
+        ResultSet rs, rsServ, rsSchemas;
         LinkedList<SoftwareComponent> compList = new LinkedList<SoftwareComponent>();
 
         try {
@@ -99,18 +283,18 @@ public class VendorDBConnector {
                 while (rs.next()) {
 
                     rsSchemas = dbHand.dbQuery("select count(s.schema_id) as schemas_num from operation o LEFT JOIN web_service ws on o.service_id=ws.service_id LEFT JOIN operation_schema os  on o.operation_id = os.operation_id LEFT JOIN schema_xsd  s  on os.schema_id = s.schema_id where ws.software_id=" + rs.getString("software_id"));
-                    int schemas_num = (rsSchemas.next()) ? rsSchemas.getInt("schemas_num"): 0;
+                    int schemas_num = (rsSchemas.next()) ? rsSchemas.getInt("schemas_num") : 0;
                     rsSchemas.close();
-                    
-                    rsServ = dbHand.dbQuery("select count(ws.service_id) as services_num from  web_service ws where ws.software_id="+rs.getString("software_id"));
-                    int services_num = (rsServ.next()) ? rsServ.getInt("services_num"): 0;
+
+                    rsServ = dbHand.dbQuery("select count(ws.service_id) as services_num from  web_service ws where ws.software_id=" + rs.getString("software_id"));
+                    int services_num = (rsServ.next()) ? rsServ.getInt("services_num") : 0;
                     rsServ.close();
-                    
+
                     compList.add(new SoftwareComponent(rs.getString("name"),
                             rs.getString("version"),
                             schemas_num,
                             services_num,
-                            rs.getInt("software_id"))); 
+                            rs.getInt("software_id")));
                 }
             }
 
@@ -124,7 +308,7 @@ public class VendorDBConnector {
         return compList;
     }
 
-    public int insertSchemaInfo(int software_id, String XSDName, String XSDFilename, String xmlRepPath, String new_web_service_name,String web_service, String operation_name, String inputoutput) {
+    public int insertSchemaInfo(int software_id, String XSDName, String XSDFilename, String xmlRepPath, String new_web_service_name, String web_service, String operation_name, String inputoutput) {
         int schema_id = -1, service_id = -1, operation_id = -1, operation_schema_id = -1;
         String version = new String("");
         String filename = null;
@@ -132,12 +316,14 @@ public class VendorDBConnector {
         try {
             this.dbHandler.dbOpen();
 
-            
-            if (new_web_service_name.equalsIgnoreCase("")){
-            System.out.println("Hola");    
-            service_id = Integer.parseInt(web_service);
-            }else service_id = this.dbHandler.dbUpdate("INSERT INTO web_service(name,software_id) VALUES ('" + new_web_service_name + "'," + software_id + ")");
-            
+
+            if (new_web_service_name.equalsIgnoreCase("")) {
+                System.out.println("Hola");
+                service_id = Integer.parseInt(web_service);
+            } else {
+                service_id = this.dbHandler.dbUpdate("INSERT INTO web_service(name,software_id) VALUES ('" + new_web_service_name + "'," + software_id + ")");
+            }
+
 
             operation_id = this.dbHandler.dbUpdate("INSERT INTO operation(name,service_id,taxonomy_id) VALUES ('" + operation_name + "'," + service_id + ",1)");
             System.out.println("operation_id" + operation_id);
@@ -157,9 +343,8 @@ public class VendorDBConnector {
 
         return schema_id;
     }
-    
-    public int insertServiceInfo(int software_id, String serviceName, String wsdlFilename, String xmlRepPath, String namespace)
-    {
+
+    public int insertServiceInfo(int software_id, String serviceName, String wsdlFilename, String xmlRepPath, String namespace) {
         ResultSet rs;
         int service_id = -1;
         int old_service_id = 0;
@@ -167,9 +352,8 @@ public class VendorDBConnector {
         String filename = null;
         Iterator servicePorts;
         int numberOperations, numberMessages;
-        
-	try
-        {
+
+        try {
             // for mysql compatibility
             wsdlFilename = wsdlFilename.replace("\\", "\\\\");
 
@@ -178,28 +362,27 @@ public class VendorDBConnector {
             WSDLParser wsdlParser = new WSDLParser(wsdlFilename, namespace);
             wsdlParser.loadService(serviceName);
             numberOperations = wsdlParser.getOperationsNumber();
-             System.out.println("numberOperations: "+numberOperations);
-            numberMessages   = wsdlParser.getMessageNumber(); 
-             System.out.println("numberMessages: "+numberMessages);
+            System.out.println("numberOperations: " + numberOperations);
+            numberMessages = wsdlParser.getMessageNumber();
+            System.out.println("numberMessages: " + numberMessages);
 
-           service_id = this.dbHandler.dbUpdate("insert into web_service(name,software_id,namespace,wsdl,operation_number, messages_number) values('"
-                                    + serviceName + "',"+software_id+",'" + namespace +"','" +wsdlFilename + "'," + numberOperations + "," + numberMessages + ");");
-            
+            service_id = this.dbHandler.dbUpdate("insert into web_service(name,software_id,namespace,wsdl,operation_number, messages_number) values('"
+                    + serviceName + "'," + software_id + ",'" + namespace + "','" + wsdlFilename + "'," + numberOperations + "," + numberMessages + ");");
+
             servicePorts = wsdlParser.returnServicePortsString();
-            
-            while(servicePorts.hasNext())
-                  this.dbHandler.dbUpdate("insert into installedbinding(service_id,service_port_name) values("
-                          + service_id + ",'" + servicePorts.next().toString() + "');");
-                System.out.println("servicePorts: "+servicePorts.next().toString());
+
+            while (servicePorts.hasNext()) {
+                this.dbHandler.dbUpdate("insert into installedbinding(service_id,service_port_name) values("
+                        + service_id + ",'" + servicePorts.next().toString() + "');");
+            }
+            System.out.println("servicePorts: " + servicePorts.next().toString());
 
             this.dbHandler.dbClose();
-	}
-	catch(Throwable t)
-	{
+        } catch (Throwable t) {
             //t.printStackTrace(); 
             System.out.println(t);
-	}
-                
+        }
+
         return service_id;
     }
 
@@ -303,86 +486,80 @@ public class VendorDBConnector {
 
         return schema;
     }
-    
-    /*put in MainControlDB
-    public int insertCVP(String annotations, int schema_id, String vendorName, String json, String selections) {
-        ResultSet rs;
-        int cvp = 0, dataannotations_id, vendor_id, cvp_id;
-        int num = 0;
 
-        try {
-            
-            // get vendor id
-            vendor_id = getuserid(vendorName);
-            System.out.println(" vendor_id:" + vendor_id);
-            
-            //check if exists an other cvp
-            this.dbHandler.dbOpen();
-
-            rs = this.dbHandler.dbQuery("SELECT cvp_id, da.dataAnnotations_id from dataannotations  da, cvp  cvp  WHERE schema_id=" + schema_id +" and selections='"+selections+"' and da.dataAnnotations_id = cvp.dataAnnotations_id");
-
-            if (rs.next()) {
-                cvp_id = rs.getInt("cvp_id");
-                System.out.println(" CVP exists:" + cvp);
-
-                //update dataannotations info and vendor name info of cvp
-
-                this.dbHandler.dbUpdate("update dataannotations set mapping='" + json + "', xslt_annotations ='" + annotations + "', selections = '"+selections+"'  where dataannotations_id=" + rs.getInt("dataannotations_id") + ";");
-                System.out.println("update dataannotations");
-                this.dbHandler.dbUpdate("update cvp set vendor_id='" + vendor_id + "' where cvp_id=" + cvp_id + ";");
-                System.out.println("update cvp");
-
-            } else {
-                dataannotations_id = this.dbHandler.dbUpdate("insert into dataannotations (schema_id, xslt_annotations,mapping,selections) values (" + schema_id + ",'" + annotations + "','" + json + "','"+selections+"');");
-
-                System.out.println(" create dataannotations:" + dataannotations_id);
-
-                // insert cvp
-                cvp_id = this.dbHandler.dbUpdate("insert into cvp(dataAnnotations_id, vendor_id) values(" + dataannotations_id + ",'" + vendor_id + "');");
-
-                System.out.println(" create cvp:" + cvp_id);
-            }
-
-             this.dbHandler.dbClose();
-        } catch (Throwable t) {
-            t.printStackTrace();
-        }
-
-        return cvp;
+    /*
+     * put in MainControlDB public int insertCVP(String annotations, int
+     * schema_id, String vendorName, String json, String selections) { ResultSet
+     * rs; int cvp = 0, dataannotations_id, vendor_id, cvp_id; int num = 0;
+     *
+     * try {
+     *
+     * // get vendor id vendor_id = getuserid(vendorName); System.out.println("
+     * vendor_id:" + vendor_id);
+     *
+     * //check if exists an other cvp this.dbHandler.dbOpen();
+     *
+     * rs = this.dbHandler.dbQuery("SELECT cvp_id, da.dataAnnotations_id from
+     * dataannotations da, cvp cvp WHERE schema_id=" + schema_id +" and
+     * selections='"+selections+"' and da.dataAnnotations_id =
+     * cvp.dataAnnotations_id");
+     *
+     * if (rs.next()) { cvp_id = rs.getInt("cvp_id"); System.out.println(" CVP
+     * exists:" + cvp);
+     *
+     * //update dataannotations info and vendor name info of cvp
+     *
+     * this.dbHandler.dbUpdate("update dataannotations set mapping='" + json +
+     * "', xslt_annotations ='" + annotations + "', selections =
+     * '"+selections+"' where dataannotations_id=" +
+     * rs.getInt("dataannotations_id") + ";"); System.out.println("update
+     * dataannotations"); this.dbHandler.dbUpdate("update cvp set vendor_id='" +
+     * vendor_id + "' where cvp_id=" + cvp_id + ";"); System.out.println("update
+     * cvp");
+     *
+     * } else { dataannotations_id = this.dbHandler.dbUpdate("insert into
+     * dataannotations (schema_id, xslt_annotations,mapping,selections) values
+     * (" + schema_id + ",'" + annotations + "','" + json +
+     * "','"+selections+"');");
+     *
+     * System.out.println(" create dataannotations:" + dataannotations_id);
+     *
+     * // insert cvp cvp_id = this.dbHandler.dbUpdate("insert into
+     * cvp(dataAnnotations_id, vendor_id) values(" + dataannotations_id + ",'" +
+     * vendor_id + "');");
+     *
+     * System.out.println(" create cvp:" + cvp_id); }
+     *
+     * this.dbHandler.dbClose(); } catch (Throwable t) { t.printStackTrace(); }
+     *
+     * return cvp; }
+     */
+    /*
+     * put in MainControlDB public CVP getCVP(int cvpID) { CVP cvp = null;
+     * ResultSet rs;
+     *
+     * try {
+     *
+     * this.dbHandler.dbOpen(); rs = this.dbHandler.dbQuery("select * from cvp
+     * where cvp_id=" + cvpID);
+     *
+     * if (rs != null) { rs.next(); // cvp = new
+     * CVP(Integer.parseInt(rs.getString("service_id")),
+     * rs.getString("func_annotations"), rs.getString("data_annotations")); }
+     *
+     * rs.close();
+     *
+     * this.dbHandler.dbClose(); } catch (Throwable t) { t.printStackTrace(); }
+     *
+     * return cvp;
     }
-    */
-    
-   /*put in MainControlDB
-    public CVP getCVP(int cvpID) {
-        CVP cvp = null;
-        ResultSet rs;
-
-        try {
-
-            this.dbHandler.dbOpen();
-            rs = this.dbHandler.dbQuery("select * from cvp where cvp_id=" + cvpID);
-
-            if (rs != null) {
-                rs.next();
-               // cvp = new CVP(Integer.parseInt(rs.getString("service_id")), rs.getString("func_annotations"), rs.getString("data_annotations"));
-            }
-
-            rs.close();
-
-            this.dbHandler.dbClose();
-        } catch (Throwable t) {
-            t.printStackTrace();
-        }
-
-        return cvp;
-    }*/
-
+     */
     public int getuserid(String name) {
         ResultSet rs;
         int user_id = -1;
         try {
 
-             System.out.println("name: "+ name);
+            System.out.println("name: " + name);
             this.dbHandler.dbOpen();
             rs = this.dbHandler.dbQuery("select * from users where name='" + name + "'");
 
@@ -396,106 +573,94 @@ public class VendorDBConnector {
             this.dbHandler.dbClose();
         } catch (Throwable t) {
         }
-        System.out.println("user_id: "+ user_id);
+        System.out.println("user_id: " + user_id);
         return user_id;
     }
-    
-       public String getMapping(int schema_id , String selections)
-    {
+
+    public String getMapping(int schema_id, String selections) {
         ResultSet rs;
         String mappings = null;
 
-	try
-        {
-            this.dbHandler.dbOpen();        
-            System.out.println("selections: "+ selections);
-            rs = this.dbHandler.dbQuery("select mapping from dataannotations where schema_id=" + schema_id +" and selections='"+ selections+"'");
-            
-            if(rs.next())
-            {
+        try {
+            this.dbHandler.dbOpen();
+            System.out.println("selections: " + selections);
+            rs = this.dbHandler.dbQuery("select mapping from dataannotations where schema_id=" + schema_id + " and selections='" + selections + "'");
+
+            if (rs.next()) {
                 mappings = rs.getString("mapping");
             }
-            
+
             this.dbHandler.dbClose();
-        }
-        catch(Throwable t)
-        {
+        } catch (Throwable t) {
             t.printStackTrace();
         }
-        
+
         return mappings;
     }
-    
+
     //  To use in futur...
-    public boolean isFullyMatched(int cpp, int serviceID, int cvpID)
-    { 
+    public boolean isFullyMatched(int cpp, int serviceID, int cvpID) {
         ResultSet rs, tmpSet, funcSet;
         int numberMessages, numberOperations, funcMessages, dataMessages;
         String serviceName = null;
         String operationName = null;
-        
-	try{
-            
+
+        try {
+
             this.dbHandler.dbOpen();
             rs = this.dbHandler.dbQuery("select * from services where service_id = " + serviceID + ";");
 
-            if(rs != null)
-            {
-                    rs.next();
-                    serviceID = rs.getInt("service_id");
-                    numberMessages = rs.getInt("messages_number");
-                    numberOperations = rs.getInt("operations_number");
-                    funcMessages = 0;
-                    dataMessages = 0;
-                    serviceName = new String(rs.getString("name"));
+            if (rs != null) {
+                rs.next();
+                serviceID = rs.getInt("service_id");
+                numberMessages = rs.getInt("messages_number");
+                numberOperations = rs.getInt("operations_number");
+                funcMessages = 0;
+                dataMessages = 0;
+                serviceName = new String(rs.getString("name"));
 
-                    System.out.println(numberMessages +" "+ numberOperations);
-                    dbConnector dbHandler2 = new dbConnector();                    
-/*                    dbHandler2.dbOpen();
-                    tmpSet = dbHandler2.dbQuery("select count(operation_name) as cnt from dataannotations where cvp_cvp_id=" + cvpID +";");
-                    if(tmpSet.next())
-                    {
-                        System.out.println(tmpSet.getInt("cnt"));
-                        
-                        dataMessages = tmpSet.getInt("cnt");
-                    }
-                    tmpSet.close();
-                    dbHandler2.dbClose();                    
-*/
-                    dbHandler2.dbOpen();
-                    tmpSet = dbHandler2.dbQuery("select count(operation_name) as cnt from dataannotations where cvp_cvp_id=" + cvpID +";");
-                    if(tmpSet.next())
-                    {
-                        System.out.println(tmpSet.getInt("cnt"));
-                        dataMessages = dataMessages + tmpSet.getInt("cnt");
-                    }
-                    tmpSet.close();
-                    dbHandler2.dbClose();                                        
-                    
-                    dbHandler2.dbOpen();
-                    funcSet = dbHandler2.dbQuery("select count(cvp_cvp_id) as cnt from funcannotations where cvp_cvp_id=" + cvpID + ";");
-                    if(funcSet.next())
-                    {
-                        funcMessages  = funcSet.getInt("cnt");
-                    }
-                    System.out.println(funcMessages);
-                    if(dataMessages==numberMessages && funcMessages==numberOperations)
-                        return true;
-                    else
-                        return false;
-                    
+                System.out.println(numberMessages + " " + numberOperations);
+                dbConnector dbHandler2 = new dbConnector();
+                /*
+                 * dbHandler2.dbOpen(); tmpSet = dbHandler2.dbQuery("select
+                 * count(operation_name) as cnt from dataannotations where
+                 * cvp_cvp_id=" + cvpID +";"); if(tmpSet.next()) {
+                 * System.out.println(tmpSet.getInt("cnt"));
+                 *
+                 * dataMessages = tmpSet.getInt("cnt"); } tmpSet.close();
+                 * dbHandler2.dbClose();
+                 */
+                dbHandler2.dbOpen();
+                tmpSet = dbHandler2.dbQuery("select count(operation_name) as cnt from dataannotations where cvp_cvp_id=" + cvpID + ";");
+                if (tmpSet.next()) {
+                    System.out.println(tmpSet.getInt("cnt"));
+                    dataMessages = dataMessages + tmpSet.getInt("cnt");
+                }
+                tmpSet.close();
+                dbHandler2.dbClose();
+
+                dbHandler2.dbOpen();
+                funcSet = dbHandler2.dbQuery("select count(cvp_cvp_id) as cnt from funcannotations where cvp_cvp_id=" + cvpID + ";");
+                if (funcSet.next()) {
+                    funcMessages = funcSet.getInt("cnt");
+                }
+                System.out.println(funcMessages);
+                if (dataMessages == numberMessages && funcMessages == numberOperations) {
+                    return true;
+                } else {
+                    return false;
+                }
+
 //                    dbHandler2.dbClose();
             }
-            
+
             rs.close();
-            
+
             this.dbHandler.dbClose();
-	}
-	catch(Throwable t)
-	{
-		t.printStackTrace(); 
-	}
-        
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+
         return false;
-    } 
+    }
 }

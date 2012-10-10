@@ -137,10 +137,10 @@ public class MainControlDB {
             this.dbHandler.dbOpen();
 
             rs = (cvp) ? this.dbHandler.dbQuery("select s.schema_id as schema_id,s.name as schema_name "
-                    + "from operation o  LEFT JOIN web_service ws on o.service_id=ws.service_id  LEFT JOIN operation_schema os  on o.operation_id = os.operation_id "
-                    + "LEFT JOIN schema_xsd  s  on os.schema_id = s.schema_id RIGHT JOIN cvp  cvp  on  cvp.service_id = ws.service_id "
+                    + "from operation o  INNER JOIN web_service ws on o.service_id=ws.service_id  INNER JOIN operation_schema os  on o.operation_id = os.operation_id "
+                    + "INNER JOIN schema_xsd  s  on os.schema_id = s.schema_id INNER JOIN cvp  cvp  on  cvp.service_id = ws.service_id "
                     + "where ws.software_id=" + software_id + " and ws.wsdl IS NULL")
-                    : this.dbHandler.dbQuery("select s.schema_id as schema_id,s.name as schema_name from operation o LEFT JOIN web_service ws on o.service_id=ws.service_id LEFT JOIN operation_schema os  on o.operation_id = os.operation_id LEFT JOIN schema_xsd  s  on os.schema_id = s.schema_id where ws.wsdl IS NULL and ws.software_id=" + software_id);
+                    : this.dbHandler.dbQuery("select s.schema_id as schema_id,s.name as schema_name from operation o INNER JOIN web_service ws on o.service_id=ws.service_id INNER JOIN operation_schema os  on o.operation_id = os.operation_id INNER JOIN schema_xsd  s  on os.schema_id = s.schema_id where ws.wsdl IS NULL and ws.software_id=" + software_id);
 
             if (rs != null) {
                 while (rs.next()) {

@@ -39,6 +39,7 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import java.net.URL;
+import org.dom4j.*;
 import org.xml.sax.SAXException;
 import xml.WSDLParser;
 import xml.XSDParser;
@@ -142,8 +143,12 @@ public class OrganizationManager extends HttpServlet {
 
 
             } else {
-                out.write("<cell>Schemas^../DIController?op=show_schema&amp;xsd=1_1_" + comp.getSoftwareID() + "^_self</cell>"
-                        + "<cell>Services^../DIController?op=show_service&amp;service=1_1_" + comp.getSoftwareID() + "^_self</cell>");
+                //out.write("<cell>Schemas^../DIController?op=show_schema&amp;xsd=1_1_" + comp.getSoftwareID() + "^_self</cell>"
+                  //      + "<cell>Services^../DIController?op=show_service&amp;service=1_1_" + comp.getSoftwareID() + "^_self</cell>");
+           
+                out.write("<cell type=\"img\">../js/dhtmlxSuite/dhtmlxTree/codebase/imgs/xsd.png^Schemas^../DIController?op=show_schema&amp;xsd=1_1_" + comp.getSoftwareID() + "^_self</cell>"
+                       + "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxTree/codebase/imgs/wsdl.png^Services^../DIController?op=show_service&amp;service=1_1_" + comp.getSoftwareID() + "^_self</cell>");
+            
             }
             out.write(" </row>");
         }
@@ -349,7 +354,7 @@ public class OrganizationManager extends HttpServlet {
 
         OrgDBConnector orgDBConnector = new OrgDBConnector();
         MainControlDB mainControlDB = new MainControlDB();
-        
+
 
         int cpa_id = -1;
         String organization_name = (String) session.getAttribute("name");
@@ -358,26 +363,30 @@ public class OrganizationManager extends HttpServlet {
         String operation_name_source = (String) selections_source.split("\\$")[1];
 
         int cpp_source = orgDBConnector.getCPP(service_id_source);
-        
+
         //create the cpp entity in case the org user type has not changed the annotations
-        if (cpp_source==-1) cpp_source = mainControlDB.insertCPP(-1, service_id_source, organization_name);
-        
+        if (cpp_source == -1) {
+            cpp_source = mainControlDB.insertCPP(-1, service_id_source, organization_name);
+        }
+
         System.out.println("cpp_source: " + cpp_source);
 
 
         String selections_target = request.getParameter("selections_target");
         int service_id_target = Integer.parseInt(selections_target.split("\\$")[0]);
         String operation_name_target = (String) selections_target.split("\\$")[1];
-        
-        
+
+
         int cpp_target = orgDBConnector.getCPP(service_id_target);
-        
-        if (cpp_target==-1) cpp_target = mainControlDB.insertCPP(-1, service_id_target, organization_name);
-              
-                
+
+        if (cpp_target == -1) {
+            cpp_target = mainControlDB.insertCPP(-1, service_id_target, organization_name);
+        }
+
+
         System.out.println("cpp_target: " + cpp_target);
 
-        
+
 
         Map<String, CPP> CPPList = new HashMap<String, CPP>();
 
@@ -445,9 +454,9 @@ public class OrganizationManager extends HttpServlet {
 
         JSONObject transform_response = this.transform(cpp_a, cpp_b, data, cpainfo.getCpa_info(), new LinkedList<String>());
         String target_xml = transform_response.getString("xml");
-        
+
         transform_response.remove("xml");
-        
+
         session.setAttribute("source_xml", data.toString());
         session.setAttribute("target_xml", target_xml);
         session.removeAttribute("infoBridgingProcess");
@@ -459,12 +468,13 @@ public class OrganizationManager extends HttpServlet {
 
         JSONObject trasform_response = new JSONObject();
         OrgDBConnector orgDBConnector = new OrgDBConnector();
+        String finalxmloutput ="";
 
         String xsltRulesFirst = orgDBConnector.retrieveXLST(cpp_a, "input", cpa_info, service_selections);//input
         String xsltRulesSecond = orgDBConnector.retrieveXLST(cpp_b, "output", cpa_info, service_selections);//output
-        
-        trasform_response.put("xsltRulesFirst",xsltRulesFirst);
-        trasform_response.put("xsltRulesSecond",xsltRulesSecond);
+
+        trasform_response.put("xsltRulesFirst", xsltRulesFirst);
+        trasform_response.put("xsltRulesSecond", xsltRulesSecond);
 
         System.out.println("CHECK " + xsltRulesFirst);
         System.out.println("CHECK " + xsltRulesSecond);
@@ -475,6 +485,55 @@ public class OrganizationManager extends HttpServlet {
         Transformer transformer;
 
         try {
+
+            // eleni
+            //System.out.println("Gia na doumeeeeeeeee");
+            if (service_selections.isEmpty()){
+                
+            LinkedList<String> xmlnodes = this.parseXML(xmlData);
+             
+            String firstxmlnode = xmlnodes.get(0);
+             
+            transformer = tFactory.newTransformer(new StreamSource(new StringReader(xsltRulesFirst)));
+            transformer.transform(new StreamSource(new StringReader(firstxmlnode)), new StreamResult(stw));
+
+            System.out.println("UpcastingXML: " + stw.toString());
+
+            tFactory = TransformerFactory.newInstance();
+            transformer = tFactory.newTransformer(new StreamSource(new StringReader(xsltRulesSecond)));
+            transformer.transform(new StreamSource(new StringReader(stw.toString())), new StreamResult(stwRes));
+            
+            List Namespaces= this.getNamespaces(stwRes.toString());
+            
+            
+            
+            //removeNamespaces
+             
+             String outputAllXML="<root>";
+             Iterator i  = xmlnodes.iterator();
+              while (i.hasNext()) {
+              
+              String xmlnode = (String) i.next();
+              StringWriter stw1 = new StringWriter();
+              StringWriter stwRes1 = new StringWriter();
+              
+              transformer = tFactory.newTransformer(new StreamSource(new StringReader(xsltRulesFirst)));
+              transformer.transform(new StreamSource(new StringReader(xmlnode)), new StreamResult(stw1));
+              System.out.println("UpcastingXML: " + stw1.toString());
+              
+              tFactory = TransformerFactory.newInstance();
+              transformer = tFactory.newTransformer(new StreamSource(new StringReader(xsltRulesSecond)));
+              transformer.transform(new StreamSource(new StringReader(stw1.toString())), new StreamResult(stwRes1));
+              
+              outputAllXML =outputAllXML + this.removeNamespaces(stwRes1.toString());
+              
+              }
+              outputAllXML =  outputAllXML + "</root>";
+              System.out.println("All output XML+ " + outputAllXML);
+              
+              
+               finalxmloutput = this.addNamespaces(outputAllXML, Namespaces);
+            }else{
             transformer = tFactory.newTransformer(new StreamSource(new StringReader(xsltRulesFirst)));
             transformer.transform(new StreamSource(new StringReader(xmlData)), new StreamResult(stw));
 
@@ -485,14 +544,34 @@ public class OrganizationManager extends HttpServlet {
             transformer.transform(new StreamSource(new StringReader(stw.toString())), new StreamResult(stwRes));
 
             System.out.println("Hola" + stwRes.toString() + "Adios" + stw.toString());
+            
+             finalxmloutput = stwRes.toString();
+            
+            }
+            
+           
+              //-----------------------------
 
+           /*
+            transformer = tFactory.newTransformer(new StreamSource(new StringReader(xsltRulesFirst)));
+            transformer.transform(new StreamSource(new StringReader(xmlData)), new StreamResult(stw));
+
+            System.out.println("UpcastingXML: " + stw.toString());
+
+            tFactory = TransformerFactory.newInstance();
+            transformer = tFactory.newTransformer(new StreamSource(new StringReader(xsltRulesSecond)));
+            transformer.transform(new StreamSource(new StringReader(stw.toString())), new StreamResult(stwRes));
+
+            System.out.println("Hola" + stwRes.toString() + "Adios" + stw.toString());
+            */
 
         } catch (Throwable t) {
             //t.printStackTrace();
             System.out.println("Hola" + t);
         }
-        
-        trasform_response.put("xml",stwRes.toString());
+
+        //trasform_response.put("xml", stwRes.toString());
+        trasform_response.put("xml", finalxmloutput);
         return trasform_response;
         //return stwRes.toString();
     }
@@ -566,6 +645,9 @@ public class OrganizationManager extends HttpServlet {
             JSONObject o_second = (JSONObject) JSONSerializer.toJSON(o.get("cppinfo_second"));
 
             System.out.println("o_first.get(schema)::" + o_first.get("schema"));
+            
+            String active_bridge_schema = (cpa.isDisabled())?"<cell>Disabled</cell>":"<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/usebridge.png^Use Brindge^../DIController?op=doBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>";
+                    
 
             additional_schema_info = (o_first.get("schema") == null) ? "" : "<row id=\"" + cpa.getCpa_id() + "3\">"
                     + "<cell>Schema:</cell>"
@@ -576,29 +658,46 @@ public class OrganizationManager extends HttpServlet {
                     + "<cell> </cell>"
                     + "<cell> </cell>"
                     + "</row>"
-                    + "<row id=\"" + cpa.getCpa_id() + "\">"
+                    + "<row id=\"" + cpa.getCpa_id() + "31\">"
                     + "<cell>Element:</cell>"
                     + "<cell>" + o_first.get("schema_complexType")
                     + "</cell>"
                     + " <cell>" + o_second.get("schema_complexType")
                     + "</cell>"
-                    +"<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/usebridge.png^Use Brindge^../DIController?op=doBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
-                    +"<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/deletebridge.png^Delete Brindge^../OrganizationManager?op=deleteBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
+                    + active_bridge_schema
+                    //+ "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/usebridge.png^Use Brindge^../DIController?op=doBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
+                    + "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/deletebridge.png^Delete Brindge^../OrganizationManager?op=deleteBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
                     + "</row>";
+            
 
-           
             /*
-            dobridging_url = (o_first.get("schema") == null) ? "<cell> Use Brindge^../OrganizationManager?op=doBridgingServicePrepare&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
-                    + "<cell> Delete Brindge^../OrganizationManager?op=deleteBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
-                    : "<cell> Use Brindge^../DIController?op=doBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
-                    + "<cell> Delete Brindge^../DIController?op=deleteBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>";
+             * dobridging_url = (o_first.get("schema") == null) ? "<cell> Use
+             * Brindge^../OrganizationManager?op=doBridgingServicePrepare&amp;cpa_id="
+             * + cpa.getCpa_id() + "^_self</cell>" + "<cell> Delete
+             * Brindge^../OrganizationManager?op=deleteBridging&amp;cpa_id=" +
+             * cpa.getCpa_id() + "^_self</cell>" : "<cell> Use
+             * Brindge^../DIController?op=doBridging&amp;cpa_id=" +
+             * cpa.getCpa_id() + "^_self</cell>" + "<cell> Delete
+             * Brindge^../DIController?op=deleteBridging&amp;cpa_id=" +
+             * cpa.getCpa_id() + "^_self</cell>";
+             */
+            
+            String active_bridge = (cpa.isDisabled())?"<cell>Disabled</cell>":
+                    "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/usebridge.png^Use Brindge^../OrganizationManager?op=doBridgingServicePrepare&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"; 
+            /*
+            dobridging_url = (o_first.get("schema") == null) ? "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/usebridge.png^Use Brindge^../OrganizationManager?op=doBridgingServicePrepare&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
+                    + "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/deletebridge.png^Delete Brindge^../OrganizationManager?op=deleteBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
+                    : "<cell></cell>"
+                    + "<cell></cell>";
             */
-             dobridging_url = (o_first.get("schema") == null) ? "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/usebridge.png^Use Brindge^../OrganizationManager?op=doBridgingServicePrepare&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
-                     +"<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/deletebridge.png^Delete Brindge^../OrganizationManager?op=deleteBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
-                     :"<cell></cell>"
-                     + "<cell></cell>";
-
-            out.write("<row id=\"" + cpa.getCpa_id() + "1\">"
+            
+            
+            dobridging_url = (o_first.get("schema") == null) ? active_bridge+"<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/deletebridge.png^Delete Brindge^../OrganizationManager?op=deleteBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
+                    : "<cell></cell>"
+                    + "<cell></cell>";
+            
+            
+            out.write("<row id=\"" + cpa.getCpa_id() + "ws1\">"
                     + "<cell> Web Service:</cell>"
                     + "<cell>" + o_first.get("service")
                     + "</cell>"
@@ -616,16 +715,15 @@ public class OrganizationManager extends HttpServlet {
                     + dobridging_url
                     + "</row>"
                     + additional_schema_info
-                     + "<row id=\"" + cpa.getCpa_id() + "6\">"
+                    + "<row id=\"" + cpa.getCpa_id() + "6\">"
                     + "<cell></cell>"
                     + "<cell></cell>"
                     + "<cell></cell>"
                     + "<cell></cell>"
                     + "<cell></cell>"
-                    + "</row>"
-                   );
+                    + "</row>");
 
-        }
+            }
 
         out.write("</rows>");
         out.flush();
@@ -682,9 +780,9 @@ public class OrganizationManager extends HttpServlet {
 
         /*
          * 1. Get the request form parameters
-         */        
+         */
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
-            // Create a factory for disk-based file items
+        // Create a factory for disk-based file items
         DiskFileItemFactory factory = new DiskFileItemFactory();
         factory.setSizeThreshold(30000);
         factory.setRepository(new File("/home/eleni/Desktop/"));
@@ -709,12 +807,13 @@ public class OrganizationManager extends HttpServlet {
             //for the source xml i parse it so as to fill the json inputargs
             if (!item.isFormField() && !item.getString().equalsIgnoreCase("")) {
                 xml_data = item.getString();
-                
-                inputargs = parseXML(xml_data,inputargs);
+
+                inputargs = parseXML(xml_data, inputargs);
             }
         }
         /*
-         * 2. Get info of the web services {service_id operation_name service_namespace SoapAdressURL complexType_input complexType_output}
+         * 2. Get info of the web services {service_id operation_name
+         * service_namespace SoapAdressURL complexType_input complexType_output}
          */
         OrgDBConnector orgDBConnector = new OrgDBConnector();
         CPA cpa = orgDBConnector.getCPA(cpa_id);
@@ -725,15 +824,15 @@ public class OrganizationManager extends HttpServlet {
         JSONObject info_first = (JSONObject) JSONSerializer.toJSON(o.get("cppinfo_first"));
 
         JSONObject first_webServiceInfo = this.getWebServiceInfo(info_first);
-        
-       // case is not submitted a xml file i create it by the input args
+
+        // case is not submitted a xml file i create it by the input args
         String xml_input_to_print = (xml_data == "") ? "<" + first_webServiceInfo.getString("complexType_input").split("\\$")[1] + ">" + xml_input + "</" + first_webServiceInfo.getString("complexType_input").split("\\$")[1] + ">" : xml_data;
 
         System.out.println("xml_input_to_print" + xml_input_to_print);
 
         JSONObject info_second = (JSONObject) JSONSerializer.toJSON(o.get("cppinfo_second"));
         JSONObject second_webServiceInfo = this.getWebServiceInfo(info_second);
-        
+
 
         LinkedList complexType = new LinkedList();
         complexType.add(first_webServiceInfo.getString("complexType_input"));
@@ -741,29 +840,32 @@ public class OrganizationManager extends HttpServlet {
         complexType.add(second_webServiceInfo.getString("complexType_input"));
         complexType.add(second_webServiceInfo.getString("complexType_output"));
 
-        
+
         /*
-         * 3.Call the web services (SOAP request response and the respective xmls)
+         * 3.Call the web services (SOAP request response and the respective
+         * xmls)
          */
         SOAPEnvelopeInvoker soapEnvelopeInvoker = new SOAPEnvelopeInvoker(first_webServiceInfo.getString("SoapAdressURL"),
-                first_webServiceInfo.getString("operation_name"),first_webServiceInfo.getString("complexType_input").split("\\$")[1] , 
+                first_webServiceInfo.getString("operation_name"), first_webServiceInfo.getString("complexType_input").split("\\$")[1],
                 first_webServiceInfo.getString("complexType_output").split("\\$")[1], inputargs, first_webServiceInfo.getString("service_namespace"));
-        
-       JSONObject SOAPEnvelopeInvokerResponse = soapEnvelopeInvoker.callWebService();
-       
-       
-       /*
-        * 4. In  case of that the call to the web service erases 
-        * adoBridgingServicen exception (ex.404 Not Found) redirect to Error page with the respective message
-        */
+
+        JSONObject SOAPEnvelopeInvokerResponse = soapEnvelopeInvoker.callWebService();
+
+
+        /*
+         * 4. In case of that the call to the web service erases
+         * adoBridgingServicen exception (ex.404 Not Found) redirect to Error
+         * page with the respective message
+         */
 
         if (SOAPEnvelopeInvokerResponse.containsKey("ErrorMessage")) {
             this.forwardToPage("/error/generic_error.jsp?errormsg=" + SOAPEnvelopeInvokerResponse.getString("ErrorMessage"), request, response);
         } else {
 
             /*
-            * 5. Recolect all the important info of the requests in the infoBridgingProcess JSONObject
-            */
+             * 5. Recolect all the important info of the requests in the
+             * infoBridgingProcess JSONObject
+             */
             infoBridgingProcess.put("FirstSoapRequest", SOAPEnvelopeInvokerResponse.get("Soap:EnvelopeRequest"));
             infoBridgingProcess.put("FirstSoapResponse", SOAPEnvelopeInvokerResponse.get("Soap:EnvelopeResponse"));
             infoBridgingProcess.put("Output XML from First Web Service for XBRL UPCasting", SOAPEnvelopeInvokerResponse.get("outputXML"));
@@ -775,18 +877,19 @@ public class OrganizationManager extends HttpServlet {
             int cpp_b = cpainfo.getCpp_id_second();
 
             /*
-            * 5. Do upcasting and Downcasting and transform the output of the source web service to an input of the target Web service
-            */
+             * 5. Do upcasting and Downcasting and transform the output of the
+             * source web service to an input of the target Web service
+             */
             JSONObject transform_response = this.transform(cpp_a, cpp_b, SOAPEnvelopeInvokerResponse.getString("outputXML"), cpainfo.getCpa_info(), complexType);
             String target_xml = transform_response.getString("xml");
-            
-            infoBridgingProcess.put("XML after XBRL DownCasting - Input to Second Web Service",target_xml);
-          
-            inputargs = parseXML(target_xml,inputargs);
 
-            SOAPEnvelopeInvoker targetsoapEnvelopeInvoker = new SOAPEnvelopeInvoker(second_webServiceInfo.getString("SoapAdressURL"), 
-                    second_webServiceInfo.getString("operation_name"), 
-                    second_webServiceInfo.getString("complexType_input").split("\\$")[1],second_webServiceInfo.getString("complexType_output").split("\\$")[1],
+            infoBridgingProcess.put("XML after XBRL DownCasting - Input to Second Web Service", target_xml);
+
+            inputargs = parseXML(target_xml, inputargs);
+
+            SOAPEnvelopeInvoker targetsoapEnvelopeInvoker = new SOAPEnvelopeInvoker(second_webServiceInfo.getString("SoapAdressURL"),
+                    second_webServiceInfo.getString("operation_name"),
+                    second_webServiceInfo.getString("complexType_input").split("\\$")[1], second_webServiceInfo.getString("complexType_output").split("\\$")[1],
                     inputargs, second_webServiceInfo.getString("service_namespace"));
 
             JSONObject targetsoapEnvelopeInvokerResponse = targetsoapEnvelopeInvoker.callWebService();
@@ -797,7 +900,7 @@ public class OrganizationManager extends HttpServlet {
                 transform_response.getString("xml");
                 infoBridgingProcess.put("Upcasting xslt", transform_response.get("xsltRulesFirst"));
                 infoBridgingProcess.put("Downcasting xslt", transform_response.get("xsltRulesSecond"));
-                
+
                 infoBridgingProcess.put("SecondSoapRequest", targetsoapEnvelopeInvokerResponse.get("Soap:EnvelopeRequest"));
                 infoBridgingProcess.put("SecondSoapResponse", targetsoapEnvelopeInvokerResponse.get("Soap:EnvelopeResponse"));
                 infoBridgingProcess.put("SecondoutputXML", targetsoapEnvelopeInvokerResponse.get("outputXML"));
@@ -812,23 +915,22 @@ public class OrganizationManager extends HttpServlet {
         }
 
     }
-    
-    private JSONObject getWebServiceInfo(JSONObject info) throws WSDLException, FileNotFoundException, IOException, ParserConfigurationException, SAXException, XPathExpressionException
-    {
+
+    private JSONObject getWebServiceInfo(JSONObject info) throws WSDLException, FileNotFoundException, IOException, ParserConfigurationException, SAXException, XPathExpressionException {
         MainControlDB mainControlDB = new MainControlDB();
         int service_id = Integer.parseInt(info.get("service_id").toString());
-        
+
         String operation_name = (String) info.get("operation");
         System.out.println("operation_name: " + operation_name);
-        
+
         Service service = mainControlDB.getService(service_id);
         WSDLParser wsdlParser = new WSDLParser(service.getWsdl(), service.getNamespace());
         String service_name = service.getName();
         wsdlParser.loadService(service.getName());
         String service_namespace = service.getNamespace();
-        
+
         String SoapAdressURL = wsdlParser.getSoapAdressURL(service.getName());
-        
+
         LinkedList<String> complexType = wsdlParser.getXSDAttibutes(operation_name);
         //String complexType_input = complexType.get(0).split("\\$")[1];
         //String complexType_output = complexType.get(1).split("\\$")[1];
@@ -836,7 +938,7 @@ public class OrganizationManager extends HttpServlet {
         String complexType_output = complexType.get(1);
         String xsdTypes = wsdlParser.extractXSD(complexType_input.split("\\$")[1]);
         System.out.println("SoapAdressURL: " + SoapAdressURL);
-        
+
         JSONObject webServiceInfo = new JSONObject();
         webServiceInfo.put("service_id", service_id);
         webServiceInfo.put("operation_name", operation_name);
@@ -849,12 +951,12 @@ public class OrganizationManager extends HttpServlet {
         webServiceInfo.put("xsdTypes", xsdTypes);
         return webServiceInfo;
     }
-    
+
     /*
-     parse the input xml add its elements to the inputargs JSONObject
+     * parse the input xml add its elements to the inputargs JSONObject
      */
-    private JSONObject  parseXML(String xml,JSONObject inputargs) throws DocumentException{
-        
+    private JSONObject parseXML(String xml, JSONObject inputargs) throws DocumentException {
+
         SAXReader reader = new SAXReader();
         InputStream xml_stream = new ByteArrayInputStream(xml.getBytes());
         Document document = reader.read(xml_stream);
@@ -866,22 +968,112 @@ public class OrganizationManager extends HttpServlet {
         for (Iterator i = root.elementIterator(); i.hasNext();) {
             Element element = (Element) i.next();
             inputargs.put(element.getName(), element.getText());
-            System.out.println("Elements of XML to parse: " + element.getName() + element.getText());
-          }
-        
+            //System.out.println("Elements of XML to parse: " + element.getName() + element.getText());
+        }
+
         return inputargs;
     }
+
+    private List getNamespaces(String xml) throws DocumentException{
     
+        SAXReader reader = new SAXReader();
+        InputStream xml_stream = new ByteArrayInputStream(xml.getBytes());
+        Document document = reader.read(xml_stream);
+
+        Element root = document.getRootElement();
+        return root.declaredNamespaces();
+       /*
+         Iterator i = namespaces.iterator();
+        while (i.hasNext()) {
+            Namespace namespace = (Namespace) i.next();
+            System.out.println("namespace Removed: "+namespace.toString());
+        }*/
+       
+        //return namespaces;
+    
+    }
+    
+     private String removeNamespaces(String xml) throws DocumentException{
+    
+        SAXReader reader = new SAXReader();
+        InputStream xml_stream = new ByteArrayInputStream(xml.getBytes());
+        Document document = reader.read(xml_stream);
+
+        Element root = document.getRootElement();
+        List namespaces = root.declaredNamespaces();
+       
+         Iterator i = namespaces.iterator();
+        while (i.hasNext()) {
+            Namespace namespace = (Namespace) i.next();
+            System.out.println("namespace Removed: "+namespace.toString());
+            root.remove(namespace);
+        }
+      return root.asXML();
+    
+    }
+    
+      private String addNamespaces(String xml,List namespaces) throws DocumentException{
+    
+        SAXReader reader = new SAXReader();
+        InputStream xml_stream = new ByteArrayInputStream(xml.getBytes());
+        Document document = reader.read(xml_stream);
+
+        Element root = document.getRootElement();
+         Iterator i = namespaces.iterator();
+        while (i.hasNext()) {
+            Namespace namespace = (Namespace) i.next();
+            //System.out.println("namespace Removed: "+namespace.toString());
+            root.add(namespace);
+        }    
+        return root.asXML();
+    
+    }
+    
+    
+    private  LinkedList<String> parseXML(String xml) throws DocumentException {
+
+        SAXReader reader = new SAXReader();
+        InputStream xml_stream = new ByteArrayInputStream(xml.getBytes());
+        Document document = reader.read(xml_stream);
+
+        Element root = document.getRootElement();
+        String element_name= "";
+        
+        for (Iterator i = root.elementIterator(); i.hasNext();) {
+            Element element = (Element) i.next();
+            element_name = element.getName();
+        }
+        
+        //System.out.println("element_name: " + element_name);
+         
+        List elementstoprint = root.elements(element_name);
+        
+        //System.out.println("elementstoprint size: "+elementstoprint.size());
+
+         LinkedList<String> xmlnodes = new LinkedList<String>();
+        Iterator il = elementstoprint.iterator();
+        while (il.hasNext()) {
+            Element element = (Element) il.next();
+            System.out.println("ElementsasXML: " + element.getName()+  "   "+ element.asXML());
+            xmlnodes.add(element.asXML());
+        }
+        
+        
+        return xmlnodes;
+       
+
+    }
+    
+
     protected void deleteBridging(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws IOException, ServletException {
-    
-     int cpa_id = Integer.parseInt(request.getParameter("cpa_id"));
-     OrgDBConnector orgDBConnector = new OrgDBConnector();
-     orgDBConnector.deleteBridge(cpa_id);
-     
-      this.forwardToPage("/organization/succ.jsp?level=delete&cpa_id=" + cpa_id, request, response);
-    }
 
+        int cpa_id = Integer.parseInt(request.getParameter("cpa_id"));
+        OrgDBConnector orgDBConnector = new OrgDBConnector();
+        orgDBConnector.deleteBridge(cpa_id);
+
+        this.forwardToPage("/organization/succ.jsp?level=delete&cpa_id=" + cpa_id, request, response);
+    }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**

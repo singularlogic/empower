@@ -56,6 +56,10 @@
                 </div>
             </div>    
             <div class="main-content">
+                <p><h2>See My Bridges</h2>
+                <p class="info_message">In this page you can see your bridges and use them.</br> 
+                    Please delete the disabled bridges by yourself because the bridged web services are not available any more. 
+                </p>
                 <br>                  
                 <div id="box_grid" style="width:500px; height:500px"/>
                 <script>

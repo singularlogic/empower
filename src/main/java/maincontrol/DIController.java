@@ -278,7 +278,7 @@ public class DIController extends HttpServlet {
         MainControlDB mainControlDB = new MainControlDB();
 
         XSDIterator = (verifyUser("vendor", session)) ? mainControlDB.getSchemas((String) request.getParameter("software_id"), false).iterator() : mainControlDB.getSchemas((String) request.getParameter("software_id"), true).iterator();
-
+          
         response.setContentType("text/xml; charset=UTF-8");
         PrintWriter out = response.getWriter();
         out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
@@ -286,9 +286,12 @@ public class DIController extends HttpServlet {
 
         while (XSDIterator.hasNext()) {
             Schema schema = (Schema) XSDIterator.next();
+            String delete_option = (verifyUser("vendor", session))?"<cell> Delete Schema^./VendorManager?op=delete_schema&amp;schema_id="+ schema.getSchema_id() + "^_self</cell>":"";
+        
             out.write("<row id=\"" + schema.getSchema_id() + "\"><cell>" + schema.getName() + "</cell>"
                     + "<cell> Annotate Operations^./presentOperationTree.jsp?schema_id=" + schema.getSchema_id() + "^_self</cell>"
                     + "<cell> Annotate Data^./presentDataTree.jsp?schema_id=" + schema.getSchema_id() + "^_self</cell>"
+                    + delete_option
                     //+ "<cell>Annotate Data^./vendor/presentServiceTree.jsp?service_id=" + schema.getSchema_id()+ "^_self</cell>"
                     //+ "<cell>Annotate Functions^./vendor/presentServiceFunctionTree.jsp?service_id=" + schema.getSchema_id()+ "^_self</cell>"
                     + "</row>");
@@ -341,6 +344,7 @@ public class DIController extends HttpServlet {
         servIterator = (verifyUser("vendor", session)) ? mainControlDB.getServices((String) request.getParameter("software_id"), false,"IS NOT NULL").iterator()
                 : mainControlDB.getServices((String) request.getParameter("software_id"), true,"IS NOT NULL").iterator();
 
+
         response.setContentType("text/xml; charset=UTF-8");
         PrintWriter out = response.getWriter();
         out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
@@ -351,6 +355,8 @@ public class DIController extends HttpServlet {
             Service service = (Service) servIterator.next();
             img_link = (service.isExposed())?"js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/green.gif":"js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/red.gif";
             
+            String delete_wservice_option=(verifyUser("vendor", session)) ?"<cell>Delete Service^./VendorManager?op=delete_wservice&amp;service_id=" + service.getService_id() + "^_self</cell>":"";
+        
            
             System.out.println("img_link"+img_link);
             out.write("<row id=\"" + service.getService_id() + "\">"
@@ -358,14 +364,8 @@ public class DIController extends HttpServlet {
                     + "<cell>Annotate Functions^./presentOperationTree.jsp?service_id=" + service.getService_id() + "^_self</cell>"
                     + "<cell>Annotate Data^./presentDataTree.jsp?service_id=" + service.getService_id() + "^_self</cell>"
                     + "<cell type=\"img\">"+img_link+"</cell>"
+                    + delete_wservice_option
                     + "</row>");
-//                      "<cell>Delete^./VendorManager?op=delete_service&amp;service_id=" + service.getServiceID() +
-//                      "^_self</cell>" +
-
-//                      "^_self</cell>" +
-//                      "<cell>Annotate Taxonomy^./vendor/presentServiceTaxonomy.jsp?service_id=" + service.getServiceID() +
-//                      "^_self</cell>" +                 
-
         }
 
         out.write("</rows>");
@@ -642,7 +642,7 @@ public class DIController extends HttpServlet {
             
             //request.setAttribute("selections", schema_data + "$" + centralTree);
         }
-        if (!centralTree.equalsIgnoreCase(dataannotations.getXbrl())) xbrl_mismatch= dataannotations.getXbrl()+"$"+centralTree; 
+        if (!centralTree.equalsIgnoreCase(dataannotations.getXbrl()) && dataannotations.getXbrl()!=null) xbrl_mismatch= dataannotations.getXbrl()+"$"+centralTree; 
         this.forwardToPage("/proceedDataTree.jsp?schema_id=" + schema_id+"&service_id=-1&xbrl_mismatch="+xbrl_mismatch, request, response);
         
     }

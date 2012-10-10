@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
+import maincontrol.MediationPortalCommunicator;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -73,7 +74,11 @@ public class VendorManager extends HttpServlet {
                  else if (operation.equals("delete_software")) 
                     this.deleteSoftware(request, response, session);
                  else if (operation.equals("service_reg")) 
-                    this.registerService(request, response, session);  
+                    this.registerService(request, response, session); 
+                 else if (operation.equals("delete_schema")) 
+                    this.deleteSchema(request, response, session); 
+                 else if (operation.equals("delete_wservice")) 
+                    this.deleteWebService(request, response, session); 
             }
         } catch (Throwable t) {
             t.printStackTrace();
@@ -98,12 +103,14 @@ public class VendorManager extends HttpServlet {
             HttpSession session)
             throws IOException, ServletException {
         int software_id;
+        String message="";
         String softwareName = request.getParameter("software_name");
         String version = request.getParameter("software_version");
 
         VendorDBConnector vendorDBConnector = new VendorDBConnector();
         software_id = vendorDBConnector.insertSoftwareInfo((String) session.getAttribute("name"), softwareName, version);
-        this.forwardToPage("/vendor/succ.jsp", request, response);
+        message = "New Software has been registered.";
+        this.forwardToPage("/vendor/succ.jsp?message="+message, request, response);
     }
 
     protected void updateSoftware(HttpServletRequest request, HttpServletResponse response, HttpSession session)
@@ -114,8 +121,8 @@ public class VendorManager extends HttpServlet {
 
         VendorDBConnector vendorDBConnector = new VendorDBConnector();
         vendorDBConnector.updateSoftware(softwareID, softwareName, version);
-
-        this.forwardToPage("/vendor/succ.jsp", request, response);
+        String message = "Software Component has been updated successfully.";
+        this.forwardToPage("/vendor/succ.jsp?message="+message, request, response);
 
         return;
     }
@@ -125,12 +132,44 @@ public class VendorManager extends HttpServlet {
         String softwareID = (String) request.getParameter("software_id");
 
         VendorDBConnector vendorDBConnector = new VendorDBConnector();
-        vendorDBConnector.deleteSoftware(softwareID);
+        String message = vendorDBConnector.deleteSoftware(softwareID);
+        
+        System.out.println("message"+message);
 
-        this.forwardToPage("/vendor/succ.jsp", request, response);
+        this.forwardToPage("/vendor/succ.jsp?message="+message, request, response);
 
         return;
     }
+    
+     protected void deleteSchema(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws IOException, ServletException {
+        String schema_id = (String) request.getParameter("schema_id");
+
+        VendorDBConnector vendorDBConnector = new VendorDBConnector();
+        String message = vendorDBConnector.deleteSchema(schema_id);
+        
+        System.out.println("message"+message);
+
+        this.forwardToPage("/vendor/succ.jsp?message="+message, request, response);
+
+        return;
+    }
+     
+     protected void deleteWebService(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws IOException, ServletException {
+        int service_id = Integer.parseInt(request.getParameter("service_id"));
+
+        VendorDBConnector vendorDBConnector = new VendorDBConnector();
+        String message = vendorDBConnector.deleteWebService(service_id);
+        
+        System.out.println("message"+message);
+
+        this.forwardToPage("/vendor/succ.jsp?message="+message, request, response);
+
+        return;
+    }
+     
+     
 
     /*
      * show software components
@@ -160,9 +199,9 @@ public class VendorManager extends HttpServlet {
                     + "^_self</cell><cell>Update^../VendorManager?op=load_software_reg&amp;software_id=" + comp.getSoftwareID()
                     + "&amp;software_name=" + comp.getName() + "&amp;software_version=" + comp.getVersion()
                     + "^_self</cell>"
-                    + "<cell>Schemas^../DIController?op=show_schema&amp;xsd=" + rowID + "_" + comp.getNum_xsds()
+                    + "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxTree/codebase/imgs/xsd.png^Schemas^../DIController?op=show_schema&amp;xsd=" + rowID + "_" + comp.getNum_xsds()
                     + "_" + comp.getSoftwareID() + "^_self</cell>" 
-                     + "<cell>Services^../DIController?op=show_service&amp;service=" + rowID + "_" + comp.getNum_services() + 
+                     + "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxTree/codebase/imgs/wsdl.png^Services^../DIController?op=show_service&amp;service=" + rowID + "_" + comp.getNum_services() + 
                       "_" + comp.getSoftwareID() + "^_self</cell>" 
                     + "</row>");
         }
@@ -186,7 +225,6 @@ public class VendorManager extends HttpServlet {
     protected void registerSchema(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws IOException, ServletException, FileUploadException, Exception {
         // Check that we have a file upload request
-
         String web_service_name = null;
         String new_web_service_name = null;
         String operation_name = null;
@@ -252,10 +290,14 @@ public class VendorManager extends HttpServlet {
         VendorDBConnector vendorDBConnector = new VendorDBConnector();
   
         schema_id = vendorDBConnector.insertSchemaInfo(software_id, schemaName, schemaFilename, xml_rep_path, new_web_service_name , web_service_name, operation_name, inputoutput);
+        
+        //MediationPortalCommunicator mediation = new MediationPortalCommunicator();
+        //mediation.insertSchemaToMediationPortal(schema_id+"$"+"-1"+schemaName,schemaFilename);
+        //mediation.homePage();
+        //mediation.insertSchemaToMediationPortal("gaga", "gaga");
+        String message = "The schema has been registered successfully.";
 
-
-
-        this.forwardToPage("/vendor/succ.jsp", request, response);
+        this.forwardToPage("/vendor/succ.jsp?message="+message, request, response);
     }
     
      protected void registerService(HttpServletRequest request, HttpServletResponse response, HttpSession session)
@@ -267,6 +309,7 @@ public class VendorManager extends HttpServlet {
         String service_namespace = null;
         int software_id = 0;
         int service_id = 0;
+        String message="";
 
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
 
@@ -297,10 +340,10 @@ public class VendorManager extends HttpServlet {
                     System.out.println("lala_software_id " + software_id);
                 } else if (item.getFieldName().equals("service_name")) {
                     service_name = new String(item.getString());
-                     System.out.println("lala_service_name: " + service_name); 
+                     System.out.println("service_name: " + service_name); 
                 } else if (item.getFieldName().equals("service_namespace")) {
                     service_namespace = new String(item.getString());
-                     System.out.println("lala_service_namespace: " + service_namespace); 
+                     System.out.println("service_namespace: " + service_namespace); 
                 }
             } else {
                 System.out.println("Here we put the file ");
@@ -316,8 +359,12 @@ public class VendorManager extends HttpServlet {
   
         service_id = vendorDBConnector.insertServiceInfo(software_id, service_name ,serviceFilename, xml_rep_path,service_namespace);
 
-        this.forwardToPage("/vendor/succ.jsp", request, response);
+        message= "Service has been succesfully registered.";
+        this.forwardToPage("/vendor/succ.jsp?message="+message, request, response);
     }
+     
+     
+     
   
     
   

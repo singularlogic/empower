@@ -58,7 +58,7 @@
         </div>    
             <div class="main-content">
                 <br>
-                <div id="box_grid" style="width:600px; height:200px;"/>
+                <div id="box_grid" style="width:600px; height:600px;"/>
                 <script>
                         grid = new dhtmlXGridObject("box_grid");
                         grid.setImagePath("js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");

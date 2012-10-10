@@ -67,7 +67,10 @@
                 <br>
                 <p><h2>Information</h2>
                 <br>
-                <p>Action was successful.
+                <p>Action was successful.</p>
+                <% if(!request.getParameter("message").isEmpty()){%>
+                 <p><%=request.getParameter("message") %></p>
+                <% }%>
             </div>
     </div>
             <div class="footer"><p>Copyright &copy; 2012 Empower Consortium | All Rights Reserved</p></div>

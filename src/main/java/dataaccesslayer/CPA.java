@@ -13,16 +13,29 @@ public class CPA {
     int cpp_id_first;
     int cpp_id_second;
     String cpa_info;
+    boolean disabled;
 
-    public CPA(int cpa_id, int cpp_id_first, int cpp_id_second, String cpa_info) {
+    
+
+    public CPA(int cpa_id, int cpp_id_first, int cpp_id_second, String cpa_info,boolean disabled) {
         this.cpa_id= cpa_id;
         this.cpp_id_first = cpp_id_first;
         this.cpp_id_second = cpp_id_second;
         this.cpa_info = cpa_info;
+        this.disabled = disabled;
+        
     }
 
     public CPA() {
         
+    }
+    
+    public boolean isDisabled() {
+        return disabled;
+    }
+
+    public void setDisabled(boolean disabled) {
+        this.disabled = disabled;
     }
 
     public int getCpa_id() {

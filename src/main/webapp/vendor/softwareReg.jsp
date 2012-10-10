@@ -13,7 +13,19 @@
 	<script src="../js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgrid.js"></script>
         <script src="../js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgridcell.js"></script>
         <script src="../js/dhtmlxSuite/dhtmlxGrid/codebase/excells/dhtmlxgrid_excell_link.js"></script>
-       <style type="text/css">
+       
+        <link rel="stylesheet" type="text/css" href="./style/menu_style.css"/>
+        <link rel="stylesheet" type="text/css" href="./style/layout4_setup.css"/>
+        <link rel="stylesheet" type="text/css" href="./style/layout4_text_simple.css"/>
+        <link rel="stylesheet" type="text/css" href="./style/container.css"/>       
+        <link rel="stylesheet" type="text/css" href="./js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgrid.css">
+	<link rel="stylesheet" type="text/css" href="./js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgrid_skins.css">
+        <script src="./js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxcommon.js"></script>
+	<script src="./js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgrid.js"></script>
+        <script src="./js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgridcell.js"></script>
+        <script src="./js/dhtmlxSuite/dhtmlxGrid/codebase/excells/dhtmlxgrid_excell_link.js"></script>
+       
+        <style type="text/css">
             div.gridbox_inverse table.hdr td {background-color:#A0D651; color:white; font-weight:bold;}
             div.gridbox_inverse table.obj td{background-color: #D9EFB9;text-align: center;}
             div.gridbox_inverse table.obj tr{height: 30px;}

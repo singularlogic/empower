@@ -177,8 +177,8 @@ public class OrgDBConnector {
                  this.dbHandler.dbUpdate("update cpa set cpa_info='"+ json +"' where cpa_id="+rs1.getInt("cpa_id"));
             } 
             else{
-                cpa_id = this.dbHandler.dbUpdate("insert into cpa(cpp_id_first,cpp_id_second,cpa_info) values('"
-                    + cvp_source + "','" + cvp_target + "','"+json+"')");
+                cpa_id = this.dbHandler.dbUpdate("insert into cpa(cpp_id_first,cpp_id_second,cpa_info,disabled) values('"
+                    + cvp_source + "','" + cvp_target + "','"+json+"',false)");
             
                 organization_cpa = this.dbHandler.dbUpdate("insert into organization_cpa(organization_id,cpa_id) values("+organization_id+","+cpa_id+")");
                 data.put("new_cpa_id", cpa_id);
@@ -263,10 +263,10 @@ public class OrgDBConnector {
          CPA cpa = null;
          try{
             this.dbHandler.dbOpen();
-            rs = this.dbHandler.dbQuery("select cpa.cpp_id_first as cpp_id_first,cpa.cpp_id_second as cpp_id_second, cpa.cpa_info as cpa_info from cpa where cpa.cpa_id=" + cpa_id );
+            rs = this.dbHandler.dbQuery("select cpa.cpp_id_first as cpp_id_first,cpa.cpp_id_second as cpp_id_second, cpa.cpa_info as cpa_info, cpa.disabled as disabled from cpa where cpa.cpa_id=" + cpa_id );
             
             if(rs.next())
-               cpa = new CPA(cpa_id,rs.getInt("cpp_id_first"),rs.getInt("cpp_id_second"),rs.getString("cpa_info"));
+               cpa = new CPA(cpa_id,rs.getInt("cpp_id_first"),rs.getInt("cpp_id_second"),rs.getString("cpa_info"),rs.getBoolean("disabled"));
 
             this.dbHandler.dbClose();
 	}
@@ -368,12 +368,12 @@ public class OrgDBConnector {
             
             this.dbHandler.dbOpen();
             
-            rs = this.dbHandler.dbQuery("select cpa.cpa_id as cpa_id,cpa.cpp_id_first as cpp_id_first,cpa.cpp_id_second as cpp_id_second,cpa.cpa_info as cpa_info from organization_cpa ib, cpa cpa where ib.cpa_id=cpa.cpa_id and organization_id="+organization_id);
+            rs = this.dbHandler.dbQuery("select cpa.cpa_id as cpa_id,cpa.cpp_id_first as cpp_id_first,cpa.cpp_id_second as cpp_id_second,cpa.cpa_info as cpa_info,cpa.disabled as disabled from organization_cpa ib, cpa cpa where ib.cpa_id=cpa.cpa_id and organization_id="+organization_id);
 
             if(rs != null)
             {
                 while(rs.next())
-                    cpaList.add(new CPA(rs.getInt("cpa_id"),rs.getInt("cpp_id_first"),rs.getInt("cpp_id_second"),rs.getString("cpa_info")));
+                    cpaList.add(new CPA(rs.getInt("cpa_id"),rs.getInt("cpp_id_first"),rs.getInt("cpp_id_second"),rs.getString("cpa_info"),rs.getBoolean("disabled")));
             }
             rs.close();
             

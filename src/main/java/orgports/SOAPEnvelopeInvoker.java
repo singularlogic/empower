@@ -125,11 +125,11 @@ public class SOAPEnvelopeInvoker {
             String outputXML ="<"+complexType_output+">";
             
             System.out.println("outputXML start:  "+outputXML);
-                    
+                
 
             Iterator output = sb.getChildElements();
             while (output.hasNext()) {
-                System.out.println("lalala:");
+
                 
                 Node rt = (Node) output.next();
 
@@ -137,17 +137,23 @@ public class SOAPEnvelopeInvoker {
 
                 for (int i = 0; i < children.getLength(); i++) {
                      Node childNode = (Node) children.item(i);
-                     
+
                      System.out.println("childNode Name:" +  childNode.getNodeName());
                      System.out.println("childNode Value:" +  childNode.getValue());
-                     
-                     outputXML = outputXML +"<"+childNode.getNodeName()+">"+childNode.getValue()+"</"+childNode.getNodeName()+">";
 
+                     NodeList grandchildren = childNode.getChildNodes();
+                         if (childNode.getNodeName().equalsIgnoreCase("return") && grandchildren.getLength()>1){
+                         for (int k = 0; k < grandchildren.getLength(); k++) {
+                         Node grandchildNode = (Node) grandchildren.item(k);
+                         System.out.println("childNode Name:" +  grandchildNode.getNodeName());
+                         System.out.println("childNode Value:" +  grandchildNode.getValue());
+                         outputXML = outputXML +"<"+grandchildNode.getNodeName()+">"+grandchildNode.getValue()+"</"+grandchildNode.getNodeName()+">";
+                         }
+                         }else{
+                         outputXML = outputXML +"<"+childNode.getNodeName()+">"+childNode.getValue()+"</"+childNode.getNodeName()+">";
+                  
+                         }
                 }
-
-
-                System.out.println("children lenght:" + children.getLength());
-
             }
             
             outputXML= outputXML +"</"+complexType_output+">";

@@ -59,9 +59,13 @@
                 <script>
                         grid = new dhtmlXGridObject("box_grid");
                         grid.setImagePath("js/dhtmlxSuite/dhtmlxGrid/codebase/imgs");
+                        if(<%=session.getAttribute("userType").equals("organization")%>){
                         grid.setHeader("Service name,Action,,Fully Annotated");//set column names
                         grid.setColTypes("ro,link,link,img");
-
+                        }else{
+                        grid.setHeader("Service name,Action,,Fully Annotated,");//set column names
+                        grid.setColTypes("ro,link,link,img,link");
+                        }
                 //        grid.attachEvent("onRowSelect", doOnRowSelected);
                         grid.setSkin("light");//set grid skin
                         grid.init();//initialize grid

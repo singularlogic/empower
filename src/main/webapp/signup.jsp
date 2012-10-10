@@ -47,7 +47,6 @@
                             <tr>
                                 <td align="right">User type:</td>
                                 <td align="left">
-                                    <input type="radio" name="user_type" value="admin" /> Admin <br>
                                     <input type="radio" name="user_type" value="vendor" /> Vendor <br>
                                     <input type="radio" name="user_type" value="organization" /> Organization<br>
                                 </td>
