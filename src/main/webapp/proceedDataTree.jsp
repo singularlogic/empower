@@ -20,6 +20,20 @@
 </br><p>Press <a href='presentDataTree.jsp?"+back+"'>here</a>  to bo back or the continue button to proceed</p>");
 
                 }
+
+                var response = jQuery.ajax ({
+                url: "http://54.247.114.191/sensapp/importer",
+                type: "POST",
+                data:JSON.stringify(<%=request.getParameter("data")%>),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                async:    false,
+                success: function(res){
+                     var text = res.responseText;
+                     return text;
+                }
+                }).responseText;  
+                 $("#response").html("<p>Your schema is also placed in <a  target=\"_blank\" href=\"http://54.247.114.191/net.modelbased.mediation.gui-0.0.1-SNAPSHOT/repositories.html\">Mediator Portal</a>.</p>");
             });
         </script>    
         <title>Presenting service in tree form</title>
@@ -99,6 +113,7 @@
                     <input type='hidden' name='mapping' id="mapping" value='<%=request.getAttribute("mapping")%>'>
                     <input type="submit" value="Continue" name="annotate_button">
                 </form>
+                    <div id="response"></div>   
 
             </div>
         </div>

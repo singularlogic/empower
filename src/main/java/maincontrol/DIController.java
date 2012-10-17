@@ -4,10 +4,9 @@
  */
 package maincontrol;
 
+import com.google.gson.Gson;
 import dataaccesslayer.*;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.*;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -16,10 +15,22 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.wsdl.WSDLException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPathExpressionException;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import orgports.OrgDBConnector;
 import vendorports.VendorDBConnector;
@@ -28,8 +39,9 @@ import xml.XSDParser;
 
 /**
  *
- * @author elenithis.forwardToPage("/VendorManager?op=schema_reg&software_id=" + softwareID, request, response);
-     
+ * @author elenithis.forwardToPage("/VendorManager?op=schema_reg&software_id=" +
+ * softwareID, request, response);
+ *
  */
 public class DIController extends HttpServlet {
 
@@ -78,11 +90,11 @@ public class DIController extends HttpServlet {
                     this.managePostMappings(request, response, session);
                 } else if (operation.equals("show_bridging_schemas")) {
                     this.manageBridgingSchemas(request, response, session);
-                }else if (operation.equals("show_bridging_services")) {
+                } else if (operation.equals("show_bridging_services")) {
                     this.manageBridgingServices(request, response, session);
-                }else if (operation.equals("doBridging")) {
+                } else if (operation.equals("doBridging")) {
                     this.doBridging(request, response, session);
-                }else if (operation.equals("showMyBridges")) {
+                } else if (operation.equals("showMyBridges")) {
                     this.showMyBridges(request, response, session);
                 } else if (operation.equals("present_service_operations")) {
                     this.presentServiceOperationsTree(request, response, session);
@@ -108,6 +120,8 @@ public class DIController extends HttpServlet {
                     this.showServices(request, response, session);
                 } else if (operation.equals("service_reg")) {
                     this.manageVendorServiceReg(request, response, session);
+                } else if (operation.equals("schema_info")) {
+                    this.getSchemaInfo(request, response, session);
                 }
 
 
@@ -171,20 +185,20 @@ public class DIController extends HttpServlet {
 
         MainControlDB mainControlDB = new MainControlDB();
         int user_id = mainControlDB.insertUser(name, password, userType);
-        
-        if (user_id!=-1){
-            
-        session = request.getSession(true);
-        session.setAttribute("userType", userType);
-        session.setAttribute("name", name);
-        String redirectionURL = new String("/" + userType + "/" + userType + "menu.jsp");
-        this.forwardToPage(redirectionURL, request, response);
-        
-        }else {
+
+        if (user_id != -1) {
+
+            session = request.getSession(true);
+            session.setAttribute("userType", userType);
+            session.setAttribute("name", name);
+            String redirectionURL = new String("/" + userType + "/" + userType + "menu.jsp");
+            this.forwardToPage(redirectionURL, request, response);
+
+        } else {
             this.forwardToPage("/error/signin_error.jsp?errormsg=Already exists a user with the same name.Please try to Sing Up with a different name.", request, response);
         }
 
-       
+
     }
 
     private boolean verifyUser(String userType, HttpSession session) {
@@ -222,7 +236,7 @@ public class DIController extends HttpServlet {
             this.forwardToPage("/VendorManager?op=show_components", request, response);
         } else if (verifyUser("organization", session)) {
             String bridging = request.getParameter("bridging");
-            this.forwardToPage("/OrganizationManager?op=show_components&bridging="+bridging, request, response);
+            this.forwardToPage("/OrganizationManager?op=show_components&bridging=" + bridging, request, response);
         } else {
             this.forwardToPage("/error/generic_error.jsp?errormsg=op_not_supported_for_you", request, response);
         }
@@ -236,7 +250,7 @@ public class DIController extends HttpServlet {
 
 
         MainControlDB mainControlDB = new MainControlDB();
-        LinkedList<Service> services = (LinkedList<Service>) mainControlDB.getServices(software_id, false,"IS NULL");
+        LinkedList<Service> services = (LinkedList<Service>) mainControlDB.getServices(software_id, false, "IS NULL");
         System.out.println("services: " + services + "lenght: " + services.size());
         if (services.size() > 0) {
 
@@ -278,7 +292,7 @@ public class DIController extends HttpServlet {
         MainControlDB mainControlDB = new MainControlDB();
 
         XSDIterator = (verifyUser("vendor", session)) ? mainControlDB.getSchemas((String) request.getParameter("software_id"), false).iterator() : mainControlDB.getSchemas((String) request.getParameter("software_id"), true).iterator();
-          
+
         response.setContentType("text/xml; charset=UTF-8");
         PrintWriter out = response.getWriter();
         out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
@@ -286,8 +300,8 @@ public class DIController extends HttpServlet {
 
         while (XSDIterator.hasNext()) {
             Schema schema = (Schema) XSDIterator.next();
-            String delete_option = (verifyUser("vendor", session))?"<cell> Delete Schema^./VendorManager?op=delete_schema&amp;schema_id="+ schema.getSchema_id() + "^_self</cell>":"";
-        
+            String delete_option = (verifyUser("vendor", session)) ? "<cell> Delete Schema^./VendorManager?op=delete_schema&amp;schema_id=" + schema.getSchema_id() + "^_self</cell>" : "";
+
             out.write("<row id=\"" + schema.getSchema_id() + "\"><cell>" + schema.getName() + "</cell>"
                     + "<cell> Annotate Operations^./presentOperationTree.jsp?schema_id=" + schema.getSchema_id() + "^_self</cell>"
                     + "<cell> Annotate Data^./presentDataTree.jsp?schema_id=" + schema.getSchema_id() + "^_self</cell>"
@@ -311,7 +325,7 @@ public class DIController extends HttpServlet {
 
 
         MainControlDB mainControlDB = new MainControlDB();
-        LinkedList<Service> services = (LinkedList<Service>) mainControlDB.getServices(software_id, false,"IS NOT NULL");
+        LinkedList<Service> services = (LinkedList<Service>) mainControlDB.getServices(software_id, false, "IS NOT NULL");
         System.out.println("services: " + services + "lenght: " + services.size());
         if (services.size() > 0) {
 
@@ -337,33 +351,33 @@ public class DIController extends HttpServlet {
     protected void showServices(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws IOException, ServletException {
         Iterator servIterator;
-        String img_link  ="";
+        String img_link = "";
 
         MainControlDB mainControlDB = new MainControlDB();
 
-        servIterator = (verifyUser("vendor", session)) ? mainControlDB.getServices((String) request.getParameter("software_id"), false,"IS NOT NULL").iterator()
-                : mainControlDB.getServices((String) request.getParameter("software_id"), true,"IS NOT NULL").iterator();
+        servIterator = (verifyUser("vendor", session)) ? mainControlDB.getServices((String) request.getParameter("software_id"), false, "IS NOT NULL").iterator()
+                : mainControlDB.getServices((String) request.getParameter("software_id"), true, "IS NOT NULL").iterator();
 
 
         response.setContentType("text/xml; charset=UTF-8");
         PrintWriter out = response.getWriter();
         out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         out.write("<rows>");
-        
+
 
         while (servIterator.hasNext()) {
             Service service = (Service) servIterator.next();
-            img_link = (service.isExposed())?"js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/green.gif":"js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/red.gif";
-            
-            String delete_wservice_option=(verifyUser("vendor", session)) ?"<cell>Delete Service^./VendorManager?op=delete_wservice&amp;service_id=" + service.getService_id() + "^_self</cell>":"";
-        
-           
-            System.out.println("img_link"+img_link);
+            img_link = (service.isExposed()) ? "js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/green.gif" : "js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/red.gif";
+
+            String delete_wservice_option = (verifyUser("vendor", session)) ? "<cell>Delete Service^./VendorManager?op=delete_wservice&amp;service_id=" + service.getService_id() + "^_self</cell>" : "";
+
+
+            System.out.println("img_link" + img_link);
             out.write("<row id=\"" + service.getService_id() + "\">"
                     + "<cell>" + service.getName() + "</cell>"
                     + "<cell>Annotate Functions^./presentOperationTree.jsp?service_id=" + service.getService_id() + "^_self</cell>"
                     + "<cell>Annotate Data^./presentDataTree.jsp?service_id=" + service.getService_id() + "^_self</cell>"
-                    + "<cell type=\"img\">"+img_link+"</cell>"
+                    + "<cell type=\"img\">" + img_link + "</cell>"
                     + delete_wservice_option
                     + "</row>");
         }
@@ -468,67 +482,67 @@ public class DIController extends HttpServlet {
         String operation_name = "";
         String funcSelections = request.getParameter("funcselections");
         String name = (String) session.getAttribute("name");
-        String userType =(verifyUser("organization", session)) ? "organization": "vendor"; 
+        String userType = (verifyUser("organization", session)) ? "organization" : "vendor";
         MainControlDB mainControlDB = new MainControlDB();
 
 
         if (!request.getParameter("schema_id").equalsIgnoreCase("null")) {
             schema_id = Integer.parseInt((String) request.getParameter("schema_id"));
             operation_id = Integer.parseInt((String) request.getParameter("selections"));
-            this.annotateOperations_schema(schema_id,operation_id,funcSelections,name,userType);
-            this.forwardToPage("/annotationResult.jsp?schema_id=" + schema_id+"&dataannotation=false", request, response);
+            this.annotateOperations_schema(schema_id, operation_id, funcSelections, name, userType);
+            this.forwardToPage("/annotationResult.jsp?schema_id=" + schema_id + "&dataannotation=false", request, response);
         }
         if (!request.getParameter("service_id").equalsIgnoreCase("null")) {
             service_id = Integer.parseInt((String) request.getParameter("service_id"));
             operation_name = (String) request.getParameter("selections");
-            this.annotateOperations_service(service_id,operation_name,funcSelections,name,userType);
-            this.forwardToPage("/annotationResult.jsp?schema_id=-1&service_id=" + service_id+"&dataannotation=false", request, response);
-           }
+            this.annotateOperations_service(service_id, operation_name, funcSelections, name, userType);
+            this.forwardToPage("/annotationResult.jsp?schema_id=-1&service_id=" + service_id + "&dataannotation=false", request, response);
+        }
         //System.out.println(funcSelections + " " + schema_id + " " + operation_id + " " + name);
 
-       
+
         //vendorDBConnector.insertCVPFunction(funcSelections, serviceID, selections, name);
     }
-    
-    protected boolean annotateOperations_schema(int schema_id, int operation_id, String funcSelections, String name,String userType){
-        
-        MainControlDB mainControlDB = new MainControlDB();
-        
-        try{
-        
-        if (userType.equalsIgnoreCase("organization")) {
-            mainControlDB.insertCPP(schema_id,-1, name);
-            mainControlDB.functionalAnnotationBySchema(operation_id, funcSelections, -1);
-        } else {
 
-            Integer cvpID = new Integer(mainControlDB.insertCVP(schema_id, -1, name));
-           
+    protected boolean annotateOperations_schema(int schema_id, int operation_id, String funcSelections, String name, String userType) {
+
+        MainControlDB mainControlDB = new MainControlDB();
+
+        try {
+
+            if (userType.equalsIgnoreCase("organization")) {
+                mainControlDB.insertCPP(schema_id, -1, name);
+                mainControlDB.functionalAnnotationBySchema(operation_id, funcSelections, -1);
+            } else {
+
+                Integer cvpID = new Integer(mainControlDB.insertCVP(schema_id, -1, name));
+
                 mainControlDB.functionalAnnotationBySchema(operation_id, funcSelections, cvpID);
-        }
-        
-         } catch (Throwable t) {
+            }
+
+        } catch (Throwable t) {
             t.printStackTrace();
         }
-        
+
         return true;
     }
-    
-      protected boolean annotateOperations_service(int service_id, String operation_name, String funcSelections, String name,String userType){
-        
+
+    protected boolean annotateOperations_service(int service_id, String operation_name, String funcSelections, String name, String userType) {
+
         boolean isFullyMatched = false;
         Integer cvpID = -1;
         MainControlDB mainControlDB = new MainControlDB();
-        
-      if (userType.equalsIgnoreCase("organization")) {
-            mainControlDB.insertCPP(-1,service_id,name);
-            mainControlDB.functionalAnnotationByService(service_id, operation_name,funcSelections, -1);
+
+        if (userType.equalsIgnoreCase("organization")) {
+            mainControlDB.insertCPP(-1, service_id, name);
+            mainControlDB.functionalAnnotationByService(service_id, operation_name, funcSelections, -1);
             cvpID = mainControlDB.getCVP(-1, service_id);
         } else {
             cvpID = new Integer(mainControlDB.insertCVP(-1, service_id, name));
-            mainControlDB.functionalAnnotationByService(service_id, operation_name, funcSelections, cvpID);      
+            mainControlDB.functionalAnnotationByService(service_id, operation_name, funcSelections, cvpID);
         }
         isFullyMatched = mainControlDB.isFullyMatched(0, service_id, cvpID);
-        
+
         return true;
     }
 
@@ -536,11 +550,11 @@ public class DIController extends HttpServlet {
             throws IOException, ServletException, ParserConfigurationException, SAXException {
 
         int schema_id = Integer.parseInt(request.getParameter("schema_id"));
-        
+
         MainControlDB mainControlDB = new MainControlDB();
         Schema schema = mainControlDB.getSchema(schema_id);
-        
-        System.out.println(schema_id+"schema location: " + schema.getLocation()+schema.getInputoutput()+"--"+ schema.getOperation_id()+"--"+schema.getOp_taxonomy_id()+"--"+schema.getCvp_id()+"--"+schema.getService_id()+"--"+schema.getSchema_id()+"--"+schema.getSelections());
+
+        System.out.println(schema_id + "schema location: " + schema.getLocation() + schema.getInputoutput() + "--" + schema.getOperation_id() + "--" + schema.getOp_taxonomy_id() + "--" + schema.getCvp_id() + "--" + schema.getService_id() + "--" + schema.getSchema_id() + "--" + schema.getSelections());
 
         XSDParser p = new XSDParser(schema);
         String xml_string = p.convertSchemaToXML();
@@ -550,24 +564,23 @@ public class DIController extends HttpServlet {
         PrintWriter out = response.getWriter();
         out.write(xml_string);
     }
-    
+
     protected void presentServiceTree(HttpServletRequest request,
-                                HttpServletResponse response,
-                                HttpSession session)
-    throws IOException, ServletException, WSDLException
-    {
+            HttpServletResponse response,
+            HttpSession session)
+            throws IOException, ServletException, WSDLException {
         int serviceID = Integer.parseInt(request.getParameter("service_id"));
-        
+
         MainControlDB mainControlDB = new MainControlDB();
         Service service = mainControlDB.getService(serviceID);
         response.setContentType("text/xml; charset=UTF-8");
-        
+
         WSDLParser wsdlParser = new WSDLParser(service.getWsdl(),
-                                               service.getNamespace());
+                service.getNamespace());
         wsdlParser.loadService(service.getName());
         wsdlParser.outputToXML(response.getWriter());
-        
-        System.out.println("outputXML: " +response.getWriter());
+
+        System.out.println("outputXML: " + response.getWriter());
     }
 
     protected void presentOptionTrees(HttpServletRequest request, HttpServletResponse response, HttpSession session)
@@ -585,28 +598,32 @@ public class DIController extends HttpServlet {
     }
 
     protected void annotate(HttpServletRequest request, HttpServletResponse response, HttpSession session)
-            throws IOException, ServletException, ParserConfigurationException, SAXException, XPathExpressionException, WSDLException {
-        
-        if  (!request.getParameter("schema_id").equalsIgnoreCase("null")) annotate_data_schema(request,response,session);
-        if  (!request.getParameter("service_id").equalsIgnoreCase("null")) annotate_data_service(request,response,session);
- 
+            throws IOException, ServletException, ParserConfigurationException, SAXException, XPathExpressionException, WSDLException, TransformerConfigurationException, TransformerException {
+
+        if (!request.getParameter("schema_id").equalsIgnoreCase("null")) {
+            annotate_data_schema(request, response, session);
+        }
+        if (!request.getParameter("service_id").equalsIgnoreCase("null")) {
+            annotate_data_service(request, response, session);
+        }
+
     }
-    
+
     protected void annotate_data_schema(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws IOException, ServletException, ParserConfigurationException, SAXException, XPathExpressionException, WSDLException {
-       
-        int schema_id = Integer.parseInt((String) request.getParameter("schema_id"));    
+
+        int schema_id = Integer.parseInt((String) request.getParameter("schema_id"));
         String schema_data = ((String) request.getParameter("selections")).split("--")[0];
         String inputoutput = ((String) request.getParameter("selections")).split("--")[1];
         String centralTree = request.getParameter("centraltree");
         String mapping = null;
-        String xbrl_mismatch="false";
+        String xbrl_mismatch = "false";
 
         MainControlDB mainControlDB = new MainControlDB();
         Schema schema = mainControlDB.getSchema(schema_id);
         String filename = ((String) schema.getLocation()).split("/xsd/")[1];
 
-        DataAnnotations dataannotations = mainControlDB.getMapping(schema_id,-1, inputoutput+"$" + schema_data);
+        DataAnnotations dataannotations = mainControlDB.getMapping(schema_id, -1, inputoutput + "$" + schema_data);
         mapping = dataannotations.getMapping();
 
         if (mapping != null) {
@@ -615,11 +632,14 @@ public class DIController extends HttpServlet {
         }
 
         request.setAttribute("mapping", mapping);
-        if (verifyUser("vendor", session))   request.setAttribute("map_type", "cvp");
-        else request.setAttribute("map_type", "cpp");
-       
-        
-        request.setAttribute("selections", inputoutput+"$" + schema_data);
+        if (verifyUser("vendor", session)) {
+            request.setAttribute("map_type", "cvp");
+        } else {
+            request.setAttribute("map_type", "cpp");
+        }
+
+
+        request.setAttribute("selections", inputoutput + "$" + schema_data);
         request.setAttribute("xbrl", centralTree);
 
 
@@ -631,31 +651,33 @@ public class DIController extends HttpServlet {
             request.setAttribute("input", "xsd/XBRL-GL-PR-2010-04-12/plt/case-c-b-m/gl-cor-content-2010-04-12.xsd");
             request.setAttribute("outputType", schema_data);
             request.setAttribute("inputType", centralTree);
-           
-            
+
+
         } else {
             //response.sendRedirect(response.encodeRedirectURL("http://127.0.0.1:8080/annotator?input=xsd/" + filename + "&output=xsd/XBRL-GL-PR-2010-04-12/plt/case-c-b-m/gl-cor-content-2010-04-12.xsd&service_id=" + schema_id + "&map_type=cvp&outputType=" + centralTree + "&inputType=" + schema_data + "&mapping="));
             request.setAttribute("input", "xsd/" + filename);
             request.setAttribute("output", "xsd/XBRL-GL-PR-2010-04-12/plt/case-c-b-m/gl-cor-content-2010-04-12.xsd");
             request.setAttribute("outputType", centralTree);
             request.setAttribute("inputType", schema_data);
-            
+
             //request.setAttribute("selections", schema_data + "$" + centralTree);
         }
-        if (!centralTree.equalsIgnoreCase(dataannotations.getXbrl()) && dataannotations.getXbrl()!=null) xbrl_mismatch= dataannotations.getXbrl()+"$"+centralTree; 
-        this.forwardToPage("/proceedDataTree.jsp?schema_id=" + schema_id+"&service_id=-1&xbrl_mismatch="+xbrl_mismatch, request, response);
-        
+        if (!centralTree.equalsIgnoreCase(dataannotations.getXbrl()) && dataannotations.getXbrl() != null) {
+            xbrl_mismatch = dataannotations.getXbrl() + "$" + centralTree;
+        }
+        this.forwardToPage("/proceedDataTree.jsp?schema_id=" + schema_id + "&service_id=-1&xbrl_mismatch=" + xbrl_mismatch + "&data=-1", request, response);
+
     }
-    
+
     protected void annotate_data_service(HttpServletRequest request, HttpServletResponse response, HttpSession session)
-            throws IOException, ServletException, ParserConfigurationException, SAXException, XPathExpressionException, WSDLException {
-   
-        int service_id = Integer.parseInt((String)request.getParameter("service_id"));
+            throws IOException, ServletException, ParserConfigurationException, SAXException, XPathExpressionException, WSDLException, TransformerConfigurationException, TransformerException {
+
+        int service_id = Integer.parseInt((String) request.getParameter("service_id"));
         String selections = request.getParameter("selections");
         String centralTree = request.getParameter("centraltree");
         String mapping = new String("");
         String choice = null;
-        String xbrl_mismatch="false";
+        String xbrl_mismatch = "false";
         if (verifyUser("vendor", session)) {
             request.setAttribute("map_type", "cvp");
         } else {
@@ -663,50 +685,61 @@ public class DIController extends HttpServlet {
         }
 
         MainControlDB mainControlDB = new MainControlDB();
-        DataAnnotations dataannotations = mainControlDB.getMapping(-1,service_id, selections);
+        DataAnnotations dataannotations = mainControlDB.getMapping(-1, service_id, selections);
         mapping = dataannotations.getMapping();
 
-        
-       if (mapping != null) {
+
+        if (mapping != null) {
             mapping = new String(mapping.replace("\"", "\\\""));
-           System.out.println("==== mapping=" + mapping.substring(0, 500));
+            System.out.println("==== mapping=" + mapping.substring(0, 500));
         }
 
         request.setAttribute("mapping", mapping);
-        request.setAttribute("selections", selections); 
+        request.setAttribute("selections", selections);
         request.setAttribute("xbrl", centralTree);
-        
+
         Service service = mainControlDB.getService(service_id);
-        
+
         WSDLParser wsdlParser = new WSDLParser(service.getWsdl(), service.getNamespace());
         choice = selections.split("\\$")[1];
         String inputoutput = selections.split("\\$")[0];
         String xsdTypes = wsdlParser.extractXSD(choice);
-               
-        String filename = new String("cvp_" + service.getName() + "_" + ((int)(100000*Math.random())) + ".xsd"); 
+
+        String filename = new String("cvp_" + service.getName() + "_" + ((int) (100000 * Math.random())) + ".xsd");
         String xsdFilename = new String(xml_rep_path + "/xsd/" + filename);
         PrintWriter xsdFile = new PrintWriter(xsdFilename);
         xsdFile.write(xsdTypes);
         xsdFile.close();
- 
-              
-        if(inputoutput.equalsIgnoreCase("input")){
+
+
+        if (inputoutput.equalsIgnoreCase("input")) {
             request.setAttribute("output", "xsd/" + filename);
             request.setAttribute("input", "xsd/XBRL-GL-PR-2010-04-12/plt/case-c-b-m/gl-cor-content-2010-04-12.xsd");
             request.setAttribute("outputType", choice);
             request.setAttribute("inputType", centralTree);
-        }else{
+        } else {
             request.setAttribute("input", "xsd/" + filename);
             request.setAttribute("output", "xsd/XBRL-GL-PR-2010-04-12/plt/case-c-b-m/gl-cor-content-2010-04-12.xsd");
             request.setAttribute("outputType", centralTree);
-            request.setAttribute("inputType", choice);  
+            request.setAttribute("inputType", choice);
         }
 
-        if (!centralTree.equalsIgnoreCase(dataannotations.getXbrl()) && dataannotations.getXbrl()!=null) xbrl_mismatch= dataannotations.getXbrl()+"$"+centralTree; 
-        this.forwardToPage("/proceedDataTree.jsp?schema_id=-1&service_id="+ service_id+"&xbrl_mismatch="+xbrl_mismatch, request, response);
-    
-    }
+        if (!centralTree.equalsIgnoreCase(dataannotations.getXbrl()) && dataannotations.getXbrl() != null) {
+            xbrl_mismatch = dataannotations.getXbrl() + "$" + centralTree;
+        }
 
+        System.out.println("xsdTypes olele olala: " + xsdTypes);
+        xsdTypes = removeTypes(xsdTypes);
+        JSONObject o = new JSONObject();
+        o.put("modelId", service_id + "_" + choice);
+        o.put("description", service_id + "_" + choice);
+        o.put("format", "XSD");
+        o.put("content", xsdTypes);
+        
+        //this.forwardToPage("/proceedDataTree.jsp?schema_id=-1&service_id="+ service_id+"&xbrl_mismatch="+xbrl_mismatch, request, response);
+        this.forwardToPage("/proceedDataTree.jsp?schema_id=-1&service_id=" + service_id + "&xbrl_mismatch=" + xbrl_mismatch + "&data=" + o.toString(), request, response);
+
+    }
 
     protected void manageVendorSchemaReg(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws ServletException, IOException {
@@ -737,14 +770,18 @@ public class DIController extends HttpServlet {
 
         String xml = request.getParameter("xml");
         String mapType = request.getParameter("map_type");
-        String xbrlType=request.getParameter("xbrl");
-        int schema_id =-1;
-        int service_id =-1;
+        String xbrlType = request.getParameter("xbrl");
+        int schema_id = -1;
+        int service_id = -1;
         boolean isFullyMatched = false;
-        
-        if (!request.getParameter("schema_id").equalsIgnoreCase("-1")) schema_id = Integer.parseInt(request.getParameter("schema_id"));
-        if (!request.getParameter("service_id").equalsIgnoreCase("-1")) service_id = Integer.parseInt(request.getParameter("service_id"));
-        
+
+        if (!request.getParameter("schema_id").equalsIgnoreCase("-1")) {
+            schema_id = Integer.parseInt(request.getParameter("schema_id"));
+        }
+        if (!request.getParameter("service_id").equalsIgnoreCase("-1")) {
+            service_id = Integer.parseInt(request.getParameter("service_id"));
+        }
+
         String name = (String) request.getSession().getAttribute("name");
 
         String selections = request.getParameter("selections");
@@ -755,18 +792,18 @@ public class DIController extends HttpServlet {
             cvpID = new Integer(mainControlDB.insertCVP(schema_id, service_id, name));
         }
         if (mapType.equals("cpp")) {
-            cvpID = new Integer(mainControlDB.getCVP(schema_id,service_id));
+            cvpID = new Integer(mainControlDB.getCVP(schema_id, service_id));
             System.out.println("MapType is cpp");
-            Integer cppID = new Integer(mainControlDB.insertCPP(schema_id,service_id, name));
+            Integer cppID = new Integer(mainControlDB.insertCPP(schema_id, service_id, name));
         }
-        
-        mainControlDB.insert_dataannotations(cvpID, xml, schema_id, service_id, name, json, selections,xbrlType);
-        isFullyMatched = (service_id!=-1)?mainControlDB.isFullyMatched(0, service_id, cvpID):false;
-        this.forwardToPage("/annotationResult.jsp?schema_id=" + schema_id + "&service_id="+service_id+"&dataannotation=true", request, response);
 
-        
-          
-     
+        mainControlDB.insert_dataannotations(cvpID, xml, schema_id, service_id, name, json, selections, xbrlType);
+        isFullyMatched = (service_id != -1) ? mainControlDB.isFullyMatched(0, service_id, cvpID) : false;
+        this.forwardToPage("/annotationResult.jsp?schema_id=" + schema_id + "&service_id=" + service_id + "&dataannotation=true", request, response);
+
+
+
+
 
     }
 
@@ -780,43 +817,43 @@ public class DIController extends HttpServlet {
 
         }
     }
-    
+
     protected void manageBridgingServices(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws ServletException, IOException {
 
         String software_id = request.getParameter("software_id");
 
         if (verifyUser("organization", session)) {
-        
-         MainControlDB mainControlDB = new MainControlDB();
-            
-        LinkedList<String> taxomonies = (LinkedList<String>) mainControlDB.getTaxonomies();
-        System.out.println("taxomonies: " + taxomonies + "lenght: " + taxomonies.size());
-        if (taxomonies.size() > 0) {
 
-            JSONObject json_taxonomies = new JSONObject();
-            Iterator tax_iterator = taxomonies.iterator();
-            while (tax_iterator.hasNext()) {
-                String tax = (String) tax_iterator.next();
-                json_taxonomies.put(tax,tax);
-            }
-            session.setAttribute("taxonomies", json_taxonomies);
-        }
-        
-         LinkedList<SoftwareComponent> softwareComponents = (LinkedList<SoftwareComponent>) mainControlDB.getSoftwareComponents();
-         if (softwareComponents.size() > 0) {
+            MainControlDB mainControlDB = new MainControlDB();
 
-            JSONObject json_softwareComp = new JSONObject();
-            Iterator softcomp_iterator = softwareComponents.iterator();
-            while (softcomp_iterator.hasNext()) {
-                SoftwareComponent sc = (SoftwareComponent) softcomp_iterator.next();
-                json_softwareComp.put(sc.getSoftware_id(),sc.getName() +" V"+sc.getVersion());
+            LinkedList<String> taxomonies = (LinkedList<String>) mainControlDB.getTaxonomies();
+            System.out.println("taxomonies: " + taxomonies + "lenght: " + taxomonies.size());
+            if (taxomonies.size() > 0) {
+
+                JSONObject json_taxonomies = new JSONObject();
+                Iterator tax_iterator = taxomonies.iterator();
+                while (tax_iterator.hasNext()) {
+                    String tax = (String) tax_iterator.next();
+                    json_taxonomies.put(tax, tax);
+                }
+                session.setAttribute("taxonomies", json_taxonomies);
             }
-            session.setAttribute("softwarecomponents", json_softwareComp);
-        }
-         
-         
-         this.forwardToPage("/organization/showAvailableServices.jsp?software_id=" + software_id, request, response);
+
+            LinkedList<SoftwareComponent> softwareComponents = (LinkedList<SoftwareComponent>) mainControlDB.getSoftwareComponents();
+            if (softwareComponents.size() > 0) {
+
+                JSONObject json_softwareComp = new JSONObject();
+                Iterator softcomp_iterator = softwareComponents.iterator();
+                while (softcomp_iterator.hasNext()) {
+                    SoftwareComponent sc = (SoftwareComponent) softcomp_iterator.next();
+                    json_softwareComp.put(sc.getSoftware_id(), sc.getName() + " V" + sc.getVersion());
+                }
+                session.setAttribute("softwarecomponents", json_softwareComp);
+            }
+
+
+            this.forwardToPage("/organization/showAvailableServices.jsp?software_id=" + software_id, request, response);
 
         }
     }
@@ -831,8 +868,6 @@ public class DIController extends HttpServlet {
         }
 
     }
-    
-   
 
     protected void showMyBridges(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws ServletException, IOException {
@@ -854,7 +889,7 @@ public class DIController extends HttpServlet {
         out.write("<h2>Available Source Schemas for the software component: " + software_name + "<h2>");
         out.flush();
     }
-    
+
     protected void showcurrentsoftcomp(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws ServletException, IOException {
 
@@ -867,7 +902,6 @@ public class DIController extends HttpServlet {
         out.write(software_name);
         out.flush();
     }
-
 
     protected void getMenu(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws ServletException, IOException {
@@ -921,6 +955,73 @@ public class DIController extends HttpServlet {
         out.flush();
 
         return;
+    }
+
+    protected void getSchemaInfo(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws ServletException, IOException {
+
+        int schema_id = Integer.parseInt(request.getParameter("schema_id"));
+        MainControlDB mainControlDB = new MainControlDB();
+        Schema schema = mainControlDB.getSchema(schema_id);
+
+        String thisLine;
+        String datafile = "";
+        FileInputStream fin = new FileInputStream(schema.getLocation());
+
+        BufferedReader myInput = new BufferedReader(new InputStreamReader(fin));
+        while ((thisLine = myInput.readLine()) != null) {
+            datafile = datafile + thisLine;
+        }
+
+        JSONObject schema_info = new JSONObject();
+
+        schema_info.put("modelId", schema_id + "_" + schema.getName());
+        schema_info.put("description", schema_id + "_" + schema.getName());
+        schema_info.put("format", "XSD");
+        schema_info.put("content", datafile);
+
+        // Write response data as JSON.
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(new Gson().toJson(schema_info));
+
+
+    }
+
+    // remove types attribute from extractes schema so as to accept it the Mediation Portal
+    protected String removeTypes(String xsdtypes) throws TransformerConfigurationException, TransformerException {
+         StreamResult result = null;
+        //get the factory
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        try {
+            //Using factory get an instance of document builder
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            //parse using builder to get DOM representation of the XML file
+            Document dom = db.parse(new InputSource(new StringReader(xsdtypes)));
+
+            // Get a list of all elements in the document
+            NodeList list = dom.getElementsByTagName("*");
+            for (int i = 0; i < list.getLength(); i++) {
+                // Get element
+                Element element = (Element) list.item(i);
+                element.removeAttribute("type");
+            }
+
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            result = new StreamResult(new StringWriter());
+            DOMSource source = new DOMSource(dom);
+            transformer.transform(source, result);
+
+        } catch (ParserConfigurationException pce) {
+            pce.printStackTrace();
+        } catch (SAXException se) {
+            se.printStackTrace();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+
+        return result.getWriter().toString();
+
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

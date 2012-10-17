@@ -117,6 +117,44 @@ public class WSDLParser
         return list.iterator();
     }
     
+    public  LinkedList<String> returnOperationNames(String operation)
+    {
+        Map servicePorts;
+        Binding portBinding;
+        Iterator portsIterator, operationIterator;
+        LinkedList<String> operations = new LinkedList<String>();
+        try
+        {                
+            servicePorts = returnServicePorts();
+            portsIterator = servicePorts.keySet().iterator();
+
+            // drill down the wsdl hierarchy
+            // starting from definition
+            while(portsIterator.hasNext())
+            {
+                String portName = portsIterator.next().toString();
+                portBinding = returnBinding(portName);   
+                String binding = (String) portBinding.getQName().getLocalPart();
+                operationIterator = this.returnBindingsOperations(portName);
+                while(operationIterator.hasNext())
+                {
+                  BindingOperationImpl operationBinding = (BindingOperationImpl)operationIterator.next();
+                  String operationName = operationBinding.getName();
+                  if (operation.equalsIgnoreCase("") || operation.equalsIgnoreCase(operationName)){
+                  LinkedList<String> op_input_response = outputPortMessagesAttributes(operationBinding, operationName, binding);
+                  operations.add(op_input_response.get(0).split("\\$")[1]);
+                  operations.add(op_input_response.get(1).split("\\$")[1]);
+                  }
+                }
+            }
+        }
+        catch(Throwable t)
+        {
+            t.printStackTrace();
+        }
+        return operations;
+    }
+    
     public Iterator returnBindingsOperations(String portName)
     {
         Port port = service.getPort(portName);
@@ -908,7 +946,7 @@ public class WSDLParser
                         
                         System.out.println("operationName" + operationName);
                         
-                        xsd_to_string = outputPortMessages_Eleni(operationBinding, operationName, binding);
+                        xsd_to_string = outputPortMessagesAttributes(operationBinding, operationName, binding);
                         }
                 }
                 
@@ -929,7 +967,7 @@ public class WSDLParser
     }
     
     
-    public LinkedList<String> outputPortMessages_Eleni(BindingOperationImpl boperation, String operationName, String bindingName)
+    public LinkedList<String> outputPortMessagesAttributes(BindingOperationImpl boperation, String operationName, String bindingName)
     throws IOException
     {
           PortType portType = binding.getPortType();

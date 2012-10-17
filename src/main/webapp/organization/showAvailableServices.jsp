@@ -47,6 +47,39 @@
                     $("select[name='sourceSoftComp'] option:selected").val('<%=request.getParameter("software_id")%>');
                 }
             }
+            
+            function compare_schemas() {
+                if(tree.getAllChecked().split("\\$").length!=2 || target_tree.getAllChecked().split("\\$").length!=2){
+                    alert("You have to check only one input and one output web service! Thank You!");
+                    return false;  
+                }  else{          
+                    $.getJSON('./OrganizationManager?op=getModelsForComparation&source_service='+tree.getAllChecked()+'&target_service='+target_tree.getAllChecked(), function(data) {
+                            
+                        var response =   jQuery.ajax ({
+                            url: "http://54.247.114.191/sensapp/mediator",
+                            type: "POST",
+                            data: JSON.stringify({algorithm:"syntactic",source:data.source_schema,target:data.target_schema}),
+                            dataType: "json",
+                            contentType: "application/json; charset=utf-8",
+                            async:    false,
+                            success: function (res) {
+                                var text = res.responseText;
+                                return text;
+                            }
+                        }).responseText;                
+                        //alert(response);
+                        //$("#response").html(response);
+                        $("#response").html("<p>In case your Browser does not permit pop-up functionality you can see the \n\
+                        mapping results in <a  target=\"_blank\" href=\"http://54.247.114.191/net.modelbased.mediation.gui-0.0.1-SNAPSHOT/repositories.html\">Mediator Portal</a> (Mappings section) looking for the following code <i>"+response.split("/")[5]+"</i></p>");
+                        
+                       
+                        var caracteristicas = "height=500,width=500,scrollTo,resizable=1,scrollbars=1,location=0";
+                        nueva=window.open('./organization/matchingResult.jsp?mediator_mapping='+response, 'Popup', caracteristicas);
+      	
+                    }); 
+
+                }  
+            }
 
   
         </script>    
@@ -141,8 +174,8 @@
                                             String value = taxonomies.getString(key);
                                             System.out.println("key: " + key + " value: " + value);
                                 %> <option value="<%=key%>"><%=value%></option><%
-                                         }
-                                     }
+                                        }
+                                    }
                                 %> 
                             </select>
                             <p>Semantic taxonomies:</p>
@@ -221,11 +254,19 @@
 
             <br>
             <br>
+
+            <input type="button" value="Search for Matches in Mediator Portal" name="search_matche" id="search_matches" onclick="compare_schemas();"/>
+
+
             <form method="post" name="create_bridge" action="./OrganizationManager?op=createBridgingServices" onSubmit=" return assign_selections();">
                 <input type='hidden' name='selections_source'  value='null'>
                 <input type='hidden' name='selections_target'  value='null'>
                 <input type="submit" value="Create Bridging" name="create_bridging" id="create_bridging"/>
             </form>
+
+
+            <div id="response"></div>
+
         </div>
     </div>
     <div class="footer"><p>Copyright &copy; 2012 Empower Consortium | All Rights Reserved</p></div>

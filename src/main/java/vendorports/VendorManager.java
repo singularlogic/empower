@@ -19,14 +19,18 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.wsdl.WSDLException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
+import maincontrol.MainControlDB;
 import maincontrol.MediationPortalCommunicator;
+import net.sf.json.JSONObject;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.xml.sax.SAXException;
+import xml.WSDLParser;
 import xml.XSDParser;
 
 /**
@@ -146,25 +150,44 @@ public class VendorManager extends HttpServlet {
         String schema_id = (String) request.getParameter("schema_id");
 
         VendorDBConnector vendorDBConnector = new VendorDBConnector();
-        String message = vendorDBConnector.deleteSchema(schema_id);
+        JSONObject schemaDeleteInfo = vendorDBConnector.deleteSchema(schema_id);
         
-        System.out.println("message"+message);
+        String message = schemaDeleteInfo.getString("message");
+        schemaDeleteInfo.remove("message");
 
-        this.forwardToPage("/vendor/succ.jsp?message="+message, request, response);
-
-        return;
+        this.forwardToPage("/vendor/succDeleteSchema.jsp?message="+message+"&operationsToDelete="+schemaDeleteInfo, request, response);
     }
      
      protected void deleteWebService(HttpServletRequest request, HttpServletResponse response, HttpSession session)
-            throws IOException, ServletException {
+            throws IOException, ServletException, WSDLException {
         int service_id = Integer.parseInt(request.getParameter("service_id"));
+
+        MainControlDB mainControlDB = new MainControlDB();
+        Service service = mainControlDB.getService(service_id);
+        
+        WSDLParser wsdlParser = new WSDLParser(service.getWsdl(),
+                                               service.getNamespace());
+        wsdlParser.loadService(service.getName());
+        LinkedList<String> operations =  wsdlParser.returnOperationNames("");
+        JSONObject operationsToDelete = new  JSONObject();
+        
+       Iterator ops;
+        
+         ops=  operations.iterator();
+        
+        while(ops.hasNext()) {
+         Object element = ops.next();
+         operationsToDelete.put(service_id+"_"+element,service_id+"_"+element);
+      }
 
         VendorDBConnector vendorDBConnector = new VendorDBConnector();
         String message = vendorDBConnector.deleteWebService(service_id);
-        
+
         System.out.println("message"+message);
 
-        this.forwardToPage("/vendor/succ.jsp?message="+message, request, response);
+        
+        this.forwardToPage("/vendor/succDeleteSchema.jsp?message="+message+"&operationsToDelete="+operationsToDelete, request, response);
+
 
         return;
     }
@@ -256,9 +279,6 @@ public class VendorManager extends HttpServlet {
             FileItem item = (FileItem) iter.next();
 
             if (item.isFormField()) {
-
-                System.out.println("Here we have: ");
-
                 if (item.getFieldName().equals("software_id")) {
                     software_id = Integer.parseInt(item.getString());
                     System.out.println("software_id " + software_id);
@@ -291,13 +311,9 @@ public class VendorManager extends HttpServlet {
   
         schema_id = vendorDBConnector.insertSchemaInfo(software_id, schemaName, schemaFilename, xml_rep_path, new_web_service_name , web_service_name, operation_name, inputoutput);
         
-        //MediationPortalCommunicator mediation = new MediationPortalCommunicator();
-        //mediation.insertSchemaToMediationPortal(schema_id+"$"+"-1"+schemaName,schemaFilename);
-        //mediation.homePage();
-        //mediation.insertSchemaToMediationPortal("gaga", "gaga");
         String message = "The schema has been registered successfully.";
 
-        this.forwardToPage("/vendor/succ.jsp?message="+message, request, response);
+        this.forwardToPage("/vendor/succImportSchema.jsp?message="+message+"&schema_id="+schema_id, request, response);
     }
     
      protected void registerService(HttpServletRequest request, HttpServletResponse response, HttpSession session)

@@ -87,22 +87,27 @@ public class VendorDBConnector {
         return message;
     }
 
-    public String deleteSchema(String schema_id) {
+    public JSONObject deleteSchema(String schema_id) {
         ResultSet rs;
         String message = "";
         int operation_id = -1;
         int service_id = -1;
+        String schema_name="";
+        JSONObject o = new JSONObject();
 
         try {
+           
             //get the schema operation and web service
             this.dbHandler.dbOpen();
 
-            rs = this.dbHandler.dbQuery("select os.operation_id as operation_id, o.service_id as service_id "
+            rs = this.dbHandler.dbQuery("select os.operation_id as operation_id, o.service_id as service_id, s.name as schema_name  "
                     + "from operation_schema os, schema_xsd s, operation o where os.operation_id=o.operation_id "
                     + "and os.schema_id=s.schema_id and s.schema_id=" + schema_id);
             if (rs.next()) {
                 operation_id = rs.getInt("operation_id");
                 service_id = rs.getInt("service_id");
+                schema_name = rs.getString("schema_name");
+                o.put("modelID", schema_id+"_"+schema_name);
             }
             this.dbHandler.dbUpdate("delete from dataannotations where schema_id=" + schema_id);
             this.dbHandler.dbUpdate("delete from schema_xsd where schema_id=" + schema_id);
@@ -113,11 +118,13 @@ public class VendorDBConnector {
             this.dbHandler.dbClose();
 
             message = message + this.deleteSchemaService(service_id,operation_id,schema_id);
+            o.put("message", message);
+            
         } catch (Throwable t) {
             t.printStackTrace();
         }
 
-        return message;
+        return o;
     }
 
     public String deleteSchemaService(int service_id,int operation_id, String schema_id) {
