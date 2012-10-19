@@ -71,13 +71,9 @@
                         //$("#response").html(response);
                         $("#response").html("<p>In case your Browser does not permit pop-up functionality you can see the \n\
                         mapping results in <a  target=\"_blank\" href=\"http://54.247.114.191/net.modelbased.mediation.gui-0.0.1-SNAPSHOT/repositories.html\">Mediator Portal</a> (Mappings section) looking for the following code <i>"+response.split("/")[5]+"</i></p>");
-                        
-                       
-                        var caracteristicas = "height=500,width=500,scrollTo,resizable=1,scrollbars=1,location=0";
+                        var caracteristicas = "height=500,width=750,scrollTo,resizable=1,scrollbars=1,location=0";
                         nueva=window.open('./organization/matchingResult.jsp?mediator_mapping='+response, 'Popup', caracteristicas);
-      	
                     }); 
-
                 }  
             }
 
@@ -159,7 +155,7 @@
                 <div><p class="info_message">In this page you can see all the exposed web services (web services that are fully annotated).</p></div>
                 <br>
                 <div>
-                    <div style="width: 250px; float: left;">
+                    <div style="width: 230px; float: left;">
                         <div class="st_title"><p>Source Web Service</p></div>
                         <div>
                             <p>Software Components:</p>
@@ -197,7 +193,7 @@
                             </select>
                         </div>
                     </div>
-                    <div style="width: 250px; float: right;">
+                    <div style="width: 320px; float: left;">
                         <div class="st_title"><p>Target Web Service</p></div>
                         <p>Software Components:</p>
                         <select name="targetSoftComp" id="softwareComp_target" style="margin:10px;">
@@ -235,7 +231,7 @@
                         </select>
                     </div>
                 </div>
-                <div id="box_tree" style="float:left;width:250px; height:400px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;margin: 10px;"/>
+                <div id="box_tree" style="float:left;width:220px; height:300px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;margin: 10px;"/>
                 <script>
                     tree = new dhtmlXTreeObject("box_tree", "100%", "100%", 0);
                     tree.setImagePath("./js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
@@ -243,7 +239,7 @@
                     tree.loadXML('./OrganizationManager?op=show_bridging_services&software_id=<%=request.getParameter("software_id")%>', null);
                 </script>
             </div>   
-            <div id="target_box_tree" style="width:250px; height:400px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;margin: 10px;">
+            <div id="target_box_tree" style="width:220px; height:300px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;margin: 10px;">
                 <script>
                     target_tree = new dhtmlXTreeObject("target_box_tree", "100%", "100%", 0);
                     target_tree.setImagePath("./js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
@@ -254,18 +250,21 @@
 
             <br>
             <br>
-
-            <input type="button" value="Search for Matches in Mediator Portal" name="search_matche" id="search_matches" onclick="compare_schemas();"/>
-
+            <div style="width: 38px; float: right; margin-top: -280px;">
+            <div style="float:left;margin-bottom: 20px;"><input TYPE="image" src="./img/searchMatches.png" id="search_matches" onclick="compare_schemas();"/></div>    
+       
 
             <form method="post" name="create_bridge" action="./OrganizationManager?op=createBridgingServices" onSubmit=" return assign_selections();">
                 <input type='hidden' name='selections_source'  value='null'>
                 <input type='hidden' name='selections_target'  value='null'>
-                <input type="submit" value="Create Bridging" name="create_bridging" id="create_bridging"/>
+                <!--<input type="submit" value="Create Bridging" name="create_bridging" id="create_bridging"/>-->
+                <div style="float:left;"><input TYPE="image" src="./img/createBridge.png" id="create_bridging"/></div>    
+        
             </form>
+            </div>
 
 
-            <div id="response"></div>
+            <div id="response" style="margin-top: 30px;"></div>
 
         </div>
     </div>

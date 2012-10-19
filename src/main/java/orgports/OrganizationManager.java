@@ -102,6 +102,8 @@ public class OrganizationManager extends HttpServlet {
                     this.deleteBridging(request, response, session);
                 } else if (operation.equals("getModelsForComparation")) {
                     this.getModelsForComparation(request, response, session);
+                } else if (operation.equals("getModelsForComparationSchema")) {
+                    this.getModelsForComparationSchema(request, response, session);
                 }
 
 
@@ -1060,9 +1062,7 @@ public class OrganizationManager extends HttpServlet {
     // service info in the form service_id$operation_name
     protected void getModelsForComparation(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws IOException, ServletException, WSDLException {
-        
-        System.out.println("eeeeeeeeeeeeeeeeeeeeeeeee"); 
-        
+               
         MainControlDB mainControlDB = new MainControlDB();
 
         String source_service_info = request.getParameter("source_service");
@@ -1096,6 +1096,36 @@ public class OrganizationManager extends HttpServlet {
          JSONObject schemasToCompare = new JSONObject();
          schemasToCompare.put("source_schema", source_service_id + "_" + source_operations.get(1));
          schemasToCompare.put("target_schema", target_service_id + "_" + target_operations.get(0));
+       
+         
+         response.setContentType("application/json");
+         response.setCharacterEncoding("UTF-8");
+         response.getWriter().write(new Gson().toJson(schemasToCompare));
+    }
+    
+     /*
+      *  service info in the form: ex. attributes--Inputoutput--schemaOperation_id--taxonomy--schemaCvp_id--schemaService_id--Schema_id--Selections--Xbrl
+      * Absence--input--86--Demand_Supply_Planning--152--76--39--input$Absence--entryDetailComplexType
+      */
+    protected void getModelsForComparationSchema(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws IOException, ServletException, WSDLException {
+               
+        MainControlDB mainControlDB = new MainControlDB();
+
+        String source_service_info = request.getParameter("source_service");
+        int source_schema_id = Integer.parseInt(source_service_info.split("--")[6]);      
+        Schema source_schema = mainControlDB.getSchema(source_schema_id);
+        String source_schema_name = source_schema.getName();
+        
+        String target_service_info = request.getParameter("target_service");
+        int target_schema_id = Integer.parseInt(target_service_info.split("--")[6]);      
+        Schema target_schema = mainControlDB.getSchema(target_schema_id);
+        String target_schema_name = target_schema.getName();
+        
+            
+         JSONObject schemasToCompare = new JSONObject();
+         schemasToCompare.put("source_schema", source_schema_id + "_" + source_schema_name);
+         schemasToCompare.put("target_schema", target_schema_id + "_" + target_schema_name);
        
          
          response.setContentType("application/json");

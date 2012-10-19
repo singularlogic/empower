@@ -28,6 +28,35 @@
                 if (loader.xmlDoc.responseText != null)
                     $('#title').html(loader.xmlDoc.responseText);
             }
+            
+            function compare_schemas() {
+                if(tree.getAllChecked().split("--").length!=9 || target_tree.getAllChecked().split("--").length!=9){
+                    alert("You have to check only one input and one output schema! Thank You!");
+                    return false;  
+                }  else{          
+                    $.getJSON('./OrganizationManager?op=getModelsForComparationSchema&source_service='+tree.getAllChecked()+'&target_service='+target_tree.getAllChecked(), function(data) {
+                            
+                        var response =   jQuery.ajax ({
+                            url: "http://54.247.114.191/sensapp/mediator",
+                            type: "POST",
+                            data: JSON.stringify({algorithm:"syntactic",source:data.source_schema,target:data.target_schema}),
+                            dataType: "json",
+                            contentType: "application/json; charset=utf-8",
+                            async:    false,
+                            success: function (res) {
+                                var text = res.responseText;
+                                return text;
+                            }
+                        }).responseText;                
+                        //alert(response);
+                        //$("#response").html(response);
+                        $("#response").html("<p>In case your Browser does not permit pop-up functionality you can see the \n\
+                        mapping results in <a  target=\"_blank\" href=\"http://54.247.114.191/net.modelbased.mediation.gui-0.0.1-SNAPSHOT/repositories.html\">Mediator Portal</a> (Mappings section) looking for the following code <i>"+response.split("/")[5]+"</i></p>");
+                        var caracteristicas = "height=500,width=750,scrollTo,resizable=1,scrollbars=1,location=0";
+                        nueva=window.open('./organization/matchingResult.jsp?mediator_mapping='+response, 'Popup', caracteristicas);
+                    }); 
+                }  
+            }
 
   
         </script>    
@@ -105,7 +134,7 @@
                 <div id="title"> </div>
                 <div><p class="info_message">For Every input schema you choose you get all the available output schemas that belong at the same category with the input selection and have been annotated at the same data facet of the XBRL Taxonomy.</p></div>
                 <br>
-                <div id="box_tree" style="float:left;width:250px; height:400px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;"/>
+                <div id="box_tree" style="float:left;width:200px; height:300px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;"/>
                 <script>
                     tree = new dhtmlXTreeObject("box_tree", "100%", "100%", 0);
                     tree.setImagePath("./js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
@@ -114,17 +143,19 @@
                 </script>
             </div>   
 
-            <div id="target_box_tree" style="width:250px; height:400px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;"/>
+            <div id="target_box_tree" style="width:200px; height:300px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;"/>
         </div>
-
-                <input type="submit" value="Get Semantically coherent Target Schemas" name="get_target_schemas" id="get_target_schemas"/>
-        <br>
-        <br>
+        <div style="width: 38px; float: right; margin-top: -280px;">
+        <div style="float:left;margin-bottom: 20px;"><input TYPE="image" src="./img/getTargetSchemas.png" id="get_target_schemas"/></div>
+        <div style="float:left;margin-bottom: 20px;"><input TYPE="image" src="./img/searchMatches.png" id="search_matches" onclick="compare_schemas();"/></div>    
+        <div style="float:left;">
         <form method="post" name="create_bridge" action="./OrganizationManager?op=createBridging" onSubmit="return assign_selections();">
             <input type='hidden' name='selections_source'  value='null'>
             <input type='hidden' name='selections_target'  value='null'>
-            <input type="submit" value="Create Bridging" name="create_bridging" id="create_bridging"/>
-        </form>
+            <div style="float:left;"><input TYPE="image" src="./img/createBridge.png" id="create_bridging"/></div>    
+        
+        </form></div>
+        </div>
     </div>
 </div>
 <div class="footer"><p>Copyright &copy; 2012 Empower Consortium | All Rights Reserved</p></div>
