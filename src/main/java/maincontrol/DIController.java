@@ -34,6 +34,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import orgports.OrgDBConnector;
 import vendorports.VendorDBConnector;
+import xml.Parser;
 import xml.WSDLParser;
 import xml.XSDParser;
 
@@ -270,7 +271,6 @@ public class DIController extends HttpServlet {
             if (xsd_num.equals("0")) {
                 this.forwardToPage("/vendor/SchemaReg.jsp?software_id=" + software_id + "&jsp=false", request, response);
             } else {
-                //this.forwardToPage("/vendor/showSchemas.jsp?software_id=" + software_id, request, response);
                 this.forwardToPage("/showSchemas.jsp?software_id=" + software_id, request, response);
 
             }
@@ -279,9 +279,7 @@ public class DIController extends HttpServlet {
         if (verifyUser("organization", session)) {
 
             this.forwardToPage("/showSchemas.jsp?software_id=" + software_id, request, response);
-
-            //this.forwardToPage("/organization/registerBinding.jsp?service_id=" + serviceID, request, response);
-        }
+         }
     }
 
     protected void showSchemas(HttpServletRequest request, HttpServletResponse response, HttpSession session)
@@ -306,8 +304,6 @@ public class DIController extends HttpServlet {
                     + "<cell> Annotate Operations^./presentOperationTree.jsp?schema_id=" + schema.getSchema_id() + "^_self</cell>"
                     + "<cell> Annotate Data^./presentDataTree.jsp?schema_id=" + schema.getSchema_id() + "^_self</cell>"
                     + delete_option
-                    //+ "<cell>Annotate Data^./vendor/presentServiceTree.jsp?service_id=" + schema.getSchema_id()+ "^_self</cell>"
-                    //+ "<cell>Annotate Functions^./vendor/presentServiceFunctionTree.jsp?service_id=" + schema.getSchema_id()+ "^_self</cell>"
                     + "</row>");
         }
 
@@ -409,14 +405,15 @@ public class DIController extends HttpServlet {
         }
 
     }
-
+    
+    /*
+     * Output the operations at schema level to XML
+     */
     public void outputOperationsToXML(PrintWriter out, LinkedList<Operation> operations) {
         try {
             //work with collection. get services
             Map<Integer, String> services = new HashMap<Integer, String>();
-
             System.out.println("operations size " + operations.size());
-
             Iterator<Operation> op_it = operations.iterator();
 
             while (op_it.hasNext() == true) {
@@ -426,13 +423,11 @@ public class DIController extends HttpServlet {
                 int service_id = op.getService_id();
                 String web_service_name = op.getWeb_service_name();
 
-
                 if (!services.containsKey(service_id)) {
                     services.put(service_id, web_service_name);
                 }
 
             }
-
             out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 
             out.write("<tree id=\"0\">");
@@ -498,10 +493,7 @@ public class DIController extends HttpServlet {
             this.annotateOperations_service(service_id, operation_name, funcSelections, name, userType);
             this.forwardToPage("/annotationResult.jsp?schema_id=-1&service_id=" + service_id + "&dataannotation=false", request, response);
         }
-        //System.out.println(funcSelections + " " + schema_id + " " + operation_id + " " + name);
-
-
-        //vendorDBConnector.insertCVPFunction(funcSelections, serviceID, selections, name);
+      
     }
 
     protected boolean annotateOperations_schema(int schema_id, int operation_id, String funcSelections, String name, String userType) {
@@ -583,6 +575,10 @@ public class DIController extends HttpServlet {
         System.out.println("outputXML: " + response.getWriter());
     }
 
+    
+    /*
+     * Present parts of XBRL Taxonomy
+     */
     protected void presentOptionTrees(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws IOException, ServletException {
         response.setContentType("text/xml; charset=UTF-8");
@@ -628,7 +624,7 @@ public class DIController extends HttpServlet {
 
         if (mapping != null) {
             mapping = new String(mapping.replace("\"", "\\\""));
-            System.out.println("==== mapping=" + mapping.substring(0, 500));
+            //System.out.println("==== mapping=" + mapping.substring(0, 500));
         }
 
         request.setAttribute("mapping", mapping);
@@ -691,7 +687,7 @@ public class DIController extends HttpServlet {
 
         if (mapping != null) {
             mapping = new String(mapping.replace("\"", "\\\""));
-            System.out.println("==== mapping=" + mapping.substring(0, 500));
+            //System.out.println("==== mapping=" + mapping.substring(0, 500));
         }
 
         request.setAttribute("mapping", mapping);
@@ -727,18 +723,17 @@ public class DIController extends HttpServlet {
         if (!centralTree.equalsIgnoreCase(dataannotations.getXbrl()) && dataannotations.getXbrl() != null) {
             xbrl_mismatch = dataannotations.getXbrl() + "$" + centralTree;
         }
-
-        System.out.println("xsdTypes olele olala: " + xsdTypes);
-        xsdTypes = removeTypes(xsdTypes);
+        
+        // Prepare JSON so as to import the xsd of the web service to mediator Portal
+        Parser parser = new Parser();
+        xsdTypes = parser.removeTypes(xsdTypes);
         JSONObject o = new JSONObject();
         o.put("modelId", service_id + "_" + choice);
         o.put("description", service_id + "_" + choice);
         o.put("format", "XSD");
         o.put("content", xsdTypes);
         
-        //this.forwardToPage("/proceedDataTree.jsp?schema_id=-1&service_id="+ service_id+"&xbrl_mismatch="+xbrl_mismatch, request, response);
         this.forwardToPage("/proceedDataTree.jsp?schema_id=-1&service_id=" + service_id + "&xbrl_mismatch=" + xbrl_mismatch + "&data=" + o.toString(), request, response);
-
     }
 
     protected void manageVendorSchemaReg(HttpServletRequest request, HttpServletResponse response, HttpSession session)
@@ -762,7 +757,11 @@ public class DIController extends HttpServlet {
             this.forwardToPage("/error/generic_error.jsp?errormsg=op_not_supported_for_you", request, response);
         }
     }
-
+    
+    
+    /*
+     * Treat response from Annotator tool. Insert dataannotations / cvp or cpp
+     */
     protected void managePostMappings(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws IOException, ServletException {
         Integer cvpID = -1;
@@ -801,12 +800,11 @@ public class DIController extends HttpServlet {
         isFullyMatched = (service_id != -1) ? mainControlDB.isFullyMatched(0, service_id, cvpID) : false;
         this.forwardToPage("/annotationResult.jsp?schema_id=" + schema_id + "&service_id=" + service_id + "&dataannotation=true", request, response);
 
-
-
-
-
     }
-
+    
+    /*
+     * Prepare the jsp page that facilitates bridging of schemas
+     */
     protected void manageBridgingSchemas(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws ServletException, IOException {
 
@@ -817,7 +815,10 @@ public class DIController extends HttpServlet {
 
         }
     }
-
+    
+    /*
+     * Prepare the jsp page that facilitates bridging of services
+     */
     protected void manageBridgingServices(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws ServletException, IOException {
 
@@ -851,10 +852,7 @@ public class DIController extends HttpServlet {
                 }
                 session.setAttribute("softwarecomponents", json_softwareComp);
             }
-
-
             this.forwardToPage("/organization/showAvailableServices.jsp?software_id=" + software_id, request, response);
-
         }
     }
 
@@ -889,7 +887,10 @@ public class DIController extends HttpServlet {
         out.write("<h2>Available Source Schemas for the software component: " + software_name + "<h2>");
         out.flush();
     }
-
+    
+    /*
+     * show current sotware component name and version. usefull for the showAvailableSources/Services page
+     */
     protected void showcurrentsoftcomp(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws ServletException, IOException {
 
@@ -956,7 +957,11 @@ public class DIController extends HttpServlet {
 
         return;
     }
-
+    
+    
+   /*
+    * Prepare JSON so as to import the xsd of the schema to mediator Portal
+    */ 
     protected void getSchemaInfo(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws ServletException, IOException {
 
@@ -988,41 +993,7 @@ public class DIController extends HttpServlet {
 
     }
 
-    // remove types attribute from extractes schema so as to accept it the Mediation Portal
-    protected String removeTypes(String xsdtypes) throws TransformerConfigurationException, TransformerException {
-         StreamResult result = null;
-        //get the factory
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        try {
-            //Using factory get an instance of document builder
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            //parse using builder to get DOM representation of the XML file
-            Document dom = db.parse(new InputSource(new StringReader(xsdtypes)));
-
-            // Get a list of all elements in the document
-            NodeList list = dom.getElementsByTagName("*");
-            for (int i = 0; i < list.getLength(); i++) {
-                // Get element
-                Element element = (Element) list.item(i);
-                element.removeAttribute("type");
-            }
-
-            Transformer transformer = TransformerFactory.newInstance().newTransformer();
-            result = new StreamResult(new StringWriter());
-            DOMSource source = new DOMSource(dom);
-            transformer.transform(source, result);
-
-        } catch (ParserConfigurationException pce) {
-            pce.printStackTrace();
-        } catch (SAXException se) {
-            se.printStackTrace();
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
-
-        return result.getWriter().toString();
-
-    }
+   
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**

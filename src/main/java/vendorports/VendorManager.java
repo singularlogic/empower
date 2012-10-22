@@ -23,7 +23,6 @@ import javax.wsdl.WSDLException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 import maincontrol.MainControlDB;
-import maincontrol.MediationPortalCommunicator;
 import net.sf.json.JSONObject;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
@@ -185,7 +184,6 @@ public class VendorManager extends HttpServlet {
 
         System.out.println("message"+message);
 
-        
         this.forwardToPage("/vendor/succDeleteSchema.jsp?message="+message+"&operationsToDelete="+operationsToDelete, request, response);
 
 
@@ -281,20 +279,16 @@ public class VendorManager extends HttpServlet {
             if (item.isFormField()) {
                 if (item.getFieldName().equals("software_id")) {
                     software_id = Integer.parseInt(item.getString());
-                    System.out.println("software_id " + software_id);
                 } else if (item.getFieldName().equals("schema_name")) {
-                    schemaName = new String(item.getString());
-                    System.out.println("schema_name " + schemaName);
+                    schemaName = item.getString();
                 } else if (item.getFieldName().equals("web_service_name")) {
-                    web_service_name = new String(item.getString());
-                     System.out.println("web_service_name: " + web_service_name); 
+                    web_service_name = item.getString();
                 }else if (item.getFieldName().equals("new_web_service_name")) {
-                    new_web_service_name = new String(item.getString());
-                     System.out.println("new_web_service_name: " + new_web_service_name); 
+                    new_web_service_name = item.getString();
                 }else if (item.getFieldName().equals("operation_name")) {
-                    operation_name = new String(item.getString());
+                    operation_name = item.getString();
                 } else if (item.getFieldName().equals("inputoutput")) {
-                    inputoutput = new String(item.getString());
+                    inputoutput = item.getString();
                 }
 
             } else {
@@ -353,19 +347,14 @@ public class VendorManager extends HttpServlet {
 
                 if (item.getFieldName().equals("software_id")) {
                     software_id = Integer.parseInt(item.getString());
-                    System.out.println("lala_software_id " + software_id);
                 } else if (item.getFieldName().equals("service_name")) {
-                    service_name = new String(item.getString());
-                     System.out.println("service_name: " + service_name); 
+                    service_name = item.getString(); 
                 } else if (item.getFieldName().equals("service_namespace")) {
-                    service_namespace = new String(item.getString());
-                     System.out.println("service_namespace: " + service_namespace); 
+                    service_namespace = item.getString();
                 }
             } else {
-                System.out.println("Here we put the file ");
-
                 serviceFilename = new String(this.xml_rep_path + "/wsdl/" + software_id + "_" + service_name + "_" + ((int) (100000 * Math.random())) + ".wsdl");
-                System.out.println("serviceFilename: " + serviceFilename);
+
                 File uploadedFile = new File(serviceFilename);
                 item.write(uploadedFile);
             }
