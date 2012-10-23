@@ -33,7 +33,7 @@
                      return text;
                 }
                 }).responseText;  
-                 $("#response").html("<p>Your schema is also placed in <a  target=\"_blank\" href=\"http://54.247.114.191/net.modelbased.mediation.gui-0.0.1-SNAPSHOT/repositories.html\">Mediator Portal</a>.</p>");
+                 $("#response").html("<p>Your schema is also placed in <a  target=\"_blank\" href=\"http://54.247.114.191/net.modelbased.mediation.gui-0.0.1-SNAPSHOT/repositories.html\">Mediator Portal</a>  as "+<%=request.getParameter("data")%>.modelId+".</p>");
             });
         </script>    
         <title>Presenting service in tree form</title>
@@ -113,7 +113,7 @@
                     <input type='hidden' name='mapping' id="mapping" value='<%=request.getAttribute("mapping")%>'>
                     <input type="submit" value="Continue" name="annotate_button">
                 </form>
-                    <div id="response"></div>   
+                    <div id="response" style="margin-top: 50px;"></div>   
 
             </div>
         </div>

@@ -292,8 +292,6 @@ public class VendorManager extends HttpServlet {
                 }
 
             } else {
-                System.out.println("Here we put the file ");
-
                 schemaFilename = new String(this.xml_rep_path + "/xsd/" + software_id + "_" + schemaName + "_" + ((int) (100000 * Math.random())) + ".xsd");
                 System.out.println("schemaFilename: " + schemaFilename);
                 File uploadedFile = new File(schemaFilename);

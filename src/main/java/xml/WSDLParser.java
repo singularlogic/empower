@@ -179,12 +179,7 @@ public class WSDLParser
           Iterator keyIterator;
           int ind = 0;
           String messageQname = null;
-/*          
-          while (opIterator.hasNext())
-          {
-                System.out.println(ind++);
- * 
- */
+
                 Operation operation = boperation.getOperation();
 
                 if (!operation.isUndefined())
@@ -193,9 +188,6 @@ public class WSDLParser
 
                     //strip namespace info
                     messageQname = operation.getInput().getMessage().getQName().toString().replaceAll("\\{.*\\}", "");
-
-//                    out.write("<item text=\"" +  messageQname
-//                              + "\" id=\"" + messageQname + "\" nocheckbox=\"true\">");
                     
                     System.out.print(" -" + messageQname + " ");
                     while(keyIterator.hasNext())
@@ -221,10 +213,8 @@ public class WSDLParser
                         
                         out.write("<item text=\"" +
                               messagePart.getName() + "\" id=\"input$" + messageType + "$" + operationName + "$" + bindingName + "\"/>");                                 
-//                              messagePart.getName() + "\" id=\"input_" + messagePart.getName() + "_" + operationName + "_" + bindingName + "\"/>"); 
                     }
                     
-//                    out.write("</item>");
 
                     keyIterator = operation.getOutput().getMessage().getParts().keySet().iterator();
                     messageQname = operation.getOutput().getMessage().getQName().toString().replaceAll("\\{.*\\}", "");
@@ -257,14 +247,12 @@ public class WSDLParser
                     
                         out.write("<item text=\"" +
                               messagePart.getName() + "\" id=\"output$" + messageType + "$" + operationName + "$" + bindingName + "\"/>");
-                                
-//                              messagePart.getName() + "\" id=\"output_" + messagePart.getName() + "_" + operationName + "_" + bindingName + "\"/>");                                
+                                                                
                         
                     }
                     
                     out.write("</item>");
                 }
-//          }
           
           out.write("</item>");
     }
@@ -682,7 +670,6 @@ public class WSDLParser
         try
         {
              out.write("<item text=\"" +service_name  +"\" id=\"" + service_id + "\" nocheckbox=\"true\">");
-            //String elaaa = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<tree id=\"0\">";
                                             
             servicePorts = returnServicePorts();
             portsIterator = servicePorts.keySet().iterator();
@@ -696,9 +683,7 @@ public class WSDLParser
 
                 out.write("<item text=\"" + portName +
                           "\" id=\"" +service_id+"$"+ portName + "\" nocheckbox=\"true\">");
-                
-                //elaaa = elaaa + "<item text=\"" + portName +
-                //          "\" id=\"" + portName + "\" nocheckbox=\"true\">";
+      
                 
                 portBinding = returnBinding(portName);
 
@@ -709,8 +694,7 @@ public class WSDLParser
                 out.write("<item text=\"" + binding +
                           "\" id=\""+service_id+"$" + binding +"\" nocheckbox=\"true\">");
 
-                  //elaaa = elaaa + "<item text=\"" + binding +
-                  //         "\" id=\"" + binding +"\" nocheckbox=\"true\">";
+                
 
                 operationIterator = this.returnBindingsOperations(portName);
                 while(operationIterator.hasNext())
@@ -724,25 +708,17 @@ public class WSDLParser
                         out.write("<item text=\"" + operationName +
                                   "\" id=\"" +service_id+"$"+operationName + "\"/>");
                         
-                          //elaaa = elaaa + "<item text=\"" + operationName +
-                           //        "\" id=\"" + operationName + "\"/>";
-                        
-                        //outputPortMessages(operationName, binding, out);
                 }
                 internalIdNum++;
                 out.write("</item>");
-                 //elaaa = elaaa + "</item>";
+                
 
                 idNum++;
                 out.write("</item>");
-                // elaaa = elaaa + "</item>";
+               
             }
             out.write("</item>");
-            //out.write("</tree>");
-             //elaaa = elaaa + "</tree>";
-            //out.close();
-            
-            //System.out.println("OUUUUUUTTTT: "+elaaa);
+           
         }
         catch(Throwable t)
         {

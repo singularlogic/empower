@@ -105,7 +105,11 @@ public class OrganizationManager extends HttpServlet {
                     this.getModelsForComparation(request, response, session);
                 } else if (operation.equals("getModelsForComparationSchema")) {
                     this.getModelsForComparationSchema(request, response, session);
+                } else if (operation.equals("getModelsForComparationSchemaXBRL")) {
+                    this.getModelsForComparationSchemaXBRL(request, response, session);
                 }
+                
+                
 
             }
         } catch (Throwable t) {
@@ -977,6 +981,37 @@ public class OrganizationManager extends HttpServlet {
          response.setCharacterEncoding("UTF-8");
          response.getWriter().write(new Gson().toJson(schemasToCompare));
     }
+    
+     /*
+      *  service info in the form: ex. attributes--Inputoutput--schemaOperation_id--taxonomy--schemaCvp_id--schemaService_id--Schema_id--Selections--Xbrl
+      * Absence--input--86--Demand_Supply_Planning--152--76--39--input$Absence--entryDetailComplexType
+      */
+    protected void getModelsForComparationSchemaXBRL(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws IOException, ServletException, WSDLException {
+               
+        MainControlDB mainControlDB = new MainControlDB();
+        JSONObject schemasToCompare = new JSONObject();
+
+        String source_schema_id = request.getParameter("schema_id");
+        
+        if (!source_schema_id.equalsIgnoreCase("null")){
+             System.out.println("source_schema_id "+source_schema_id);
+        Schema source_schema = mainControlDB.getSchema(Integer.parseInt(source_schema_id));
+        String source_schema_name = source_schema.getName();
+        System.out.println("source_schema_name "+source_schema_name);
+            
+         
+         schemasToCompare.put("source_schema", source_schema_id + "_" + source_schema_name);
+            
+            }
+       
+                  
+         response.setContentType("application/json");
+         response.setCharacterEncoding("UTF-8");
+         response.getWriter().write(new Gson().toJson(schemasToCompare));
+    }
+    
+   
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**

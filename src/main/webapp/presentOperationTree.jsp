@@ -72,12 +72,12 @@
            </script>
          </div>
         </div>    
-            <div class="main-content"> 
-                <br>
+            <div class="main-content" style="width: 650px;"> 
+                 <div style="float: left;width:240px;margin-right: 10px;">
                 <p><h2>Operations</h2>
                 
                 <br>            
-                <div id="box_tree" style="width:500px; height:300px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;"/>
+                <div id="box_tree" style="width:230px; height:300px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;"/>
                 <script>
                         tree = new dhtmlXTreeObject("box_tree", "100%", "100%", 0);
                         tree.setImagePath("./js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
@@ -91,10 +91,11 @@
                         </script>
                 </div>
                 
-                <br>
+              </div>
+              <div style="float: left;width:240px;">
                 <p><h2>Operations Taxonomy</h2>
                 <br>
-                <div id="box_tree_func" style="width:500px; height:300px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;"/>
+                <div id="box_tree_func" style="width:230px; height:300px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;"/>
                 <script>
                         treeFunc = new dhtmlXTreeObject("box_tree_func", "100%", "100%", 0);
                         treeFunc.setImagePath("./js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
@@ -105,7 +106,8 @@
                 </script>
                 </div>     
 
-                <br><br>
+               </div>
+                 <div style="float:left;margin-bottom: 20px;margin-left: 15px; margin-top: 290px;">
                 <form method="post" name="annotationf" action="./DIController?op=annotate_operations" onClick="return replaceValue();">
                     
                     <input type='hidden' name='schema_id' value='<%= request.getParameter("schema_id") %>'>
@@ -113,8 +115,10 @@
                     <input type='hidden' name='selections' value='null'>
                     <input type='hidden' name='funcselections' value='null'>
                     
-                    <input type="submit" value="Annotate" name="annotate_button">
+                    <!--<input type="submit" value="Annotate" name="annotate_button">-->
+                    <input TYPE="image" src="./img/Annotate.png" name="annotate_button"/>
                 </form>
+                </div>
             </div>
     </div>
             <div class="footer"><p>Copyright &copy; 2011 EMPOWER Consortium | All Rights Reserved</p></div>

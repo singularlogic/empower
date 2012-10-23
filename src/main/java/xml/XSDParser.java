@@ -33,9 +33,7 @@ public class XSDParser  {
         
          File x = new File(schema.getLocation());
          SAXParserFactory f = SAXParserFactory.newInstance();
-         //System.out.println(f.toString());
          SAXParser p = f.newSAXParser();
-         //System.out.println(p.toString());
          myParser handler = new myParser();
          p.parse(x, handler);
             
@@ -46,9 +44,7 @@ public class XSDParser  {
         
          File x = new File(schema.getLocation());
          SAXParserFactory f = SAXParserFactory.newInstance();
-         //System.out.println(f.toString());
          SAXParser p = f.newSAXParser();
-         //System.out.println(p.toString());
          myParser handler = new myParser();
          p.parse(x, handler);
             
@@ -63,15 +59,13 @@ public class XSDParser  {
     public ArrayList<String> xmlToReturn = new ArrayList<String>();
     public ArrayList<String> elementsList = new ArrayList<String>();
     String xmlToString;
-    //String schema;
     
     public String getXML(){
         Iterator<String> xml_it = xmlToReturn.iterator();
         while (xml_it.hasNext()){
         xmlToString += (xml_it.next());
-        
         }
-        System.out.println("xmlToString of getXML() : "+xmlToString);
+        //System.out.println("xmlToString of getXML() : "+xmlToString);
 
         return xmlToString;
     }
@@ -121,11 +115,8 @@ public class XSDParser  {
         if (qName.equals("xs:complexType")) {
             xmlToReturn.add("</item>");
         }
-        
         if (qName.equals("xs:schema")) {
             xmlToReturn.add("</item></item></item></tree>");
-           //System.out.println(xmlToReturn);
-
         }
         
     }
@@ -137,31 +128,13 @@ public class XSDParser  {
             complexTypefl = false;
         }
         if (schemafl) {
-            //schema = new String(ch, start, length);
             schemafl = false;
         }
         if (elementfl) {
-            //schema = new String(ch, start, length);
             schemafl = false;
         }
     }
     
     }
-    
-    
 
-    public static void main(String[] args) throws FileNotFoundException, ParserConfigurationException, SAXException, IOException {
-
-       
-            String pathname = "/home/eleni/Desktop/semantix and stuff folder/filesystem/semantix_rep/xsd_tmp/source_changed_empower.xsd";
-            String xmltostring;
-            //XSDParser p = new XSDParser();
-            //xmltostring = p.convertSchemaToXML(pathname);            
-           // System.out.println("Aqui llega?"+xmltostring);
-
-
-
-    }
-
- 
 }

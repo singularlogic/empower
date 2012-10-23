@@ -40,9 +40,9 @@
                      return text;
                 }
                 }).responseText;  
-                 $("#response").html("<p>Your schema was also introduced in <a  target=\"_blank\" href=\"http://54.247.114.191/net.modelbased.mediation.gui-0.0.1-SNAPSHOT/repositories.html\">Mediator Portal</a> with <a target=\"_blank\" href=\"http://54.247.114.191"+response+"\">this</a> structure.</p>");
+                 $("#response").html("<p>Your schema was also introduced in <a  target=\"_blank\" href=\"http://54.247.114.191/net.modelbased.mediation.gui-0.0.1-SNAPSHOT/repositories.html\">Mediator Portal</a> with the name: "+response.split("/")[5]+".</p>");
                 });   
-               //}else if (action=="delete") alert("i will delete you!!");
+               
             });
         </script> 
     </head> 
@@ -89,7 +89,7 @@
                 <% if (!request.getParameter("message").isEmpty()) {%>
                 <p><%=request.getParameter("message")%></p>
                 <% }%>
-                <div id="response"></div>
+                <div id="response" style="margin-top: 50px;"></div>
             </div>
         </div>
         <div class="footer"><p>Copyright &copy; 2012 Empower Consortium | All Rights Reserved</p></div>
