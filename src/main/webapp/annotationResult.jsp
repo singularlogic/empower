@@ -1,4 +1,5 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@include file="timedoutRedirect.jsp" %>
 <!DOCTYPE html>
 <html>
 <head>    
@@ -6,9 +7,9 @@
 <title>Annotation result</title>
         <link rel="stylesheet" type="text/css" href="./style/menu_style.css"/>
         <link rel="stylesheet" type="text/css" href="./style/layout4_setup.css"/>        
-        <link rel="stylesheet" type="text/css" href="./style/layout4_text_simple.css"/>
         <link rel="stylesheet" type="text/css" href="./style/container.css"/>
 	<link rel="stylesheet" type="text/css" href="./js/dhtmlxSuite/dhtmlxTree/codebase/dhtmlxtree.css">
+        <link rel="stylesheet" type="text/css" href="js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgrid.css">
 	<script src="./js/dhtmlxSuite/dhtmlxTree/codebase/dhtmlxcommon.js"></script>
 	<script src="./js/dhtmlxSuite/dhtmlxTree/codebase/dhtmlxtree.js"></script>
         <script src="./js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxcommon.js"></script>
@@ -32,13 +33,13 @@
                 </div><!-- Navigation Level 1 top menu links-->
                 <div class="nav1">
                     <ul>
-                        <li><a href="./" title="Go to Start page">Home</a></li>
-                        <li><a href="./" title="Get in touch with us">Contact</a></li>
+                        <li><a href="./" title="Go to Start page"></a></li>
+                        <li><a href="./" title="Get in touch with us"></a></li>
                     </ul>
                 </div>
             </div><!-- A.2 HEADER MIDDLE -->
             <div class="header-middle"><!-- Site message --><div class="sitemessage"><h1 style="float:right">Empower PROJECT</h1><h2 style="width:450px">A Semantic Service-Oriented Enterprise Application Integration Middleware Addressing the Needs of the European SMEs</h2></div></div>                                    
-            <div class="header-bottom"><!-- Navigation Level 2 (Drop-down menus) --><div class="nav2"><ul><li id="current" class="last"><a href="actions.jsp?action=tabSelect&amp;tabIndex=0&amp;menuitemId=tabA">Home</a></li></ul></div></div>
+            <div class="header-bottom"><!-- Navigation Level 2 (Drop-down menus) --><div class="nav2"><ul><li id="current" class="last"><a href="actions.jsp?action=tabSelect&amp;tabIndex=0&amp;menuitemId=tabA"></a></li></ul></div></div>
             <div class="header-breadcrumbs"><ul></ul></div>
         </div>   
         </div>

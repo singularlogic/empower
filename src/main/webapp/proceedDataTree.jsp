@@ -1,4 +1,5 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@include file="timedoutRedirect.jsp" %>
 <!DOCTYPE html>
 <html>
     <head>  
@@ -13,10 +14,8 @@
             jQuery(document).ready(function(){
                 xbrl_mismatch = '<%=request.getParameter("xbrl_mismatch")%>';
                 if (xbrl_mismatch!="false"){
-                    
                     back= ('<%=request.getParameter("service_id")%>'=='-1')?'schema_id=<%=request.getParameter("schema_id")%>':'service_id=<%=request.getParameter("service_id")%>';
-                    
-                    $("#xbrl_mismatch").html("<p>You have choosed to annotate your data with a different xbrl entity(<i>"+xbrl_mismatch.split("$")[1]+"</i>) than the previous time(<i>"+xbrl_mismatch.split("\\$")[0]+"</i>). This means that you will loose your data from the previous mapping.)</p>\n\
+                   $("#xbrl_mismatch").html("<p>You have choosed to annotate your data with a different xbrl entity(<i>"+xbrl_mismatch.split("\\$")[1]+"</i>) than the previous time(<i>"+xbrl_mismatch.split("\\$")[0]+"</i>). This means that you will loose your data from the previous mapping.)</p>\n\
 </br><p>Press <a href='presentDataTree.jsp?"+back+"'>here</a>  to bo back or the continue button to proceed</p>");
 
                 }
@@ -66,13 +65,13 @@
                     </div><!-- Navigation Level 1 top menu links-->
                     <div class="nav1">
                         <ul>
-                            <li><a href="./" title="Go to Start page">Home</a></li>
-                            <li><a href="./" title="Get in touch with us">Contact</a></li>
+                            <li><a href="./" title="Go to Start page"></a></li>
+                            <li><a href="./" title="Get in touch with us"></a></li>
                         </ul>
                     </div>
                 </div><!-- A.2 HEADER MIDDLE -->
                 <div class="header-middle"><!-- Site message --><div class="sitemessage"><h1 style="float:right">Empower PROJECT</h1><h2 style="width:450px">A Empower Service-Oriented Enterprise Application Integration Middleware Addressing the Needs of the European SMEs</h2></div></div>
-                <div class="header-bottom"><!-- Navigation Level 2 (Drop-down menus) --><div class="nav2"><ul><li id="current" class="last"><a href="actions.jsp?action=tabSelect&amp;tabIndex=0&amp;menuitemId=tabA">Home</a></li></ul></div></div>
+                <div class="header-bottom"><!-- Navigation Level 2 (Drop-down menus) --><div class="nav2"><ul><li id="current" class="last"><a href="actions.jsp?action=tabSelect&amp;tabIndex=0&amp;menuitemId=tabA"></a></li></ul></div></div>
                 <div class="header-breadcrumbs"><ul></ul></div>
             </div>
         </div>
@@ -95,7 +94,7 @@
                 <p><h2>Information</h2>
                 <br>
                 <div id="xbrl_mismatch"></div>
-                <form method="post" id="callannotator" name="callannotator" action="http://127.0.0.1:8080/annotator/editor.jsp" onClick="checkform();">
+                <form method="post" id="callannotator" name="callannotator" action="../annotator/editor.jsp" onClick="checkform();">
                     <input type='hidden' name='schema_id' value='<%= request.getParameter("schema_id")%>'>
                     <input type='hidden' name='service_id' value='<%= request.getParameter("service_id")%>'>
                     <input type='hidden' name='input'  value='<%=request.getAttribute("input")%>'>

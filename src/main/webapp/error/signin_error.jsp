@@ -24,8 +24,8 @@
                         </div><!-- Navigation Level 1 top menu links-->
                         <div class="nav1">
                             <ul>
-                                <li><a href="./" title="Go to Start page">Home</a></li>
-                                <li><a href="./" title="Get in touch with us">Contact</a></li>
+                                <li><a href="./" title="Go to Start page"></a></li>
+                                <li><a href="./" title="Get in touch with us"></a></li>
                             </ul>
                         </div>
                     </div><!-- A.2 HEADER MIDDLE -->
@@ -37,7 +37,7 @@
             <div class="main">
                 <div class="main-content">
                     <br>
-                    <h2>User login</h2>
+                    <h2>User login</h2><div style="font-size: 8px;">if you don't have a user account please <a href="signup.jsp">signup</a></div>
                     <form method="POST" action="DIController?op=signin" name="signin" >
                         <table>
                             <tbody>

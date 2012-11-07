@@ -28,28 +28,42 @@ public class OrgDBConnector {
     
     public Collection getSoftwareComponents()
     {
-        ResultSet rs;
+        ResultSet rs, rsServ, rsSchemas;
         LinkedList<SoftwareComponent> compList = new LinkedList<SoftwareComponent>();
-        
-	try{
-            
-            this.dbHandler.dbOpen();
-            
-            rs = this.dbHandler.dbQuery("select * from softwarecomponent;");
+       try {
 
-            if(rs != null)
-            {
-                while(rs.next())
-                    compList.add(new SoftwareComponent(rs.getString("name"),rs.getString("version"),rs.getInt("software_id")));
+            this.dbHandler.dbOpen();
+            rs = this.dbHandler.dbQuery("select a.name as name, a.version as version, a.software_id as software_id from softwarecomponent a");
+
+            dbConnector dbHand = new dbConnector();
+
+            dbHand.dbOpen();
+
+            if (rs != null) {
+                while (rs.next()) {
+
+                    rsSchemas = dbHand.dbQuery("select count(s.schema_id) as schemas_num from operation o LEFT JOIN web_service ws on o.service_id=ws.service_id LEFT JOIN operation_schema os  on o.operation_id = os.operation_id LEFT JOIN schema_xsd  s  on os.schema_id = s.schema_id where ws.software_id=" + rs.getString("software_id"));
+                    int schemas_num = (rsSchemas.next()) ? rsSchemas.getInt("schemas_num") : 0;
+                    rsSchemas.close();
+
+                    rsServ = dbHand.dbQuery("select count(ws.service_id) as services_num from  web_service ws where ws.software_id=" + rs.getString("software_id")+ "  AND ws.wsdl IS NOT NULL");
+                    int services_num = (rsServ.next()) ? rsServ.getInt("services_num") : 0;
+                    rsServ.close();
+
+                    compList.add(new SoftwareComponent(rs.getString("name"),
+                            rs.getString("version"),
+                            schemas_num,
+                            services_num,
+                            rs.getInt("software_id")));
+                }
             }
+
             rs.close();
-            
+
             this.dbHandler.dbClose();
-	}
-	catch(Throwable t)
-	{
-		t.printStackTrace(); 
-	}
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
 
         return compList;
     }

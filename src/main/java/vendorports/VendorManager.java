@@ -39,7 +39,10 @@ import xml.XSDParser;
 public class VendorManager extends HttpServlet {
 
     private PrintWriter out;
-    private static String xml_rep_path = "/home/eleni/Documents/ubi/empower/empower-deliverable-september/empower";
+    //This is a sin
+    //private static String xml_rep_path = "/var/www/empower/empowerdata/";
+    private static String xml_rep_path = "/home/eleni/Documents/ubi/empower/empower-deliverable-september/empower/";
+    
 
     /**
      * Processes requests for both HTTP
@@ -263,7 +266,7 @@ public class VendorManager extends HttpServlet {
 
         // Set factory constraints
         factory.setSizeThreshold(30000);
-        factory.setRepository(new File("/home/eleni/Desktop/"));
+        factory.setRepository(new File(""));
         ServletFileUpload upload = new ServletFileUpload(factory);
 
         upload.setSizeMax(30000);

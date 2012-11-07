@@ -1,4 +1,5 @@
 <%@page import="net.sf.json.JSONObject"%>
+<%@include file="timedoutRedirect.jsp" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -53,12 +54,17 @@
                     var text = res.responseText;
                     return text;
                     }
-                    }).responseText;                
+                    }).responseText;  
+                   if (!response){
+                     alert("Please proceed with the annotation proccess so as to import the input schema to Mediator before comparing it with the XBRL taxonomy!");       
+                   } else if (response.substring(0, 9) == "/sensapp/"){
                    $("#response").html("<p>In case your Browser does not permit pop-up functionality you can see the \n\
                    mapping results in <a  target=\"_blank\" href=\"http://54.247.114.191/net.modelbased.mediation.gui-0.0.1-SNAPSHOT/repositories.html\">Mediator Portal</a> (Mappings section) looking for the following code <i>"+response.split("/")[5]+"</i></p>");
                    var caracteristicas = "height=500,width=750,scrollTo,resizable=1,scrollbars=1,location=0";
                    nueva=window.open('./organization/matchingResult.jsp?mediator_mapping='+response, 'Popup', caracteristicas);
-                   
+                   }else{
+                         alert("The input schema can not be compared with XBRL Taxonomy by Mediator Portal due to it's excessive depth! Please proceed with the Annotation proccess!");       
+                   }
                     });                      
                  
                 
@@ -95,13 +101,13 @@
                 </div><!-- Navigation Level 1 top menu links-->
                 <div class="nav1">
                     <ul>
-                        <li><a href="./" title="Go to Start page">Home</a></li>
-                        <li><a href="./" title="Get in touch with us">Contact</a></li>
+                        <li><a href="./" title="Go to Start page"></a></li>
+                        <li><a href="./" title="Get in touch with us"></a></li>
                     </ul>
                 </div>
             </div><!-- A.2 HEADER MIDDLE -->
             <div class="header-middle"><!-- Site message --><div class="sitemessage"><h1 style="float:right">Empower PROJECT</h1><h2 style="width:450px">A Empower Service-Oriented Enterprise Application Integration Middleware Addressing the Needs of the European SMEs</h2></div></div>
-            <div class="header-bottom"><!-- Navigation Level 2 (Drop-down menus) --><div class="nav2"><ul><li id="current" class="last"><a href="actions.jsp?action=tabSelect&amp;tabIndex=0&amp;menuitemId=tabA">Home</a></li></ul></div></div>
+            <div class="header-bottom"><!-- Navigation Level 2 (Drop-down menus) --><div class="nav2"><ul><li id="current" class="last"><a href="actions.jsp?action=tabSelect&amp;tabIndex=0&amp;menuitemId=tabA"></a></li></ul></div></div>
             <div class="header-breadcrumbs"><ul></ul></div>
         </div>
         </div>
@@ -162,8 +168,10 @@
                 </form>
                  </div>
                     
-                    
+                       
             </div>
+            <div id="response" style="clear: both; width: 500px;font-size: 10px;padding-top: 20px; padding-left: 50px;"></div>    
+          
     </div>
             <div class="footer"><p>Copyright &copy; 2012 Empower Consortium | All Rights Reserved</p></div>
     </center>                

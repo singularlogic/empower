@@ -1,5 +1,6 @@
 <%@page import="net.sf.json.JSONObject"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@include file="timedoutRedirect.jsp" %>
 <!DOCTYPE html>
 <html>
     <head>

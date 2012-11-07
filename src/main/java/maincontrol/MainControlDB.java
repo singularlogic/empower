@@ -372,7 +372,7 @@ public class MainControlDB {
                         : this.dbHandler.dbUpdate("insert into dataannotations (xslt_annotations,mapping,selections,cvp_id,xbrl) values ('" + annotations + "','" + json + "','" + selections + "'," + cvp_id + ",'" + xbrlType + "');");
 
                 System.out.println(" create dataannotations:" + dataannotations_id);
-            }
+                 }
 
             this.dbHandler.dbClose();
         } catch (Throwable t) {

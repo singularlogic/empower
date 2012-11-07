@@ -319,7 +319,7 @@ public class VendorDBConnector {
                     int schemas_num = (rsSchemas.next()) ? rsSchemas.getInt("schemas_num") : 0;
                     rsSchemas.close();
 
-                    rsServ = dbHand.dbQuery("select count(ws.service_id) as services_num from  web_service ws where ws.software_id=" + rs.getString("software_id"));
+                    rsServ = dbHand.dbQuery("select count(ws.service_id) as services_num from  web_service ws where ws.software_id=" + rs.getString("software_id")+ "  AND ws.wsdl IS NOT NULL");
                     int services_num = (rsServ.next()) ? rsServ.getInt("services_num") : 0;
                     rsServ.close();
 

@@ -127,22 +127,30 @@ public class Parser {
 
         org.dom4j.Element root = document.getRootElement();
         String element_name = "";
+        LinkedList<String> elementsXML = new LinkedList<String>();
+        LinkedList<String> xmlnodes = new LinkedList<String>();
 
         for (Iterator i = root.elementIterator(); i.hasNext();) {
             org.dom4j.Element element = (org.dom4j.Element) i.next();
             element_name = element.getName();
+         
+            if (!elementsXML.contains(element_name)) elementsXML.add(element_name);
+             System.out.println("ti tha tiposeis tora?: " + element_name);
+             
         }
-
-        List elementstoprint = root.elements(element_name);
-
-        LinkedList<String> xmlnodes = new LinkedList<String>();
+        
+        Iterator iteratorelementsXML = elementsXML.iterator();
+         while (iteratorelementsXML.hasNext()) {
+         List elementstoprint = root.elements((String)iteratorelementsXML.next());
+        
         Iterator il = elementstoprint.iterator();
         while (il.hasNext()) {
             org.dom4j.Element element = (org.dom4j.Element) il.next();
-            System.out.println("ElementsasXML: " + element.getName() + "   " + element.asXML());
+            //System.out.println("ElementsasXML: " + element.getName() + "   " + element.asXML());
             xmlnodes.add(element.asXML());
         }
-
+         
+         }
 
         return xmlnodes;
 

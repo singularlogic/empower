@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
-        <servlet>
+    <servlet>
         <servlet-name>DIController</servlet-name>
         <servlet-class>maincontrol.DIController</servlet-class>
     </servlet>
-     <servlet>
+    <servlet>
         <servlet-name>signin</servlet-name>
         <jsp-file>/WEB-INF/signin.jsp</jsp-file>
     </servlet>
@@ -16,7 +16,7 @@
         <servlet-name>VendorManager</servlet-name>
         <servlet-class>vendorports.VendorManager</servlet-class>
     </servlet>
-     <servlet>
+    <servlet>
         <servlet-name>OrganizationManager</servlet-name>
         <servlet-class>orgports.OrganizationManager</servlet-class>
     </servlet>
@@ -24,7 +24,6 @@
         <servlet-name>registration</servlet-name>
         <jsp-file>/WEB-INF/vendor/software_reg.jsp</jsp-file>
     </servlet>
-    
     <servlet-mapping>
         <servlet-name>DIController</servlet-name>
         <url-pattern>/DIController</url-pattern>
@@ -50,9 +49,7 @@
         <url-pattern>/OrganizationManager</url-pattern>
     </servlet-mapping>
     <session-config>
-        <session-timeout>
-            30
-        </session-timeout>
+        <session-timeout>30</session-timeout>
     </session-config>
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>

@@ -46,7 +46,8 @@ import xml.XSDParser;
  */
 public class DIController extends HttpServlet {
 
-    private static String xml_rep_path = "/home/eleni/Documents/ubi/empower/empower-deliverable-september/empower";
+    //private static String xml_rep_path = "/var/www/empower/empowerdata/";
+    private static String xml_rep_path = "/home/eleni/Documents/ubi/empower/empower-deliverable-september/empower/";
 
     /**
      * Processes requests for both HTTP
@@ -277,9 +278,12 @@ public class DIController extends HttpServlet {
         }
 
         if (verifyUser("organization", session)) {
-
-            this.forwardToPage("/showSchemas.jsp?software_id=" + software_id, request, response);
-         }
+            if (xsd_num.equals("0")) {
+               this.forwardToPage("/info.jsp?message_code=1", request, response);
+            } else {
+                this.forwardToPage("/showSchemas.jsp?software_id=" + software_id, request, response);
+            }
+        }
     }
 
     protected void showSchemas(HttpServletRequest request, HttpServletResponse response, HttpSession session)
@@ -335,11 +339,23 @@ public class DIController extends HttpServlet {
         } else {
             session.setAttribute("services", "");
         }
-        // if software component with any service
-        if (service_num.equals("0")) {
+        
+        
+         if (verifyUser("vendor", session)) {
+           if (service_num.equals("0")) {
+            // if software component with any service
             this.forwardToPage("/vendor/serviceReg.jsp?software_id=" + software_id + "&jsp=false", request, response);
-        } else {
+         } else {
             this.forwardToPage("/showServices.jsp?software_id=" + software_id, request, response);
+         }
+         }
+         
+         if (verifyUser("organization", session)) {
+            if (service_num.equals("0")) {
+               this.forwardToPage("/info.jsp?message_code=2", request, response);
+            } else {
+                this.forwardToPage("/showServices.jsp?software_id=" + software_id, request, response);
+            }
         }
 
     }
@@ -405,7 +421,7 @@ public class DIController extends HttpServlet {
         }
 
     }
-    
+
     /*
      * Output the operations at schema level to XML
      */
@@ -493,7 +509,7 @@ public class DIController extends HttpServlet {
             this.annotateOperations_service(service_id, operation_name, funcSelections, name, userType);
             this.forwardToPage("/annotationResult.jsp?schema_id=-1&service_id=" + service_id + "&dataannotation=false", request, response);
         }
-      
+
     }
 
     protected boolean annotateOperations_schema(int schema_id, int operation_id, String funcSelections, String name, String userType) {
@@ -575,7 +591,6 @@ public class DIController extends HttpServlet {
         System.out.println("outputXML: " + response.getWriter());
     }
 
-    
     /*
      * Present parts of XBRL Taxonomy
      */
@@ -642,7 +657,6 @@ public class DIController extends HttpServlet {
         //we pass to the annotator the schema id as service id until only for the first deliverable of the empower project, so as not to double change the annotator without reason
         if (inputoutput.equals("output")) {
 
-            //response.sendRedirect(response.encodeRedirectURL("http://127.0.0.1:8080/annotator?input=xsd/XBRL-GL-PR-2010-04-12/plt/case-c-b-m/gl-cor-content-2010-04-12.xsd&output=xsd/" + filename + "&service_id=" + schema_id + "&map_type=cvp&outputType=" + schema_data +"&inputType=" + centralTree + "&mapping="+ mapping)); 
             request.setAttribute("output", "xsd/" + filename);
             request.setAttribute("input", "xsd/XBRL-GL-PR-2010-04-12/plt/case-c-b-m/gl-cor-content-2010-04-12.xsd");
             request.setAttribute("outputType", schema_data);
@@ -655,13 +669,11 @@ public class DIController extends HttpServlet {
             request.setAttribute("output", "xsd/XBRL-GL-PR-2010-04-12/plt/case-c-b-m/gl-cor-content-2010-04-12.xsd");
             request.setAttribute("outputType", centralTree);
             request.setAttribute("inputType", schema_data);
-
-            //request.setAttribute("selections", schema_data + "$" + centralTree);
         }
         if (!centralTree.equalsIgnoreCase(dataannotations.getXbrl()) && dataannotations.getXbrl() != null) {
             xbrl_mismatch = dataannotations.getXbrl() + "$" + centralTree;
         }
-        this.forwardToPage("/proceedDataTree.jsp?schema_id=" + schema_id + "&service_id=-1&xbrl_mismatch=" + xbrl_mismatch + "&data=-1", request, response);
+        this.forwardToPage("/proceedDataTree.jsp?schema_id=" + schema_id + "&service_id=-1&xbrl_mismatch=" + xbrl_mismatch + "&data=" + new JSONObject(), request, response);
 
     }
 
@@ -723,7 +735,7 @@ public class DIController extends HttpServlet {
         if (!centralTree.equalsIgnoreCase(dataannotations.getXbrl()) && dataannotations.getXbrl() != null) {
             xbrl_mismatch = dataannotations.getXbrl() + "$" + centralTree;
         }
-        
+
         // Prepare JSON so as to import the xsd of the web service to mediator Portal
         Parser parser = new Parser();
         xsdTypes = parser.removeTypes(xsdTypes);
@@ -732,7 +744,7 @@ public class DIController extends HttpServlet {
         o.put("description", service_id + "_" + choice);
         o.put("format", "XSD");
         o.put("content", xsdTypes);
-        
+
         this.forwardToPage("/proceedDataTree.jsp?schema_id=-1&service_id=" + service_id + "&xbrl_mismatch=" + xbrl_mismatch + "&data=" + o.toString(), request, response);
     }
 
@@ -757,8 +769,7 @@ public class DIController extends HttpServlet {
             this.forwardToPage("/error/generic_error.jsp?errormsg=op_not_supported_for_you", request, response);
         }
     }
-    
-    
+
     /*
      * Treat response from Annotator tool. Insert dataannotations / cvp or cpp
      */
@@ -768,6 +779,7 @@ public class DIController extends HttpServlet {
         String json = request.getParameter("json");
 
         String xml = request.getParameter("xml");
+        xml = xml.replaceAll("'", "''");
         String mapType = request.getParameter("map_type");
         String xbrlType = request.getParameter("xbrl");
         int schema_id = -1;
@@ -801,7 +813,7 @@ public class DIController extends HttpServlet {
         this.forwardToPage("/annotationResult.jsp?schema_id=" + schema_id + "&service_id=" + service_id + "&dataannotation=true", request, response);
 
     }
-    
+
     /*
      * Prepare the jsp page that facilitates bridging of schemas
      */
@@ -815,7 +827,7 @@ public class DIController extends HttpServlet {
 
         }
     }
-    
+
     /*
      * Prepare the jsp page that facilitates bridging of services
      */
@@ -887,9 +899,10 @@ public class DIController extends HttpServlet {
         out.write("<h2>Available Source Schemas for the software component: " + software_name + "<h2>");
         out.flush();
     }
-    
+
     /*
-     * show current sotware component name and version. usefull for the showAvailableSources/Services page
+     * show current sotware component name and version. usefull for the
+     * showAvailableSources/Services page
      */
     protected void showcurrentsoftcomp(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws ServletException, IOException {
@@ -944,10 +957,13 @@ public class DIController extends HttpServlet {
             out.write("<row id='1'><cell>Register new software^" + menu_level + "softwareReg.jsp^_self</cell></row>"
                     + "<row id='2'><cell>Show software components^" + menu_level + "showSoftwareComponent.jsp^_self</cell></row>"
                     + "<row id='3'><cell>Logout^" + sign_out + "DIController?op=signout^_self</cell></row>");
-        } else {
+        } else if (verifyUser("organization", session))  {
             out.write("<row id='1'><cell>Show software components^" + menu_level + "showSoftwareComponent.jsp?bridging=false^_self</cell></row>"
                     + "<row id='2'><cell>Create My Bridges^" + menu_level + "showSoftwareComponent.jsp?bridging=true^_self</cell></row>"
                     + "<row id='3'><cell>Show My Bridges^" + menu_level + "showMyBridges.jsp^_self</cell></row>"
+                    + "<row id='4'><cell>Logout^" + sign_out + "DIController?op=signout^_self</cell></row>");
+        } else if (verifyUser("admin", session)){
+             out.write("<row id='3'><cell>Upload new directory to server^" + menu_level + "uploadDirectory.jsp^_self</cell></row>"
                     + "<row id='4'><cell>Logout^" + sign_out + "DIController?op=signout^_self</cell></row>");
         }
 
@@ -957,11 +973,10 @@ public class DIController extends HttpServlet {
 
         return;
     }
-    
-    
-   /*
-    * Prepare JSON so as to import the xsd of the schema to mediator Portal
-    */ 
+
+    /*
+     * Prepare JSON so as to import the xsd of the schema to mediator Portal
+     */
     protected void getSchemaInfo(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws ServletException, IOException {
 
@@ -992,8 +1007,6 @@ public class DIController extends HttpServlet {
 
 
     }
-
-   
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**

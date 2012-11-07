@@ -51,7 +51,9 @@ import xml.XSDParser;
  */
 public class OrganizationManager extends HttpServlet {
 
-    private static String xml_rep_path = "/home/eleni/Documents/ubi/empower/empower-deliverable-september/empower";
+    //private static String xml_rep_path = "/var/www/empower/empowerdata/";
+    private static String xml_rep_path = "/home/eleni/Documents/ubi/empower/empower-deliverable-september/empower/";
+    
 
     /**
      * Processes requests for both HTTP
@@ -146,8 +148,8 @@ public class OrganizationManager extends HttpServlet {
 
 
             } else {
-                out.write("<cell type=\"img\">../js/dhtmlxSuite/dhtmlxTree/codebase/imgs/xsd.png^Schemas^../DIController?op=show_schema&amp;xsd=1_1_" + comp.getSoftwareID() + "^_self</cell>"
-                        + "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxTree/codebase/imgs/wsdl.png^Services^../DIController?op=show_service&amp;service=1_1_" + comp.getSoftwareID() + "^_self</cell>");
+                out.write("<cell type=\"img\">../js/dhtmlxSuite/dhtmlxTree/codebase/imgs/xsd.png^Schemas^../DIController?op=show_schema&amp;xsd=1_"+comp.getNum_xsds()+"_" + comp.getSoftwareID() + "^_self</cell>"
+                        + "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxTree/codebase/imgs/wsdl.png^Services^../DIController?op=show_service&amp;service=1_"+comp.getNum_services()+"_" + comp.getSoftwareID() + "^_self</cell>");
             }
             out.write(" </row>");
         }
@@ -434,7 +436,7 @@ public class OrganizationManager extends HttpServlet {
             FileItem item = (FileItem) iter.next();
 
             if (!item.isFormField()) {
-                System.out.println("data: " + item.getString());
+                //System.out.println("data: " + item.getString());
                 data = item.getString();
             }
         }
@@ -456,6 +458,7 @@ public class OrganizationManager extends HttpServlet {
         JSONObject trasform_response = new JSONObject();
         OrgDBConnector orgDBConnector = new OrgDBConnector();
         String finalxmloutput = "";
+        String finalxmlAllUpcastedXML="";
 
         String xsltRulesFirst = orgDBConnector.retrieveXLST(cpp_a, "input", cpa_info, service_selections);//input
         String xsltRulesSecond = orgDBConnector.retrieveXLST(cpp_b, "output", cpa_info, service_selections);//output
@@ -475,6 +478,8 @@ public class OrganizationManager extends HttpServlet {
         try {
             if (service_selections.isEmpty()) {
 
+                //check if the xml apart from root has repetitive first level elements
+                
                 LinkedList<String> xmlnodes = parser.parseXML(xmlData);
 
                 String firstxmlnode = xmlnodes.get(0);
@@ -489,8 +494,10 @@ public class OrganizationManager extends HttpServlet {
                 transformer.transform(new StreamSource(new StringReader(stw.toString())), new StreamResult(stwRes));
 
                 List Namespaces = parser.getNamespaces(stwRes.toString());
+                List XbrlNamespaces = parser.getNamespaces(stw.toString());
 
                 String outputAllXML = "<root>";
+                String outputAllUpcastedXML = "<root>";
                 Iterator i = xmlnodes.iterator();
                 while (i.hasNext()) {
 
@@ -501,6 +508,8 @@ public class OrganizationManager extends HttpServlet {
                     transformer = tFactory.newTransformer(new StreamSource(new StringReader(xsltRulesFirst)));
                     transformer.transform(new StreamSource(new StringReader(xmlnode)), new StreamResult(stw1));
                     System.out.println("UpcastingXML: " + stw1.toString());
+                    outputAllUpcastedXML = outputAllUpcastedXML + parser.removeNamespaces(stw1.toString());
+                    
 
                     tFactory = TransformerFactory.newInstance();
                     transformer = tFactory.newTransformer(new StreamSource(new StringReader(xsltRulesSecond)));
@@ -510,15 +519,20 @@ public class OrganizationManager extends HttpServlet {
 
                 }
                 outputAllXML = outputAllXML + "</root>";
+                outputAllUpcastedXML = outputAllUpcastedXML + "</root>";
                 System.out.println("All output XML+ " + outputAllXML);
 
 
                 finalxmloutput = parser.addNamespaces(outputAllXML, Namespaces);
+                finalxmlAllUpcastedXML = parser.addNamespaces(outputAllUpcastedXML, XbrlNamespaces);
+               
+                
             } else {
                 transformer = tFactory.newTransformer(new StreamSource(new StringReader(xsltRulesFirst)));
                 transformer.transform(new StreamSource(new StringReader(xmlData)), new StreamResult(stw));
 
                 System.out.println("UpcastingXML: " + stw.toString());
+                finalxmlAllUpcastedXML= stw.toString();
 
                 tFactory = TransformerFactory.newInstance();
                 transformer = tFactory.newTransformer(new StreamSource(new StringReader(xsltRulesSecond)));
@@ -527,6 +541,7 @@ public class OrganizationManager extends HttpServlet {
                 System.out.println("Hola" + stwRes.toString() + "Adios" + stw.toString());
 
                 finalxmloutput = stwRes.toString();
+               
 
             }
 
@@ -537,6 +552,9 @@ public class OrganizationManager extends HttpServlet {
         }
 
         trasform_response.put("xml", finalxmloutput);
+        trasform_response.put("UPCasted XML To XBRL Taxonomy", finalxmlAllUpcastedXML);
+        System.out.println("trasform_response: "+trasform_response.getString("UPCasted XML To XBRL Taxonomy"));
+        
         return trasform_response;
     }
 

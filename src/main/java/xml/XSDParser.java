@@ -77,7 +77,7 @@ public class XSDParser  {
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 
 
-        if (qName.equalsIgnoreCase("xs:schema")) {
+        if (qName.equalsIgnoreCase("xs:schema") || qName.equalsIgnoreCase("xsd:schema") ) {
             schemafl= true;
             xmlToReturn.add("<tree id='0'>"
                     + "<item text='"+schema.getService()+"' id='"+schema.getService()+"' nocheckbox='true'>"
@@ -85,7 +85,7 @@ public class XSDParser  {
                     + "<item text='"+schema.getName()+"' id='"+schema.getName()+"' nocheckbox='true'>");
         }
 
-        if (qName.equalsIgnoreCase("xs:complexType")) {
+        if (qName.equalsIgnoreCase("xs:complexType") || qName.equalsIgnoreCase("xsd:complexType")) {
             complexTypefl = true;
 
             if (attributes != null) {
@@ -96,7 +96,7 @@ public class XSDParser  {
             }
         }
         
-        if (qName.equalsIgnoreCase("xs:element")) {
+        if (qName.equalsIgnoreCase("xs:element") || qName.equalsIgnoreCase("xsd:element")) {
             elementfl = true;
 
             if (attributes != null) {
@@ -112,10 +112,10 @@ public class XSDParser  {
 
     public void endElement(String uri, String localName, String qName) throws SAXException {
 
-        if (qName.equals("xs:complexType")) {
+        if (qName.equals("xs:complexType") || qName.equals("xsd:complexType")) {
             xmlToReturn.add("</item>");
         }
-        if (qName.equals("xs:schema")) {
+        if (qName.equals("xs:schema") || qName.equals("xsd:schema")) {
             xmlToReturn.add("</item></item></item></tree>");
         }
         
