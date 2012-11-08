@@ -56,18 +56,29 @@
               menu_grid.setSkin("light");//set grid skin
               menu_grid.setSkin("inverse");
               menu_grid.init();//initialize grid
-              menu_grid.loadXML('../DIController?op=get_menu&level=0');
+              menu_grid.loadXML('../DIController?op=get_menu&level=2');
            </script>
          </div>
         </div>    
             <div class="main-content">
+                <br>
+                <p><h2>Upload schemas to server</h2>
+                <br> <br>
+                <p>Please choose the Directory name and xsd schemas you want to upload to server:</p>
                 <form name="uploadMultipleFiles" action="../DIController?op=uploadMultiFiles" method="POST" enctype="multipart/form-data">
-                 <input type="text" name="Directory name" value="" />
-                 <input type="file" name="uploadDirectory" class="multi"/>
-                 <input type="submit" value="upload Files" />
+                 <table>
+                 <tr> 
+                     <td> Directory Name:</td> 
+                     <td><input type="text" name="directoryname" value="" /></td>
+                 </tr> 
+                 <tr>
+                     <td>Choose Files:</td> 
+                     <td><input type="file" name="uploadfiles" class="multi" accept="xsd" style="width: 200px;"/></td> </div>
+                 </tr>
+                </table>
+                  <input type="submit" value="upload Files" />
+                
                 </form>
-               
-            
             </div>
         </div>
             <div class="footer"><p>Copyright &copy; 2012 Empower Consortium | All Rights Reserved</p></div>

@@ -27,6 +27,11 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPathExpressionException;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.FilenameUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -124,7 +129,12 @@ public class DIController extends HttpServlet {
                     this.manageVendorServiceReg(request, response, session);
                 } else if (operation.equals("schema_info")) {
                     this.getSchemaInfo(request, response, session);
+                } else if (operation.equals("uploadMultiFiles")) {
+                    this.uploadMultiFiles(request, response, session);
                 }
+
+
+
 
 
 
@@ -279,7 +289,7 @@ public class DIController extends HttpServlet {
 
         if (verifyUser("organization", session)) {
             if (xsd_num.equals("0")) {
-               this.forwardToPage("/info.jsp?message_code=1", request, response);
+                this.forwardToPage("/info.jsp?message_code=1", request, response);
             } else {
                 this.forwardToPage("/showSchemas.jsp?software_id=" + software_id, request, response);
             }
@@ -339,20 +349,20 @@ public class DIController extends HttpServlet {
         } else {
             session.setAttribute("services", "");
         }
-        
-        
-         if (verifyUser("vendor", session)) {
-           if (service_num.equals("0")) {
-            // if software component with any service
-            this.forwardToPage("/vendor/serviceReg.jsp?software_id=" + software_id + "&jsp=false", request, response);
-         } else {
-            this.forwardToPage("/showServices.jsp?software_id=" + software_id, request, response);
-         }
-         }
-         
-         if (verifyUser("organization", session)) {
+
+
+        if (verifyUser("vendor", session)) {
             if (service_num.equals("0")) {
-               this.forwardToPage("/info.jsp?message_code=2", request, response);
+                // if software component with any service
+                this.forwardToPage("/vendor/serviceReg.jsp?software_id=" + software_id + "&jsp=false", request, response);
+            } else {
+                this.forwardToPage("/showServices.jsp?software_id=" + software_id, request, response);
+            }
+        }
+
+        if (verifyUser("organization", session)) {
+            if (service_num.equals("0")) {
+                this.forwardToPage("/info.jsp?message_code=2", request, response);
             } else {
                 this.forwardToPage("/showServices.jsp?software_id=" + software_id, request, response);
             }
@@ -713,12 +723,16 @@ public class DIController extends HttpServlet {
         String inputoutput = selections.split("\\$")[0];
         String xsdTypes = wsdlParser.extractXSD(choice);
 
-        String filename = new String("cvp_" + service.getName() + "_" + ((int) (100000 * Math.random())) + ".xsd");
+        String filename = new String(service.getService_id() + service.getName() + choice + ".xsd");
         String xsdFilename = new String(xml_rep_path + "/xsd/" + filename);
+        
+        File f = new File(xsdFilename);
+        if(!f.exists()) {
         PrintWriter xsdFile = new PrintWriter(xsdFilename);
         xsdFile.write(xsdTypes);
         xsdFile.close();
-
+        }
+        
 
         if (inputoutput.equalsIgnoreCase("input")) {
             request.setAttribute("output", "xsd/" + filename);
@@ -957,13 +971,13 @@ public class DIController extends HttpServlet {
             out.write("<row id='1'><cell>Register new software^" + menu_level + "softwareReg.jsp^_self</cell></row>"
                     + "<row id='2'><cell>Show software components^" + menu_level + "showSoftwareComponent.jsp^_self</cell></row>"
                     + "<row id='3'><cell>Logout^" + sign_out + "DIController?op=signout^_self</cell></row>");
-        } else if (verifyUser("organization", session))  {
+        } else if (verifyUser("organization", session)) {
             out.write("<row id='1'><cell>Show software components^" + menu_level + "showSoftwareComponent.jsp?bridging=false^_self</cell></row>"
                     + "<row id='2'><cell>Create My Bridges^" + menu_level + "showSoftwareComponent.jsp?bridging=true^_self</cell></row>"
                     + "<row id='3'><cell>Show My Bridges^" + menu_level + "showMyBridges.jsp^_self</cell></row>"
                     + "<row id='4'><cell>Logout^" + sign_out + "DIController?op=signout^_self</cell></row>");
-        } else if (verifyUser("admin", session)){
-             out.write("<row id='3'><cell>Upload new directory to server^" + menu_level + "uploadDirectory.jsp^_self</cell></row>"
+        } else if (verifyUser("admin", session)) {
+            out.write("<row id='3'><cell>Upload new directory to server^" + menu_level + "uploadDirectory.jsp^_self</cell></row>"
                     + "<row id='4'><cell>Logout^" + sign_out + "DIController?op=signout^_self</cell></row>");
         }
 
@@ -1006,6 +1020,66 @@ public class DIController extends HttpServlet {
         response.getWriter().write(new Gson().toJson(schema_info));
 
 
+    }
+
+    /*
+     * Upload directory with files . Only the admin can do this
+     */
+    protected void uploadMultiFiles(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws IOException, ServletException, FileUploadException, Exception {
+        // Check that we have a file upload request
+        String directoryname = null;
+        String message = "";
+        boolean isMultipart = ServletFileUpload.isMultipartContent(request);
+
+        // Create a factory for disk-based file items
+        DiskFileItemFactory factory = new DiskFileItemFactory();
+
+        // Set factory constraints
+        factory.setSizeThreshold(30000);
+        factory.setRepository(new File(""));
+        ServletFileUpload upload = new ServletFileUpload(factory);
+
+        upload.setSizeMax(30000);
+        if (verifyUser("admin", session)) {
+            List items = upload.parseRequest(request);
+
+            Iterator iter = items.iterator();
+
+            while (iter.hasNext()) {
+                FileItem item = (FileItem) iter.next();
+
+                if (item.isFormField()) {
+                    if (item.getFieldName().equals("directoryname")) {
+                        directoryname = item.getString();
+
+                        File theDir = new File(this.xml_rep_path + "/adminDirectory/" + directoryname);
+
+                        // if the directory does not exist, create it
+                        if (!theDir.exists()) {
+
+                            boolean result = theDir.mkdir();
+                            if (result) {
+                                System.out.println("DIR created");
+                            }
+                        }
+                    }
+                } else {
+                    String fieldname = item.getFieldName();
+
+                    String filename = FilenameUtils.getName(item.getName());
+
+                    InputStream filecontent = item.getInputStream();
+
+                    File uploadedFile = new File(this.xml_rep_path + "/adminDirectory/" + directoryname + "/" + filename + ".xsd");
+                    item.write(uploadedFile);
+                }
+            }
+            message = "The selected files have been succesfully uploaded to "+directoryname+" Directory.";
+        } else {
+            message = "You are not authorized to access this page!";
+        }
+        this.forwardToPage("/vendor/succImportSchema.jsp?message=" + message, request, response);
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

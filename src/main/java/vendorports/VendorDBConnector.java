@@ -5,6 +5,7 @@
 package vendorports;
 
 import dataaccesslayer.*;
+import java.io.File;
 import java.sql.ResultSet;
 import java.util.Collection;
 import java.util.Iterator;
@@ -93,6 +94,7 @@ public class VendorDBConnector {
         int operation_id = -1;
         int service_id = -1;
         String schema_name="";
+        String schema_location = "";
         JSONObject o = new JSONObject();
 
         try {
@@ -100,13 +102,14 @@ public class VendorDBConnector {
             //get the schema operation and web service
             this.dbHandler.dbOpen();
 
-            rs = this.dbHandler.dbQuery("select os.operation_id as operation_id, o.service_id as service_id, s.name as schema_name  "
+            rs = this.dbHandler.dbQuery("select os.operation_id as operation_id, o.service_id as service_id, s.name as schema_name, s.location as schema_location   "
                     + "from operation_schema os, schema_xsd s, operation o where os.operation_id=o.operation_id "
                     + "and os.schema_id=s.schema_id and s.schema_id=" + schema_id);
             if (rs.next()) {
                 operation_id = rs.getInt("operation_id");
                 service_id = rs.getInt("service_id");
                 schema_name = rs.getString("schema_name");
+                schema_location = rs.getString("schema_location");
                 o.put("modelID", schema_id+"_"+schema_name);
             }
             this.dbHandler.dbUpdate("delete from dataannotations where schema_id=" + schema_id);
@@ -119,6 +122,9 @@ public class VendorDBConnector {
 
             message = message + this.deleteSchemaService(service_id,operation_id,schema_id);
             o.put("message", message);
+            
+             File fileTodelete = new File(schema_location);
+             boolean success = fileTodelete.delete();
             
         } catch (Throwable t) {
             t.printStackTrace();
@@ -144,8 +150,7 @@ public class VendorDBConnector {
                 op_num = rs.getInt("op_num");
             }
             rs.close();
-            System.out.println("op_num"+op_num+"    "+"select count(*) as op_num "
-                    + "from operation o where o.service_id=" + service_id);
+            //System.out.println("op_num"+op_num+"    "+"select count(*) as op_num from operation o where o.service_id=" + service_id);
             if (op_num==1){
                 
                 
