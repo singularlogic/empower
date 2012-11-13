@@ -647,18 +647,23 @@ public class OrganizationManager extends HttpServlet {
                     + "</cell>"
                     + active_bridge_schema
                     //+ "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/usebridge.png^Use Brindge^../DIController?op=doBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
-                    + "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/deletebridge.png^Delete Brindge^../OrganizationManager?op=deleteBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
+                    //+ "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/deletebridge.png^Delete Brindge^../OrganizationManager?op=deleteBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
+                    + "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/deletebridge.png^Delete Brindge^javascript:deletebridge("+cpa.getCpa_id()+")^_self</cell>"
                     + "</row>";
 
 
             String active_bridge = (cpa.isDisabled()) ? "<cell>Disabled</cell>"
                     : "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/usebridge.png^Use Brindge^../OrganizationManager?op=doBridgingServicePrepare&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>";
 
-
+            /*
             dobridging_url = (o_first.get("schema") == null) ? active_bridge + "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/deletebridge.png^Delete Brindge^../OrganizationManager?op=deleteBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
                     : "<cell></cell>"
                     + "<cell></cell>";
-
+            */
+            
+              dobridging_url = (o_first.get("schema") == null) ? active_bridge + "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/deletebridge.png^Delete Brindge^javascript:deletebridge("+cpa.getCpa_id()+")^_self</cell>"
+                    : "<cell></cell>"
+                    + "<cell></cell>";
 
             out.write("<row id=\"" + cpa.getCpa_id() + "ws1\">"
                     + "<cell> Web Service:</cell>"

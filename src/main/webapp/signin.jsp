@@ -3,12 +3,20 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <script type="text/javascript" src="./js/jquery.js"></script>  
         <link rel="stylesheet" type="text/css" href="./style/menu_style.css"/>
         <link rel="stylesheet" type="text/css" href="./style/layout4_setup.css"/>        
         <link rel="stylesheet" type="text/css" href="./style/layout4_text.css"/>   
         <link rel="stylesheet" type="text/css" href="./style/container.css"/>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">        
         <title>EMPOWER Signin page</title>
+         <script>
+            jQuery(document).ready(function(){
+                if('<%=request.getParameter("message")%>'=='timeout'){
+                    alert("Your session has expired due to inactivity! Please login again!");
+                }
+            });
+        </script>  
     </head>
     <body class="yui-skin-sam">
     <center>
@@ -50,7 +58,7 @@
                         </tbody>
                     </table>
                 </form>
-                
+              <div id="message"></div>
             </div>
             <br>
         </div>

@@ -20,6 +20,15 @@
             div.gridbox_inverse table.obj td{background-color: #D9EFB9;text-align: center;}
             div.gridbox_inverse table.obj tr{height: 30px;}
         </style>
+        <script type="text/javascript">                                          
+            function deletebridge(cpa_id){
+                var r=confirm("Are you sure you want to delete?");
+                if (r==true)
+                {
+                    document.location.href='../OrganizationManager?op=deleteBridging&cpa_id='+cpa_id;             
+                }       
+            }
+        </script>
     </head> 
     <body class="yui-skin-sam">
     <center>
@@ -43,7 +52,7 @@
         </div>
         <div class="main">
             <div class="main-navigation">
-                    <div id="menu_grid" style="width:180px; height:150px" class='<%=session.getAttribute("userType")%>'>
+                <div id="menu_grid" style="width:180px; height:150px" class='<%=session.getAttribute("userType")%>'>
                     <script>
                         menu_grid = new dhtmlXGridObject("menu_grid");
                         menu_grid.setImagePath("js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");

@@ -20,6 +20,15 @@
             div.gridbox_inverse table.obj tr{height: 30px;}
         </style>
         <title>Vendor Menu</title>
+         <script type="text/javascript">                                          
+            function deletesoftcomp(software_id){
+                var r=confirm("Are you sure you want to delete?");
+                if (r==true)
+                {
+                    document.location.href='../VendorManager?op=delete_software&software_id='+software_id;             
+                }       
+            }
+        </script>
     </head>
     <body class="yui-skin-sam">
     <center>
@@ -70,11 +79,6 @@
                         grid.setSkin("light");//set grid skin
                         grid.init();//initialize grid
                         grid.loadXML("../DIController?op=show_components");
-/*
-                        function doOnRowSelected(rowID,celInd){
-                            location.replace("../Controller?op=show_services&service=" + rowID);
-                        }
-*/
                 </script>
             </div>
         </div>

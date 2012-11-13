@@ -172,6 +172,7 @@ public class VendorManager extends HttpServlet {
         wsdlParser.loadService(service.getName());
         LinkedList<String> operations =  wsdlParser.returnOperationNames("");
         JSONObject operationsToDelete = new  JSONObject();
+        JSONObject xsdSchemasToDelete = new  JSONObject();
         
        Iterator ops;
         
@@ -180,10 +181,14 @@ public class VendorManager extends HttpServlet {
         while(ops.hasNext()) {
          Object element = ops.next();
          operationsToDelete.put(service_id+"_"+element,service_id+"_"+element);
+         xsdSchemasToDelete.put(service_id+service.getName()+element+".xsd",xml_rep_path+"/xsd/"+service_id+service.getName()+element+".xsd");
+         System.out.println("operationsToDelete: "+service_id+"_"+element);
       }
-
+        
+         
+        
         VendorDBConnector vendorDBConnector = new VendorDBConnector();
-        String message = vendorDBConnector.deleteWebService(service_id);
+        String message = vendorDBConnector.deleteWebService(service_id,service.getWsdl(),xsdSchemasToDelete);
 
         System.out.println("message"+message);
 
@@ -218,9 +223,9 @@ public class VendorManager extends HttpServlet {
             out.write("<row id=\"" + (rowID++) + "_" + comp.getSoftwareID()
                     + "_" + comp.getName() + "\"><cell>" + comp.getName()
                     + "</cell><cell>" + comp.getVersion() + "</cell>"
-                    + "<cell>Delete^../VendorManager?op=delete_software&amp;software_id="
-                    + comp.getSoftwareID()
-                    + "^_self</cell><cell>Update^../VendorManager?op=load_software_reg&amp;software_id=" + comp.getSoftwareID()
+                    //+ "<cell>Delete^../VendorManager?op=delete_software&amp;software_id="+ comp.getSoftwareID()+ "^_self</cell>"
+                    + "<cell>Delete^javascript:deletesoftcomp("+comp.getSoftwareID()+")^_self</cell>"
+                    + "<cell>Update^../VendorManager?op=load_software_reg&amp;software_id=" + comp.getSoftwareID()
                     + "&amp;software_name=" + comp.getName() + "&amp;software_version=" + comp.getVersion()
                     + "^_self</cell>"
                     + "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxTree/codebase/imgs/xsd.png^Schemas^../DIController?op=show_schema&amp;xsd=" + rowID + "_" + comp.getNum_xsds()
@@ -329,7 +334,7 @@ public class VendorManager extends HttpServlet {
 
         // Set factory constraints
         factory.setSizeThreshold(30000);
-        factory.setRepository(new File("/home/eleni/Desktop/"));
+        factory.setRepository(new File(""));
         ServletFileUpload upload = new ServletFileUpload(factory);
 
         upload.setSizeMax(30000);
@@ -344,9 +349,7 @@ public class VendorManager extends HttpServlet {
 
             if (item.isFormField()) {
 
-                System.out.println("Here we have: ");
-
-                if (item.getFieldName().equals("software_id")) {
+             if (item.getFieldName().equals("software_id")) {
                     software_id = Integer.parseInt(item.getString());
                 } else if (item.getFieldName().equals("service_name")) {
                     service_name = item.getString(); 

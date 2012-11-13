@@ -188,7 +188,7 @@ public class VendorDBConnector {
         return message;
     }
 
-    public String deleteWebService(int service_id) {
+    public String deleteWebService(int service_id,String service_location,JSONObject xsdSchemasToDelete) {
         ResultSet rs;
         String message = "";
         int cvp_id = -1;
@@ -211,12 +211,26 @@ public class VendorDBConnector {
                 this.dbHandler.dbUpdate("delete from dataannotations where cvp_id=" + cvp_id);
                 this.dbHandler.dbUpdate("delete from cpp where cvp_id=" + cvp_id);
                 this.dbHandler.dbUpdate("delete from cvp where cvp_id=" + cvp_id);
+                
+        // Delete schemas extracted from Types of wsdl       
+        Iterator keys = xsdSchemasToDelete.keys();
+
+        while( keys.hasNext() ){
+            String key = (String)keys.next();
+            File fileTodelete = new File(xsdSchemasToDelete.get(key).toString());
+            boolean success = fileTodelete.delete(); 
+        }
 
             }
-            //delete in any case operation -- installedbinding and web service
+            //delete in any case -- installedbinding and web service
 
             this.dbHandler.dbUpdate("delete from installedbinding where service_id=" + service_id);
             this.dbHandler.dbUpdate("delete from web_service where service_id=" + service_id);
+            
+            //Delete .wsdl file
+            File fileTodelete = new File(service_location);
+            boolean success = fileTodelete.delete(); 
+            
 
             //desactivate possible bridge if any
             rs.close();

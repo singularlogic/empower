@@ -312,8 +312,9 @@ public class DIController extends HttpServlet {
 
         while (XSDIterator.hasNext()) {
             Schema schema = (Schema) XSDIterator.next();
-            String delete_option = (verifyUser("vendor", session)) ? "<cell> Delete Schema^./VendorManager?op=delete_schema&amp;schema_id=" + schema.getSchema_id() + "^_self</cell>" : "";
-
+            //String delete_option = (verifyUser("vendor", session)) ? "<cell> Delete Schema^./VendorManager?op=delete_schema&amp;schema_id=" + schema.getSchema_id() + "^_self</cell>" : "";
+            String delete_option = (verifyUser("vendor", session)) ? "<cell> Delete Schema^javascript:deleteschema("+schema.getSchema_id()+")^_self</cell>" : "";
+            
             out.write("<row id=\"" + schema.getSchema_id() + "\"><cell>" + schema.getName() + "</cell>"
                     + "<cell> Annotate Operations^./presentOperationTree.jsp?schema_id=" + schema.getSchema_id() + "^_self</cell>"
                     + "<cell> Annotate Data^./presentDataTree.jsp?schema_id=" + schema.getSchema_id() + "^_self</cell>"
@@ -391,7 +392,8 @@ public class DIController extends HttpServlet {
             Service service = (Service) servIterator.next();
             img_link = (service.isExposed()) ? "js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/green.gif" : "js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/red.gif";
 
-            String delete_wservice_option = (verifyUser("vendor", session)) ? "<cell>Delete Service^./VendorManager?op=delete_wservice&amp;service_id=" + service.getService_id() + "^_self</cell>" : "";
+            //String delete_wservice_option = (verifyUser("vendor", session)) ? "<cell>Delete Service^./VendorManager?op=delete_wservice&amp;service_id=" + service.getService_id() + "^_self</cell>" : "";
+            String delete_wservice_option = (verifyUser("vendor", session)) ? "<cell>Delete Service^javascript:deleteservice("+service.getService_id()+")^_self</cell>" : "";
 
 
             System.out.println("img_link" + img_link);
@@ -1027,6 +1029,8 @@ public class DIController extends HttpServlet {
      */
     protected void uploadMultiFiles(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws IOException, ServletException, FileUploadException, Exception {
+        
+        
         // Check that we have a file upload request
         String directoryname = null;
         String message = "";
@@ -1034,13 +1038,13 @@ public class DIController extends HttpServlet {
 
         // Create a factory for disk-based file items
         DiskFileItemFactory factory = new DiskFileItemFactory();
-
+          
         // Set factory constraints
-        factory.setSizeThreshold(30000);
+        factory.setSizeThreshold(50000);
         factory.setRepository(new File(""));
         ServletFileUpload upload = new ServletFileUpload(factory);
 
-        upload.setSizeMax(30000);
+        upload.setSizeMax(300000);
         if (verifyUser("admin", session)) {
             List items = upload.parseRequest(request);
 
