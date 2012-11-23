@@ -221,7 +221,8 @@ public class VendorManager extends HttpServlet {
         while (compIterator.hasNext()) {
             SoftwareComponent comp = (SoftwareComponent) compIterator.next();
             out.write("<row id=\"" + (rowID++) + "_" + comp.getSoftwareID()
-                    + "_" + comp.getName() + "\"><cell>" + comp.getName()
+                    + "_" + comp.getName() + "\">"
+                    + "<cell style='font-weight:bold;color: #055A78;'>" + comp.getName()
                     + "</cell><cell>" + comp.getVersion() + "</cell>"
                     //+ "<cell>Delete^../VendorManager?op=delete_software&amp;software_id="+ comp.getSoftwareID()+ "^_self</cell>"
                     + "<cell>Delete^javascript:deletesoftcomp("+comp.getSoftwareID()+")^_self</cell>"

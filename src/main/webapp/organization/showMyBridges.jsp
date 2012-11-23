@@ -52,7 +52,7 @@
         </div>
         <div class="main">
             <div class="main-navigation">
-                <div id="menu_grid" style="width:180px; height:150px" class='<%=session.getAttribute("userType")%>'>
+                <div id="menu_grid" style="width:180px; height:180px" class='<%=session.getAttribute("userType")%>'>
                     <script>
                         menu_grid = new dhtmlXGridObject("menu_grid");
                         menu_grid.setImagePath("js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");
@@ -71,17 +71,22 @@
                     Please delete the disabled bridges by yourself because the bridged web services are not available any more. 
                 </p>
                 <br>                  
-                <div id="box_grid" style="width:500px; height:500px"/>
+                <div id="box_grid" style="width:600px; height:500px"/>
                 <script>
                     grid = new dhtmlXGridObject("box_grid");
                     grid.setImagePath("/js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");
-                    grid.setHeader(",Input Info,Output Info,Use Brindge,Delete Brindge");//set column names
+                    grid.setHeader(",Input Info,Output Info,Use Bridge,Delete Bridge");//set column names
                     //grid.setNoHeader(true);
                     //grid.attachEvent("onRowSelect", doOnRowSelected);
                     // grid.setColTypes("sub_row,ro,link");
                     grid.setColTypes("ro,ro,ro,link,link");
                     grid.setSkin("light");//set grid skin
                     grid.init();//initialize grid
+                    grid.setColWidth(0, '15');
+                    grid.setColWidth(1, '33');
+                    grid.setColWidth(2, '33');
+                    grid.setColWidth(3, '10');
+                    grid.setColWidth(4, '9');
                     grid.loadXML("../DIController?op=showMyBridges");
                 </script>
             </div>

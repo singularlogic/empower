@@ -139,7 +139,8 @@ public class OrganizationManager extends HttpServlet {
             SoftwareComponent comp = (SoftwareComponent) compIterator.next();
             out.write("<row id=\"" + comp.getSoftwareID() + "\">"
                     + "<cell>" + comp.getSoftwareID() + "</cell>"
-                    + "<cell>" + comp.getName() + "^../DIController?op=show_bridging_schemas&amp;software_id=" + comp.getSoftwareID() + "^_self</cell>"
+                    //+ "<cell>" + comp.getName() + "^../DIController?op=show_bridging_schemas&amp;software_id=" + comp.getSoftwareID() + "^_self</cell>"
+                    + "<cell  style='font-weight:bold;color: #055A78;'>" + comp.getName() + "</cell>"
                     + "<cell>" + comp.getVersion() + "</cell>");
 
             if (bridging.equalsIgnoreCase("true")) {
@@ -627,7 +628,7 @@ public class OrganizationManager extends HttpServlet {
 
             System.out.println("o_first.get(schema)::" + o_first.get("schema"));
 
-            String active_bridge_schema = (cpa.isDisabled()) ? "<cell>Disabled</cell>" : "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/usebridge.png^Use Brindge^../DIController?op=doBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>";
+            String active_bridge_schema = (cpa.isDisabled()) ? "<cell>Disabled</cell>" : "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/usebridge.png^Use Bridge^../DIController?op=doBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>";
 
 
             additional_schema_info = (o_first.get("schema") == null) ? "" : "<row id=\"" + cpa.getCpa_id() + "3\">"
@@ -646,22 +647,22 @@ public class OrganizationManager extends HttpServlet {
                     + " <cell>" + o_second.get("schema_complexType")
                     + "</cell>"
                     + active_bridge_schema
-                    //+ "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/usebridge.png^Use Brindge^../DIController?op=doBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
-                    //+ "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/deletebridge.png^Delete Brindge^../OrganizationManager?op=deleteBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
-                    + "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/deletebridge.png^Delete Brindge^javascript:deletebridge("+cpa.getCpa_id()+")^_self</cell>"
+                    //+ "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/usebridge.png^Use bridge^../DIController?op=doBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
+                    //+ "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/deletebridge.png^Delete Bridge^../OrganizationManager?op=deleteBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
+                    + "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/deletebridge.png^Delete Bridge^javascript:deletebridge("+cpa.getCpa_id()+")^_self</cell>"
                     + "</row>";
 
 
             String active_bridge = (cpa.isDisabled()) ? "<cell>Disabled</cell>"
-                    : "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/usebridge.png^Use Brindge^../OrganizationManager?op=doBridgingServicePrepare&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>";
+                    : "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/usebridge.png^Use Bridge^../OrganizationManager?op=doBridgingServicePrepare&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>";
 
             /*
-            dobridging_url = (o_first.get("schema") == null) ? active_bridge + "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/deletebridge.png^Delete Brindge^../OrganizationManager?op=deleteBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
+            dobridging_url = (o_first.get("schema") == null) ? active_bridge + "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/deletebridge.png^Delete Bridge^../OrganizationManager?op=deleteBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
                     : "<cell></cell>"
                     + "<cell></cell>";
             */
             
-              dobridging_url = (o_first.get("schema") == null) ? active_bridge + "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/deletebridge.png^Delete Brindge^javascript:deletebridge("+cpa.getCpa_id()+")^_self</cell>"
+              dobridging_url = (o_first.get("schema") == null) ? active_bridge + "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/deletebridge.png^Delete Bridge^javascript:deletebridge("+cpa.getCpa_id()+")^_self</cell>"
                     : "<cell></cell>"
                     + "<cell></cell>";
 

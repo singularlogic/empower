@@ -48,7 +48,7 @@
         </div>
         <div class="main">
         <div class="main-navigation">
-             <div id="menu_grid" style="width:180px; height:150px" class='glossymenu <%=session.getAttribute("userType")%>'>
+             <div id="menu_grid" style="width:180px; height:180px" class='glossymenu <%=session.getAttribute("userType")%>'>
              <script>
                  menu_grid = new dhtmlXGridObject("menu_grid");
                  menu_grid.setImagePath("js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");

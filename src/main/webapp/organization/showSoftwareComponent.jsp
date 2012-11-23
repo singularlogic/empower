@@ -42,7 +42,7 @@
         </div>
         <div class="main">
         <div class="main-navigation">
-             <div id="menu_grid" style="width:180px; height:150px" class='glossymenu <%=session.getAttribute("userType")%>'>
+             <div id="menu_grid" style="width:180px; height:180px" class='glossymenu <%=session.getAttribute("userType")%>'>
                     <script>
                         menu_grid = new dhtmlXGridObject("menu_grid");
                         menu_grid.setImagePath("js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");
@@ -75,9 +75,14 @@
                         grid.setImagePath("/js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");
                         grid.setHeader("ID,Component name,Version,Schemas,Services");//set column names
 //                        grid.attachEvent("onRowSelect", doOnRowSelected);
-                        grid.setColTypes("ro,link,ro,link,link");
+                        grid.setColTypes("ro,ro,ro,link,link");
                         grid.setSkin("light");//set grid skin
                         grid.init();//initialize grid
+                        grid.setColWidth(0, '20');
+                        grid.setColWidth(1, '30');
+                        grid.setColWidth(2, '20');
+                        grid.setColWidth(3, '15');
+                        grid.setColWidth(4, '15');
                         grid.loadXML("../DIController?op=show_components&bridging="+<%=request.getParameter("bridging")%>);
 
 //                        function doOnRowSelected(rowID,celInd){

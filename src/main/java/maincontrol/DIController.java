@@ -131,6 +131,10 @@ public class DIController extends HttpServlet {
                     this.getSchemaInfo(request, response, session);
                 } else if (operation.equals("uploadMultiFiles")) {
                     this.uploadMultiFiles(request, response, session);
+                }else if (operation.equals("getPreviousFuncAnnotation")) {
+                    this.getPreviousFuncAnnotation(request, response, session);
+                }else if (operation.equals("redirectToHomePage")) {
+                    this.redirectToHomePage(request, response, session);
                 }
 
 
@@ -212,6 +216,14 @@ public class DIController extends HttpServlet {
 
 
     }
+    
+      protected void redirectToHomePage(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws ServletException, IOException {
+     
+            session = request.getSession(true);
+            String userType = session.getAttribute("userType").toString();
+            String redirectionURL = new String("/" + userType + "/" + userType + "menu.jsp");
+            this.forwardToPage(redirectionURL, request, response);
+     }
 
     private boolean verifyUser(String userType, HttpSession session) {
         boolean isVerified = false;
@@ -915,6 +927,21 @@ public class DIController extends HttpServlet {
         out.write("<h2>Available Source Schemas for the software component: " + software_name + "<h2>");
         out.flush();
     }
+    
+    protected void getPreviousFuncAnnotation(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws ServletException, IOException {
+        
+
+        MainControlDB mainControlDB = new MainControlDB();
+        
+       String taxonomy = ( (request.getParameter("service_id") != null) )? mainControlDB.getOperationTaxonomy(-1,Integer.parseInt(request.getParameter("service_id")),request.getParameter("operation")):mainControlDB.getOperationTaxonomy(Integer.parseInt(request.getParameter("schema_id")),-1,request.getParameter("operation_id"));
+       
+        response.setContentType("text/xml; charset=UTF-8");
+        PrintWriter out = response.getWriter();
+        out.write(taxonomy);
+        out.flush();
+    }
+    
 
     /*
      * show current sotware component name and version. usefull for the
@@ -970,16 +997,19 @@ public class DIController extends HttpServlet {
         out.write("<rows>");
 
         if (verifyUser("vendor", session)) {
-            out.write("<row id='1'><cell>Register new software^" + menu_level + "softwareReg.jsp^_self</cell></row>"
-                    + "<row id='2'><cell>Show software components^" + menu_level + "showSoftwareComponent.jsp^_self</cell></row>"
-                    + "<row id='3'><cell>Logout^" + sign_out + "DIController?op=signout^_self</cell></row>");
-        } else if (verifyUser("organization", session)) {
-            out.write("<row id='1'><cell>Show software components^" + menu_level + "showSoftwareComponent.jsp?bridging=false^_self</cell></row>"
-                    + "<row id='2'><cell>Create My Bridges^" + menu_level + "showSoftwareComponent.jsp?bridging=true^_self</cell></row>"
-                    + "<row id='3'><cell>Show My Bridges^" + menu_level + "showMyBridges.jsp^_self</cell></row>"
+            out.write("<row id='1'><cell>Home^"+ sign_out +"DIController?op=redirectToHomePage^_self</cell></row>"
+                    +"<row id='2'><cell>Register new software^" + menu_level + "softwareReg.jsp^_self</cell></row>"
+                    + "<row id='3'><cell>Show software components^" + menu_level + "showSoftwareComponent.jsp^_self</cell></row>"
                     + "<row id='4'><cell>Logout^" + sign_out + "DIController?op=signout^_self</cell></row>");
+        } else if (verifyUser("organization", session)) {
+            out.write("<row id='1'><cell>Home^"+ sign_out +"DIController?op=redirectToHomePage^_self</cell></row>"
+                    + "<row id='2'><cell>Show software components^" + menu_level + "showSoftwareComponent.jsp?bridging=false^_self</cell></row>"
+                    + "<row id='3'><cell>Create My Bridges^" + menu_level + "showSoftwareComponent.jsp?bridging=true^_self</cell></row>"
+                    + "<row id='4'><cell>Show My Bridges^" + menu_level + "showMyBridges.jsp^_self</cell></row>"
+                    + "<row id='5'><cell>Logout^" + sign_out + "DIController?op=signout^_self</cell></row>");
         } else if (verifyUser("admin", session)) {
-            out.write("<row id='3'><cell>Upload new directory to server^" + menu_level + "uploadDirectory.jsp^_self</cell></row>"
+            out.write("<row id='1'><cell>Home^"+ sign_out +"DIController?op=redirectToHomePage^_self</cell></row>"
+                    +"<row id='3'><cell>Upload new directory to server^" + menu_level + "uploadDirectory.jsp^_self</cell></row>"
                     + "<row id='4'><cell>Logout^" + sign_out + "DIController?op=signout^_self</cell></row>");
         }
 
@@ -1044,7 +1074,7 @@ public class DIController extends HttpServlet {
         factory.setRepository(new File(""));
         ServletFileUpload upload = new ServletFileUpload(factory);
 
-        upload.setSizeMax(300000);
+        upload.setSizeMax(3000000);
         if (verifyUser("admin", session)) {
             List items = upload.parseRequest(request);
 

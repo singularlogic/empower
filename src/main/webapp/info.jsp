@@ -43,7 +43,7 @@
         <div class="main" style="clear:both; width:900px; padding-bottom:30px; background:transparent url(./img/bg_main_withoutnav.jpg) top left repeat-y;">
             <!---<div class="main-navigation"></div> --->
               <div class="main-navigation">
-            <div id="menu_grid" style="width:180px; height:<%=(session.getAttribute("userType").equals("organization"))?150:120%>px" class='glossymenu'>
+            <div id="menu_grid" style="width:180px; height:<%=(session.getAttribute("userType").equals("organization"))?180:150%>px" class='glossymenu'>
                     <script>
                         menu_grid = new dhtmlXGridObject("menu_grid");
                         menu_grid.setImagePath("js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");

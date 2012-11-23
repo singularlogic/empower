@@ -372,7 +372,7 @@ public class MainControlDB {
                         : this.dbHandler.dbUpdate("insert into dataannotations (xslt_annotations,mapping,selections,cvp_id,xbrl) values ('" + annotations + "','" + json + "','" + selections + "'," + cvp_id + ",'" + xbrlType + "');");
 
                 System.out.println(" create dataannotations:" + dataannotations_id);
-                 }
+            }
 
             this.dbHandler.dbClose();
         } catch (Throwable t) {
@@ -484,7 +484,7 @@ public class MainControlDB {
 
             if (rs != null) {
                 rs.next();
-                name = rs.getString("name")+" V"+rs.getString("version");
+                name = rs.getString("name") + " V" + rs.getString("version");
             }
 
             rs.close();
@@ -494,6 +494,36 @@ public class MainControlDB {
         }
 
         return name;
+    }
+
+    public String getOperationTaxonomy(int schema_id, int service_id, String operation) {
+        ResultSet rs;
+        String info = "";
+        try {
+            this.dbHandler.dbOpen();
+            if (schema_id != -1) {
+                rs = this.dbHandler.dbQuery("SELECT taxonomy_id,name FROM operation WHERE operation_id=" + Integer.parseInt(operation));
+                if (rs != null) {
+                    rs.next();
+                    info = (!rs.getString("taxonomy_id").equalsIgnoreCase("1")) ? "The selected operation " + rs.getString("name") + " is annotated with the  " + rs.getString("taxonomy_id") + " taxonomy" : "The selected operation " + operation + " is not annotated yet";
+                }
+                rs.close();
+            }
+
+            if (service_id != -1) {
+                rs = this.dbHandler.dbQuery("SELECT taxonomy_id FROM operation WHERE name='" + operation + "' and service_id=" + service_id);
+                if (rs != null) {
+                    rs.next();
+                    info = (!rs.getString("taxonomy_id").equalsIgnoreCase("1")) ? "The selected operation " + operation + " is annotated with the  " + rs.getString("taxonomy_id") + " taxonomy" : "The selected operation " + operation + " is not annotated yet";
+                }
+                rs.close();
+            }
+
+            this.dbHandler.dbClose();
+        } catch (Throwable t) {
+        }
+
+        return info;
     }
 
     public LinkedList<SoftwareComponent> getSoftwareComponents() {
@@ -541,8 +571,6 @@ public class MainControlDB {
 
         return service;
     }
-    
-    
 
     public boolean isFullyMatched(int cpp, int service_id, int cvpID) {
         ResultSet rs, tmpSet, funcSet;
@@ -611,7 +639,7 @@ public class MainControlDB {
 
             this.dbHandler.dbOpen();
 
-            rs = this.dbHandler.dbQuery("select taxonomy_id from operation group by taxonomy_id");
+            rs = this.dbHandler.dbQuery("select taxonomy_id from operation where operation.taxonomy_id<>'1'  group by taxonomy_id");
 
             dbConnector dbHand = new dbConnector();
 
