@@ -11,6 +11,9 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+
+import net.sf.json.JSONObject;
 import com.ibm.wsdl.BindingOperationImpl;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -200,15 +203,21 @@ public class WSDLParser
                         String messageType="";
                         try
                         {
-                         messageType = messagePart.getTypeName().toString().replaceAll("\\{.*\\}", "");
+                            messageType = messagePart.getName().toString().replaceAll("\\{.*\\}", "");
+                            if (messageType.equalsIgnoreCase("parameters") || messageType.equalsIgnoreCase("arg0")) throw new IOException("Some required files are missing");
                         }
                         catch(Throwable t)
                          {
-                           messageType = messageQname;
+                             try{
+
+                                 messageType = messagePart.getTypeName().toString().replaceAll("\\{.*\\}", "");
+                             }
+                             catch (Throwable l){
+                                 messageType = messageQname;
+                             }
+
                          }
                         
-                        
-                        //String messageType = messagePart.getTypeName().toString().replaceAll("\\{.*\\}", "");
                         System.out.println(" ----------- " + messageType);
                         
                         out.write("<item text=\"" +
@@ -235,11 +244,19 @@ public class WSDLParser
                         String messageType="";
                         try
                         {
-                         messageType = messagePart.getTypeName().toString().replaceAll("\\{.*\\}", "");
+                            messageType = messagePart.getName().toString().replaceAll("\\{.*\\}", "");
+                            if (messageType.equalsIgnoreCase("parameters") || messageType.equalsIgnoreCase("return")) throw new IOException("Some required files are missing");
+
                         }
                         catch(Throwable t)
                          {
-                          messageType = messageQname;
+                          try   {
+                              messageType = messagePart.getTypeName().toString().replaceAll("\\{.*\\}", "");
+                          }
+                          catch (Throwable l)   {
+                              messageType = messageQname;
+                          }
+
                          }
                         
                         //String messageType = messagePart.getTypeName().toString().replaceAll("\\{.*\\}", "");
@@ -319,211 +336,60 @@ public class WSDLParser
     {
         String xsdTypes = new String("");
         String line;
+        int selections_option = 0;
         BufferedReader wsdlFile = new BufferedReader(new FileReader(WSDL_URL));
 
         xsdTypes += "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\""
                     +  " elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">";
-        
-        while(((line=wsdlFile.readLine())!=null) && (!line.trim().equals("<xs:complexType name=\"" + element + "\">"))) {}
-        xsdTypes += line;
+
+
+        String delimiter= "\"";
+       while(((line=wsdlFile.readLine())!=null) && (!line.trim().equals("<xs:complexType name="+delimiter + element + delimiter + ">")) ) {
+            System.out.println("line: "+line);
+        }
+        if (line!=null)  xsdTypes += line;
+        else{
+
+            delimiter= "'";
+            wsdlFile = new BufferedReader(new FileReader(WSDL_URL));
+            while(((line=wsdlFile.readLine())!=null) && (!line.trim().equals("<xs:complexType name="+delimiter + element + delimiter + ">")) ) {
+                System.out.println("line: "+line);
+            }
+            xsdTypes += line;
+        }
         while(((line=wsdlFile.readLine())!=null) && (!line.trim().equals("</xs:complexType>")))
             xsdTypes = xsdTypes + "\n" + line;
 
         xsdTypes += "</xs:complexType></xs:schema>";
-                
+    
         return xsdTypes;
+        
     }
-    
-    /*
 
-    public String extractXSD(LinkedList<String> elementsList)
-    throws FileNotFoundException, IOException, ParserConfigurationException,
-    SAXException, XPathExpressionException
+
+      /*
+    public String extractXSD(String element)
+            throws FileNotFoundException, IOException, ParserConfigurationException,
+            SAXException, XPathExpressionException
     {
-        String namesExpression = null;
-        String elementName = null;
-        String xsdContents = new String("");
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        dbf.setNamespaceAware(true);
-        DocumentBuilder db = dbf.newDocumentBuilder();
-        Document doc = db.parse(new File(this.WSDL_URL));
-        System.out.println(doc.toString());
-        doc.getDocumentElement().normalize();
-        XPathFactory xFactory = XPathFactory.newInstance();
+        String xsdTypes = new String("");
+        String line;
+        BufferedReader wsdlFile = new BufferedReader(new FileReader(WSDL_URL));
 
-        XPath xpath = xFactory.newXPath();
-        
-        //setup basic namespace URLs
-        xpath.setNamespaceContext(new NamespaceContext() {       
-                public String getNamespaceURI(String prefix) {
-                    System.out.println(prefix);
-                    
-                    if (prefix.equals(XMLConstants.DEFAULT_NS_PREFIX)) {
-                        System.out.println("default");
-                        return "http://schemas.xmlsoap.org/wsdl/";
-                    }
-                    else if(prefix.equals("xs")){
-                        return("http://www.w3.org/2001/XMLSchema.xsd");
-                    }
-                    else                    
-                        return null;
-                    
-                }
+        xsdTypes += "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\""
+                +  " elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">";
 
-                public String getPrefix(String namespaceURI) {
-                    throw new UnsupportedOperationException("Not supported yet.");
-                }
+        while(((line=wsdlFile.readLine())!=null) && (!line.trim().equals("<xs:complexType name=\"" + element + "\">")) ) {}
+        xsdTypes += line;
 
-                public Iterator getPrefixes(String namespaceURI) {
-                    throw new UnsupportedOperationException("Not supported yet.");
-                }
-        });
-        
-        xsdContents += "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\""
-                    +  " elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">";
+        while(((line=wsdlFile.readLine())!=null) && (!line.trim().equals("</xs:complexType>")))
+            xsdTypes = xsdTypes + "\n" + line;
 
-        if(elementsList == null)
-            namesExpression = new String("");
-        else
-        {
-            namesExpression = new String("[@name='" + elementsList.get(0) + "'");
-            for(int i=1;i<elementsList.size();i++)
-                namesExpression += " or @name='" + elementsList.get(i) + "'";
+        xsdTypes += "</xs:complexType></xs:schema>";
 
-            namesExpression += "]";
-        }
-        
-        System.out.println("//xs:schema/xs:complexType" + namesExpression);
-        XPathExpression expr = xpath.compile("//xs:schema/xs:complexType" + namesExpression);
-        Object resultElements = expr.evaluate(doc, XPathConstants.NODESET);
-        System.out.println("---- " + xsdContents);
-
-        
-        if(resultElements instanceof NodeList)
-        {
-            NodeList nodes = (NodeList) resultElements;
-            // iterate through first level elements
-            for (int i = 0; i < nodes.getLength(); i++)
-            {
-                elementName = nodes.item(i).getAttributes().item(0).toString().replace("name=\"", "");
-                xsdContents += new String("\n<" + nodes.item(i).getNodeName()
-                                                + " name=\"" + elementName +  ">");
-
-                expr = xpath.compile("//*[local-name()='complexType' and @name=\""
-                                    + elementName + "]/child::*");
-
-                Object nestedElements = expr.evaluate(doc, XPathConstants.NODE);
-                Node node = (Node) nestedElements;
-                xsdContents += convertNodeToXMLString(node);
-                xsdContents += "\n</xs:complexType>";
-            }
-        }
-
-        System.out.println("---- " + xsdContents);
-        
-        xsdContents += "\n</xs:schema>";
-        
-        //remove unecessary attibutes and elements
-        //so that annotator can process the xsd file
-        xsdContents = xsdContents.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
-        xsdContents = xsdContents.replaceAll("<xs:complexType\\s.*>", "<xs:complexType>");
-        return xsdContents;
-    }    
-    
-    public String extractXSD(LinkedList<String> elementsList)
-    throws FileNotFoundException, IOException, ParserConfigurationException,
-    SAXException, XPathExpressionException
-    {
-        String namesExpression = null;
-        String elementName = null;
-        String xsdContents = new String("");
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        dbf.setNamespaceAware(true);
-        DocumentBuilder db = dbf.newDocumentBuilder();
-        Document doc = db.parse(new File(this.WSDL_URL));
-        System.out.println(doc.toString());
-        doc.getDocumentElement().normalize();
-        XPathFactory xFactory = XPathFactory.newInstance();
-
-        XPath xpath = xFactory.newXPath();
-        
-        //setup basic namespace URLs
-        xpath.setNamespaceContext(new NamespaceContext() {       
-                public String getNamespaceURI(String prefix) {
-                    System.out.println(prefix);
-                    
-                    if (prefix.equals(XMLConstants.DEFAULT_NS_PREFIX)) {
-                        System.out.println("default");
-                        return "http://schemas.xmlsoap.org/wsdl/";
-                    }
-                    else if(prefix.equals("xsd")){
-                        return("http://www.w3.org/2001/XMLSchema.xsd");
-                    }
-                    else                    
-                        return null;
-                    
-                }
-
-                public String getPrefix(String namespaceURI) {
-                    throw new UnsupportedOperationException("Not supported yet.");
-                }
-
-                public Iterator getPrefixes(String namespaceURI) {
-                    throw new UnsupportedOperationException("Not supported yet.");
-                }
-        });
-        
-        xsdContents += "<xsd:schema xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\""
-                    +  " elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">";
-
-        if(elementsList == null)
-            namesExpression = new String("");
-        else
-        {
-            namesExpression = new String("[@name='" + elementsList.get(0) + "'");
-            for(int i=1;i<elementsList.size();i++)
-                namesExpression += " or @name='" + elementsList.get(i) + "'";
-
-            namesExpression += "]";
-        }
-        
-        System.out.println("//xsd:schema/xsd:element" + namesExpression);
-        XPathExpression expr = xpath.compile("//xsd:schema/xsd:element" + namesExpression);
-        Object resultElements = expr.evaluate(doc, XPathConstants.NODESET);
-        System.out.println("---- " + xsdContents);
-
-        
-        if(resultElements instanceof NodeList)
-        {
-            NodeList nodes = (NodeList) resultElements;
-            // iterate through first level elements
-            for (int i = 0; i < nodes.getLength(); i++)
-            {
-                elementName = nodes.item(i).getAttributes().item(0).toString().replace("name=\"", "");
-                xsdContents += new String("\n<" + nodes.item(i).getNodeName()
-                                                + " name=\"" + elementName +  ">");
-
-                expr = xpath.compile("//*[local-name()='element' and @name=\""
-                                    + elementName + "]/child::*");
-
-                Object nestedElements = expr.evaluate(doc, XPathConstants.NODE);
-                Node node = (Node) nestedElements;
-                xsdContents += convertNodeToXMLString(node);
-                xsdContents += "\n</xsd:element>";
-            }
-        }
-
-        System.out.println("---- " + xsdContents);
-        
-        xsdContents += "\n</xsd:schema>";
-        
-        //remove unecessary attibutes and elements
-        //so that annotator can process the xsd file
-        xsdContents = xsdContents.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
-        xsdContents = xsdContents.replaceAll("<xsd:complexType\\s.*>", "<xsd:complexType>");
-        return xsdContents;
-    }
-  */     
+        return xsdTypes;
+    } */
+      
     public void outputToXML(PrintWriter out)
     {
         int idNum = 1;
@@ -974,23 +840,28 @@ public class WSDLParser
 
                         // add this so as to recognize the wsdl produced by netbeans creating webservice
                         String messageType="";
+
                         try
                         {
-                         messageType = messagePart.getTypeName().toString().replaceAll("\\{.*\\}", "");
+                            messageType = messagePart.getName().toString().replaceAll("\\{.*\\}", "");
+                            if (messageType.equalsIgnoreCase("parameters") || messageType.equalsIgnoreCase("arg0")) throw new IOException("Some required files are missing");
+
                         }
                         catch(Throwable t)
-                         {
-                          messageType = messageQname;
-                         }
+                        {
+                            try   {
+                                messageType = messagePart.getTypeName().toString().replaceAll("\\{.*\\}", "");
+                            }
+                            catch (Throwable l)   {
+                                messageType = messageQname;
+                            }
+
+                        }
                         
                         //String messageType = messagePart.getTypeName().toString().replaceAll("\\{.*\\}", "");
-
-                        System.out.println("INFO THAT ELENI HAS TO GET: input$" + messageType + "$" + operationName + "$" + bindingName);                                 
+        
                         element.add(0, "input$" + messageType + "$" + operationName + "$" + bindingName);
-                        
-                    }
-                    
-                    
+                    }                   
                     keyIterator = operation.getOutput().getMessage().getParts().keySet().iterator();
                     messageQname = operation.getOutput().getMessage().getQName().toString().replaceAll("\\{.*\\}", "");
                    
@@ -1001,14 +872,23 @@ public class WSDLParser
                                              
                         // add this so as to recognize the wsdl produced by netbeans creating webservice
                         String messageType="";
+                      
                         try
                         {
-                         messageType = messagePart.getTypeName().toString().replaceAll("\\{.*\\}", "");
+                            messageType = messagePart.getName().toString().replaceAll("\\{.*\\}", "");
+                            if (messageType.equalsIgnoreCase("parameters") || messageType.equalsIgnoreCase("return")) throw new IOException("Some required files are missing");
+
                         }
                         catch(Throwable t)
-                         {
-                          messageType = messageQname;
-                         }
+                        {
+                            try   {
+                                messageType = messagePart.getTypeName().toString().replaceAll("\\{.*\\}", "");
+                            }
+                            catch (Throwable l)   {
+                                messageType = messageQname;
+                            }
+
+                        }
                         //String messageType = messagePart.getTypeName().toString().replaceAll("\\{.*\\}", "");
                         element.add(1, "output$" + messageType + "$" + operationName + "$" + bindingName);
                         

@@ -370,7 +370,6 @@ public class VendorDBConnector {
 
 
             if (new_web_service_name.equalsIgnoreCase("")) {
-                System.out.println("Hola");
                 service_id = Integer.parseInt(web_service);
             } else {
                 service_id = this.dbHandler.dbUpdate("INSERT INTO web_service(name,software_id) VALUES ('" + new_web_service_name + "'," + software_id + ")");
@@ -399,9 +398,6 @@ public class VendorDBConnector {
     public int insertServiceInfo(int software_id, String serviceName, String wsdlFilename, String xmlRepPath, String namespace) {
         ResultSet rs;
         int service_id = -1;
-        int old_service_id = 0;
-        String version = new String("");
-        String filename = null;
         Iterator servicePorts;
         int numberOperations, numberMessages;
 

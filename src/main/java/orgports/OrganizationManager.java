@@ -51,9 +51,16 @@ import xml.XSDParser;
  */
 public class OrganizationManager extends HttpServlet {
 
-    //private static String xml_rep_path = "/var/www/empower/empowerdata/";
-    private static String xml_rep_path = "/home/eleni/Documents/ubi/empower/empower-deliverable-september/empower/";
-    
+    private static String xml_rep_path;
+
+    public OrganizationManager() throws IOException {
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        Properties properties = new Properties();
+        InputStream in =classLoader.getResourceAsStream("myproperties.properties");
+        properties.load(in);
+        this.xml_rep_path= properties.getProperty("repo.path").toString();
+    }
+
 
     /**
      * Processes requests for both HTTP

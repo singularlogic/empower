@@ -51,8 +51,20 @@ import xml.XSDParser;
  */
 public class DIController extends HttpServlet {
 
-    //private static String xml_rep_path = "/var/www/empower/empowerdata/";
-    private static String xml_rep_path = "/home/eleni/Documents/ubi/empower/empower-deliverable-september/empower/";
+       private static String xml_rep_path;
+
+
+    public DIController() throws IOException {
+
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        Properties properties = new Properties();
+        InputStream in =classLoader.getResourceAsStream("myproperties.properties");
+        properties.load(in);
+
+        this.xml_rep_path= properties.getProperty("repo.path").toString();
+
+    }
+
 
     /**
      * Processes requests for both HTTP
@@ -708,7 +720,7 @@ public class DIController extends HttpServlet {
         String selections = request.getParameter("selections");
         String centralTree = request.getParameter("centraltree");
         String mapping = new String("");
-        String choice = null;
+        String choice =  new String("");
         String xbrl_mismatch = "false";
         if (verifyUser("vendor", session)) {
             request.setAttribute("map_type", "cvp");
@@ -734,8 +746,11 @@ public class DIController extends HttpServlet {
 
         WSDLParser wsdlParser = new WSDLParser(service.getWsdl(), service.getNamespace());
         choice = selections.split("\\$")[1];
+        //choice[1] = selections.split("\\$")[2];
         String inputoutput = selections.split("\\$")[0];
         String xsdTypes = wsdlParser.extractXSD(choice);
+        //int selections_option =  response_xsdTypes.getInt("choice");
+        //String  xsdTypes = response_xsdTypes.getString("xsdTypes");
 
         String filename = new String(service.getService_id() + service.getName() + choice + ".xsd");
         String xsdFilename = new String(xml_rep_path + "/xsd/" + filename);
