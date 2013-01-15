@@ -47,7 +47,7 @@ public class XSDParser  {
          SAXParser p = f.newSAXParser();
          myParser handler = new myParser();
          p.parse(x, handler);
-            
+
         return handler.getElements();
     }
     

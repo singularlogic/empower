@@ -75,8 +75,10 @@
                 </div>
             </div>
             <div class="main-content">
+              <div>
                 <br><h2><b>Register service details</b></h2>
-                <br>
+                  <div><p class="info_message">Please be sure that the service name and the namespace are the same with the ones in the .wsdl file you are about to register</p></div>
+                  <br>
                 <%if (request.getParameter("jsp").equalsIgnoreCase("true")) { %>
                 <form method="POST" action="/empower/DIController?op=service_reg" name="ws_registration" enctype="multipart/form-data">
                 <%}else{%>
@@ -109,7 +111,8 @@
                         </tbody>
                     </table>
                 </form>
-            </div>
+              </div>
+               </div>
         </div>
         <div class="footer"><p>Copyright &copy; 2012 Empower Consortium | All Rights Reserved</p></div>                    
     </center>

@@ -42,6 +42,7 @@ import vendorports.VendorDBConnector;
 import xml.Parser;
 import xml.WSDLParser;
 import xml.XSDParser;
+import org.dom4j.DocumentException;
 
 /**
  *
@@ -645,7 +646,7 @@ public class DIController extends HttpServlet {
     }
 
     protected void annotate(HttpServletRequest request, HttpServletResponse response, HttpSession session)
-            throws IOException, ServletException, ParserConfigurationException, SAXException, XPathExpressionException, WSDLException, TransformerConfigurationException, TransformerException {
+            throws IOException, ServletException, ParserConfigurationException, SAXException, XPathExpressionException, WSDLException, TransformerConfigurationException, TransformerException,DocumentException  {
 
         if (!request.getParameter("schema_id").equalsIgnoreCase("null")) {
             annotate_data_schema(request, response, session);
@@ -714,7 +715,7 @@ public class DIController extends HttpServlet {
     }
 
     protected void annotate_data_service(HttpServletRequest request, HttpServletResponse response, HttpSession session)
-            throws IOException, ServletException, ParserConfigurationException, SAXException, XPathExpressionException, WSDLException, TransformerConfigurationException, TransformerException {
+            throws IOException, ServletException, ParserConfigurationException, SAXException, XPathExpressionException, WSDLException, TransformerConfigurationException, TransformerException, DocumentException {
 
         int service_id = Integer.parseInt((String) request.getParameter("service_id"));
         String selections = request.getParameter("selections");

@@ -4,25 +4,15 @@
  */
 package xml;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
+import java.io.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
 import net.sf.json.JSONObject;
 import com.ibm.wsdl.BindingOperationImpl;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
+
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -41,6 +31,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -50,8 +41,10 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import org.apache.xerces.util.DOMInputSource;
+import org.dom4j.DocumentException;
 import org.w3c.dom.Document;
 
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -93,9 +86,10 @@ public class WSDLParser
             Port port = service.getPort((String)iter.next());
             b = port.getBinding();        
             PortType portType = b.getPortType();
-            List portOperations = portType.getOperations();          
+            List portOperations = portType.getOperations();
             this.operationsNumber += portOperations.size();
-            this.messageNumber += operationsNumber * 2;
+            //this.messageNumber += operationsNumber * 2;
+            this.messageNumber += definitionEntity.getMessages().size();
         }
     }
 
@@ -224,51 +218,56 @@ public class WSDLParser
                               messagePart.getName() + "\" id=\"input$" + messageType + "$" + operationName + "$" + bindingName + "\"/>");                                 
                     }
                     
+                    try{
 
-                    keyIterator = operation.getOutput().getMessage().getParts().keySet().iterator();
-                    messageQname = operation.getOutput().getMessage().getQName().toString().replaceAll("\\{.*\\}", "");
 
-                    out.write("<item text=\"" +  messageQname
-                              + "\" id=\"" + messageQname + "\" nocheckbox=\"true\">");
+                        keyIterator = operation.getOutput().getMessage().getParts().keySet().iterator();
+                        messageQname = operation.getOutput().getMessage().getQName().toString().replaceAll("\\{.*\\}", "");
 
-                    System.out.print(" -2" + messageQname + " ");
-                    
-                    while(keyIterator.hasNext())
-                    {
-                        String messagePartName = (String) keyIterator.next();  
-                        Part messagePart = operation.getOutput().getMessage().getPart(messagePartName);
-                        System.out.println(messagePartName);                        
+                        out.write("<item text=\"" +  messageQname
+                                + "\" id=\"" + messageQname + "\" nocheckbox=\"true\">");
 
-                        
-                        // add this so as to recognize the wsdl produced by netbeans creating webservice
-                        String messageType="";
-                        try
+                        System.out.print(" -2" + messageQname + " ");
+
+                        while(keyIterator.hasNext())
                         {
-                            messageType = messagePart.getName().toString().replaceAll("\\{.*\\}", "");
-                            if (messageType.equalsIgnoreCase("parameters") || messageType.equalsIgnoreCase("return")) throw new IOException("Some required files are missing");
+                            String messagePartName = (String) keyIterator.next();
+                            Part messagePart = operation.getOutput().getMessage().getPart(messagePartName);
+                            System.out.println(messagePartName);
+
+
+                            // add this so as to recognize the wsdl produced by netbeans creating webservice
+                            String messageType="";
+                            try
+                            {
+                                messageType = messagePart.getName().toString().replaceAll("\\{.*\\}", "");
+                                if (messageType.equalsIgnoreCase("parameters") || messageType.equalsIgnoreCase("return")) throw new IOException("Some required files are missing");
+
+                            }
+                            catch(Throwable t)
+                            {
+                                try   {
+                                    messageType = messagePart.getTypeName().toString().replaceAll("\\{.*\\}", "");
+                                }
+                                catch (Throwable l)   {
+                                    messageType = messageQname;
+                                }
+
+                            }
+
+                            //String messageType = messagePart.getTypeName().toString().replaceAll("\\{.*\\}", "");
+                            System.out.println(" ----------- " + messageType);
+
+                            out.write("<item text=\"" +
+                                    messagePart.getName() + "\" id=\"output$" + messageType + "$" + operationName + "$" + bindingName + "\"/>");
+
 
                         }
-                        catch(Throwable t)
-                         {
-                          try   {
-                              messageType = messagePart.getTypeName().toString().replaceAll("\\{.*\\}", "");
-                          }
-                          catch (Throwable l)   {
-                              messageType = messageQname;
-                          }
-
-                         }
-                        
-                        //String messageType = messagePart.getTypeName().toString().replaceAll("\\{.*\\}", "");
-                        System.out.println(" ----------- " + messageType);
-                    
-                        out.write("<item text=\"" +
-                              messagePart.getName() + "\" id=\"output$" + messageType + "$" + operationName + "$" + bindingName + "\"/>");
-                                                                
-                        
+                        out.write("</item>");
                     }
-                    
-                    out.write("</item>");
+                    catch (Throwable l){
+                        System.out.println("ThrowedException "+ l);
+                    }
                 }
           
           out.write("</item>");
@@ -331,20 +330,82 @@ public class WSDLParser
     }
 
     public String extractXSD(String element)
-    throws FileNotFoundException, IOException, ParserConfigurationException,
-    SAXException, XPathExpressionException
-    {
+            throws FileNotFoundException, IOException, ParserConfigurationException,
+            SAXException, XPathExpressionException, DocumentException, TransformerException {
         String xsdTypes = new String("");
         String line;
-        int selections_option = 0;
-        BufferedReader wsdlFile = new BufferedReader(new FileReader(WSDL_URL));
 
         xsdTypes += "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\""
                     +  " elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">";
 
+        xsdTypes +=  getElementfromXSD(element);
 
+        xsdTypes += "</xs:schema>";
+
+        // get the entity type so as to add it to xsdTypes
+        Parser parser = new Parser();
+        JSONObject daoEntity = parser.getTypes(xsdTypes);
+
+       // in case that element is different from daoEntity parse again wsdl so as to get the entity complexType
+        if (!daoEntity.getString("entity").equalsIgnoreCase(element))
+        {
+            String daoNodeStructure = getElementfromXSD(daoEntity.getString("entity").toString());
+
+            //Treat daoNodeStructure so fix foreign keys
+              String  mainEntityStructure = null;
+            if (!daoNodeStructure.equalsIgnoreCase("null"))  {
+
+                //put foreign keys as attributes
+                Document dom;
+                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                DocumentBuilder db = dbf.newDocumentBuilder();
+                dom = db.parse(new InputSource(new StringReader(daoNodeStructure)));
+                NodeList list = dom.getElementsByTagName("xs:element");
+
+                for (int i = 0; i < list.getLength(); i++) {
+                    Element el = (Element) list.item(i);
+                    if(!el.getAttribute("type").split(":")[0].equalsIgnoreCase("xs") && el.getAttribute("name").contains("Id")){
+
+                      String ForeignKeyXSDTypes = getForeignKeyElementfromXSD(el.getAttribute("type").split(":")[1]);
+                      el.setAttribute("fk",ForeignKeyXSDTypes);
+                    }
+
+                }
+
+                StreamResult result = null;
+                Transformer transformer = TransformerFactory.newInstance().newTransformer();
+                result = new StreamResult(new StringWriter());
+                DOMSource source = new DOMSource(dom);
+                transformer.transform(source, result);
+
+                daoNodeStructure = result.getWriter().toString();
+                daoNodeStructure = daoNodeStructure.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>","");
+
+                Parser parserEntity = new Parser();
+                mainEntityStructure = parserEntity.alterFKs(daoNodeStructure);
+                mainEntityStructure = mainEntityStructure.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>","");
+            }
+
+            // add the daoNodeStructure to xsdTypes
+            xsdTypes = xsdTypes.replace("</xs:schema>","");
+            xsdTypes= xsdTypes.replace("ns1:","");
+            xsdTypes += mainEntityStructure;
+            xsdTypes += "</xs:schema>";
+        }
+
+        return xsdTypes;
+
+    }
+
+    public String getElementfromXSD(String element) throws IOException {
+
+        String xsdTypes = new String("");
         String delimiter= "\"";
-       while(((line=wsdlFile.readLine())!=null) && (!line.trim().equals("<xs:complexType name="+delimiter + element + delimiter + ">")) ) {
+        String line;
+
+        BufferedReader wsdlFile = new BufferedReader(new FileReader(WSDL_URL));
+
+        while(((line=wsdlFile.readLine())!=null) && (!line.trim().equals("<xs:complexType name="+delimiter + element + delimiter + ">")) ) {
             System.out.println("line: "+line);
         }
         if (line!=null)  xsdTypes += line;
@@ -360,10 +421,59 @@ public class WSDLParser
         while(((line=wsdlFile.readLine())!=null) && (!line.trim().equals("</xs:complexType>")))
             xsdTypes = xsdTypes + "\n" + line;
 
-        xsdTypes += "</xs:complexType></xs:schema>";
-    
+        if (!xsdTypes.equalsIgnoreCase("null")) xsdTypes += "</xs:complexType>";
+
         return xsdTypes;
-        
+
+    }
+
+
+    public String getForeignKeyElementfromXSD(String element) throws IOException, ParserConfigurationException, SAXException {
+
+        String xsdTypes = new String("");
+        String delimiter= "\"";
+        String line;
+
+        BufferedReader wsdlFile = new BufferedReader(new FileReader(WSDL_URL));
+
+        while(((line=wsdlFile.readLine())!=null) && (!line.trim().equals("<xs:complexType name="+delimiter + element + delimiter + ">")) ) {
+            System.out.println("line: "+line);
+        }
+        if (line!=null)  xsdTypes += line;
+        else{
+
+            delimiter= "'";
+            wsdlFile = new BufferedReader(new FileReader(WSDL_URL));
+            while(((line=wsdlFile.readLine())!=null) && (!line.trim().equals("<xs:complexType name="+delimiter + element + delimiter + ">")) ) {
+                System.out.println("line: "+line);
+            }
+            xsdTypes += line;
+        }
+        while(((line=wsdlFile.readLine())!=null) && (!line.trim().equals("</xs:complexType>")))
+            xsdTypes = xsdTypes + "\n" + line;
+
+        if (!xsdTypes.equalsIgnoreCase("null")) xsdTypes += "</xs:complexType>";
+
+
+
+        Document dom;
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        dom = db.parse(new InputSource(new StringReader(xsdTypes)));
+        NodeList list = dom.getElementsByTagName("xs:element");
+        String FKidDescription=""  ;
+
+        for (int i = 0; i < list.getLength(); i++) {
+            Element el = (Element) list.item(i);
+            if(el.getAttribute("type").split(":")[0].equalsIgnoreCase("xs") && el.getAttribute("name").contains("Id"))
+            {
+                FKidDescription= el.getAttribute("name");
+            }
+
+        }
+
+        return FKidDescription;
+
     }
 
 
@@ -861,7 +971,10 @@ public class WSDLParser
                         //String messageType = messagePart.getTypeName().toString().replaceAll("\\{.*\\}", "");
         
                         element.add(0, "input$" + messageType + "$" + operationName + "$" + bindingName);
-                    }                   
+                    }
+
+
+                   try   {
                     keyIterator = operation.getOutput().getMessage().getParts().keySet().iterator();
                     messageQname = operation.getOutput().getMessage().getQName().toString().replaceAll("\\{.*\\}", "");
                    
@@ -893,6 +1006,10 @@ public class WSDLParser
                         element.add(1, "output$" + messageType + "$" + operationName + "$" + bindingName);
                         
                     }
+                   }
+                    catch (Throwable l){
+                    System.out.println("ThrowedException "+ l);
+                   }
                 }
                 
                 return element;

@@ -372,10 +372,12 @@ public class VendorManager extends HttpServlet {
         }
 
         VendorDBConnector vendorDBConnector = new VendorDBConnector();
-  
+
         service_id = vendorDBConnector.insertServiceInfo(software_id, service_name ,serviceFilename, xml_rep_path,service_namespace);
 
-        message= "Service has been succesfully registered.";
+        if (service_id==-1)  message= "Service has NOT been succesfully registered. Please check that the service name and the namespace are the same with the ones in the .wsdl file.";
+        else message= "Service has been succesfully registered.";
+
         this.forwardToPage("/vendor/succ.jsp?message="+message, request, response);
     }
      

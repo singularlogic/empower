@@ -4,9 +4,12 @@
  */
 package dataaccesslayer;
 
+import org.apache.commons.io.IOUtils;
+
 import java.sql.*;
 import java.io.*;
 import java.util.*;
+import java.util.Properties;
 
 /**
  *
@@ -19,20 +22,39 @@ public class dbConnector {
 	private Connection dbConnection;
 
 	public void dbOpen()
-	throws ClassNotFoundException, SQLException,
-        InstantiationException, IllegalAccessException
-	{                   
-                String url = "jdbc:mysql://127.0.0.1:3306/";
-                String dbName = "empower";
-                //String dbName = "empower_database";
-                String driver = "com.mysql.jdbc.Driver";
-                String userName = "empower";
-                String password = "!empower!";
-                //String userName = "root";
-                //String password = "ego";
-  
-  
-                Class.forName(driver).newInstance();
+            throws ClassNotFoundException, SQLException,
+            InstantiationException, IllegalAccessException, IOException {
+
+        /*
+      ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+      Properties properties = new Properties();
+      InputStream in =classLoader.getResourceAsStream("myproperties.properties");
+      properties.load(in);
+
+
+      Enumeration el =properties.propertyNames();
+      while (el.hasMoreElements()) {
+          System.out.println("4");
+          String key = (String) el.nextElement();
+          System.out.println(key + " -- " + properties.getProperty(key));
+      }
+
+      String url =    properties.getProperty("database.jdbc.connectionURL").toString();
+      String driver = properties.getProperty("database.jdbc.driverClass").toString();
+      String dbName = properties.getProperty("database.jdbc.name").toString();
+      String userName = properties.getProperty("database.jdbc.username").toString();
+      String password = properties.getProperty("database.jdbc.password").toString();
+       */
+
+        /*    */
+        String url =    "jdbc:mysql://127.0.0.1:3306/";
+        String driver = "com.mysql.jdbc.Driver";
+        String dbName = "empower_db";
+        String userName = "root";
+        String password = "!uflow!";
+
+
+        Class.forName(driver).newInstance();
                 dbConnection = DriverManager.getConnection(url+dbName,userName,password);
                 stmt = dbConnection.createStatement();		
 	}
@@ -78,6 +100,5 @@ public class dbConnector {
 	{
 		stmtStr = null;
 	}
-
     
 }
