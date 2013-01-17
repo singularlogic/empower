@@ -44,7 +44,7 @@ public class SOAPEnvelopeInvoker {
     String source_operation_name = "";
     String complexType_input = "";
     String complexType_output = "";
-    JSONObject inputargs;
+    //JSONObject inputargs;
     String soap_inputargs = "";
     String SOAP_REQUEST = "";
     String HOST_ADDRESS = "";
@@ -68,18 +68,18 @@ public class SOAPEnvelopeInvoker {
      *
      * http://ws.eleni.com/getInvoice
      */
-    public SOAPEnvelopeInvoker(String SoapAdressURL, String source_operation_name, String complexType_input, String complexType_output, JSONObject inputargs,JSONObject XMLParserInputArgs, String namespace) throws ParserConfigurationException, IOException, SAXException, TransformerException {
+    public SOAPEnvelopeInvoker(String SoapAdressURL, String source_operation_name, String complexType_input, String complexType_output, String namespace, String xmldata) throws ParserConfigurationException, IOException, SAXException, TransformerException {
         this.SoapAdressURL = SoapAdressURL;
         this.source_operation_name = source_operation_name;
         this.complexType_input = complexType_input;
         this.complexType_output = complexType_output;
-        this.inputargs = inputargs;
+        //this.inputargs = inputargs;
 
         
         //Construct input fields of WS.
         // If inputArgs contain nested fields we getit from  TypesToExposeinForm
         // else we iterate the inputArgs taken from HTTP request
-
+        /*
         List<String>  TypesToExposeinForm = (List<String>) XMLParserInputArgs.get("TypesToExposeinForm");
         if((TypesToExposeinForm.size()>1))
         {
@@ -149,6 +149,8 @@ public class SOAPEnvelopeInvoker {
             soap_inputargs = soap_inputargs.concat("<" + key + ">" + value + "</" + key + ">");
         }
         }
+
+
         System.out.println("namespace" + namespace);
 
         SOAP_REQUEST = "<?xml version=\"1.0\"?><soap:Envelope "
@@ -157,6 +159,14 @@ public class SOAPEnvelopeInvoker {
                 + "<soap:Body> <m:" + complexType_input + ">  "
                 + soap_inputargs
                 + "</m:" + complexType_input + "></soap:Body></soap:Envelope>";
+         */
+
+
+        SOAP_REQUEST = "<?xml version=\"1.0\"?><soap:Envelope "
+                + "xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\""
+                + "   xmlns:m=\""+namespace+"\">"
+                + "<soap:Body>"+xmldata+"</soap:Body></soap:Envelope>";
+
 
         System.out.println("SOAP_REQUEST" + SOAP_REQUEST);
 
@@ -213,7 +223,7 @@ public class SOAPEnvelopeInvoker {
             for (int k = 0; k < returnnode.getChildNodes().getLength(); k++)
             {
                 Element element = (Element) returnnode.getChildNodes().item(k);
-                System.out.println("ena ena dio ");
+
                 for(Node childNode = (Node) element.getFirstChild();childNode!=null;){
                     Node nextChild = (Node) childNode.getNextSibling();
                     // Do something with childNode,
@@ -291,7 +301,7 @@ public class SOAPEnvelopeInvoker {
             System.out.println("EnvelopeResponse: "+resp.toString());
             SOAPEnvelopeInvokerResponse.put("Soap:EnvelopeResponse", resp.toString());
 
-            outputXML ="<"+complexType_output+">";
+            outputXML ="<"+complexType_output+"><return>";
             
             System.out.println("outputXML start:  "+outputXML);
                 
@@ -333,7 +343,7 @@ public class SOAPEnvelopeInvoker {
                 }
             }
             
-            outputXML= outputXML +"</"+complexType_output+">";
+            outputXML= outputXML +"</return></"+complexType_output+">";
             
             System.out.println("outputXML  "+outputXML);
         }catch (Exception e){

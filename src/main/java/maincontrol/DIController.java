@@ -750,8 +750,7 @@ public class DIController extends HttpServlet {
         //choice[1] = selections.split("\\$")[2];
         String inputoutput = selections.split("\\$")[0];
         String xsdTypes = wsdlParser.extractXSD(choice);
-        //int selections_option =  response_xsdTypes.getInt("choice");
-        //String  xsdTypes = response_xsdTypes.getString("xsdTypes");
+
 
         String filename = new String(service.getService_id() + service.getName() + choice + ".xsd");
         String xsdFilename = new String(xml_rep_path + "/xsd/" + filename);

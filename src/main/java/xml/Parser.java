@@ -241,6 +241,7 @@ public class Parser {
         StreamResult result = null;
         Node parentNode = null;
         Document dom = null;
+        Parser parser = new Parser();
 
         try {
             //Using factory get an instance of document builder
@@ -260,12 +261,14 @@ public class Parser {
                 System.out.println("And this is the type: " + element.getAttribute("type"));
 
                 // replace the foreign keys as xs:int
-                if(!element.getAttribute("type").split(":")[0].equalsIgnoreCase("xs") && element.getAttribute("name").contains("Id")){
+                //if(!element.getAttribute("type").split(":")[0].equalsIgnoreCase("xs") && element.getAttribute("name").contains("Id")){
+                if(  !parser.isbaseDataType(element.getAttribute("type"))  && !element.hasAttribute("maxOccurs")){
                     element.setAttribute("type", "xs:int");
                 }
                  parentNode = element.getParentNode();
                 //select one to Many Keys  so as to remove
-                if(!element.getAttribute("type").split(":")[0].equalsIgnoreCase("xs")){
+                //if(!element.getAttribute("type").split(":")[0].equalsIgnoreCase("xs")){
+                if(  !parser.isbaseDataType(element.getAttribute("type"))  && element.hasAttribute("maxOccurs") && element.getAttribute("maxOccurs").equalsIgnoreCase("unbounded")){
                     elLis.add(element);
                 }
             }

@@ -31,6 +31,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -333,7 +334,7 @@ public class WSDLParser
             throws FileNotFoundException, IOException, ParserConfigurationException,
             SAXException, XPathExpressionException, DocumentException, TransformerException {
         String xsdTypes = new String("");
-        String line;
+
 
         xsdTypes += "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\""
                     +  " elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">";
@@ -352,37 +353,31 @@ public class WSDLParser
             String daoNodeStructure = getElementfromXSD(daoEntity.getString("entity").toString());
 
             //Treat daoNodeStructure so fix foreign keys
-              String  mainEntityStructure = null;
+              String  mainEntityStructure = "";
             if (!daoNodeStructure.equalsIgnoreCase("null"))  {
-
+                 /*
                 //put foreign keys as attributes
-                Document dom;
-                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-                DocumentBuilder db = dbf.newDocumentBuilder();
-                dom = db.parse(new InputSource(new StringReader(daoNodeStructure)));
+                Document dom =stringToDocumentW3C(daoNodeStructure);
+
                 NodeList list = dom.getElementsByTagName("xs:element");
 
                 for (int i = 0; i < list.getLength(); i++) {
                     Element el = (Element) list.item(i);
-                    if(!el.getAttribute("type").split(":")[0].equalsIgnoreCase("xs") && el.getAttribute("name").contains("Id")){
-
+                    //if(!el.getAttribute("type").split(":")[0].equalsIgnoreCase("xs") && el.getAttribute("name").contains("Id")){
+                    if(  !parser.isbaseDataType(el.getAttribute("type"))  && !el.hasAttribute("maxOccurs")){
                       String ForeignKeyXSDTypes = getForeignKeyElementfromXSD(el.getAttribute("type").split(":")[1]);
                       el.setAttribute("fk",ForeignKeyXSDTypes);
                     }
 
                 }
 
-                StreamResult result = null;
-                Transformer transformer = TransformerFactory.newInstance().newTransformer();
-                result = new StreamResult(new StringWriter());
-                DOMSource source = new DOMSource(dom);
-                transformer.transform(source, result);
+                daoNodeStructure = tranformStringToDocumentW3C(dom);
 
-                daoNodeStructure = result.getWriter().toString();
                 daoNodeStructure = daoNodeStructure.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>","");
 
                 Parser parserEntity = new Parser();
-                mainEntityStructure = parserEntity.alterFKs(daoNodeStructure);
+                */
+                mainEntityStructure = parser.alterFKs(daoNodeStructure);
                 mainEntityStructure = mainEntityStructure.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>","");
             }
 
@@ -454,12 +449,8 @@ public class WSDLParser
 
         if (!xsdTypes.equalsIgnoreCase("null")) xsdTypes += "</xs:complexType>";
 
+        Document dom = stringToDocumentW3C(xsdTypes);
 
-
-        Document dom;
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        DocumentBuilder db = dbf.newDocumentBuilder();
-        dom = db.parse(new InputSource(new StringReader(xsdTypes)));
         NodeList list = dom.getElementsByTagName("xs:element");
         String FKidDescription=""  ;
 
@@ -476,29 +467,6 @@ public class WSDLParser
 
     }
 
-
-      /*
-    public String extractXSD(String element)
-            throws FileNotFoundException, IOException, ParserConfigurationException,
-            SAXException, XPathExpressionException
-    {
-        String xsdTypes = new String("");
-        String line;
-        BufferedReader wsdlFile = new BufferedReader(new FileReader(WSDL_URL));
-
-        xsdTypes += "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\""
-                +  " elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">";
-
-        while(((line=wsdlFile.readLine())!=null) && (!line.trim().equals("<xs:complexType name=\"" + element + "\">")) ) {}
-        xsdTypes += line;
-
-        while(((line=wsdlFile.readLine())!=null) && (!line.trim().equals("</xs:complexType>")))
-            xsdTypes = xsdTypes + "\n" + line;
-
-        xsdTypes += "</xs:complexType></xs:schema>";
-
-        return xsdTypes;
-    } */
       
     public void outputToXML(PrintWriter out)
     {
@@ -516,8 +484,7 @@ public class WSDLParser
             servicePorts = returnServicePorts();
             portsIterator = servicePorts.keySet().iterator();
 
-            // drill down the wsdl hierarchy
-            // starting from definition
+            // drill down the wsdl hierarchy starting from definition
             while(portsIterator.hasNext())
             {
                 internalIdNum = 1;
@@ -584,8 +551,7 @@ public class WSDLParser
             servicePorts = returnServicePorts();
             portsIterator = servicePorts.keySet().iterator();
 
-            // drill down the wsdl hierarchy
-            // starting from definition
+            // drill down the wsdl hierarchy starting from definition
             while(portsIterator.hasNext())
             {
                 internalIdNum = 1;
@@ -1036,4 +1002,53 @@ public class WSDLParser
             return actualUrl;
         
     }
+
+    // get Dao Entity which deletes updates finds or saves the operation of the web service
+    public String getDaoEntity(String operation_name) throws IOException, TransformerException, ParserConfigurationException, SAXException {
+        String xsdTypes = new String("");
+        String daoEntityToString   = new String("");
+
+
+        xsdTypes += "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">";
+
+        xsdTypes +=  getElementfromXSD(operation_name);
+        xsdTypes += "</xs:schema>";
+
+        Document dom = stringToDocumentW3C(xsdTypes);
+        NodeList list = dom.getElementsByTagName("xs:element");
+
+       Parser p = new Parser();
+
+        for (int i = 0; i < list.getLength(); i++) {
+            Element el = (Element) list.item(i);
+            if(!p.isbaseDataType(el.getAttribute("type")))   daoEntityToString = el.getAttribute("name");
+        }
+        return daoEntityToString;
+    }
+
+
+
+    public Document stringToDocumentW3C(String docToString) throws ParserConfigurationException, IOException, SAXException {
+        Document dom;
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        dom = db.parse(new InputSource(new StringReader(docToString)));
+
+        return dom;
+    }
+
+
+    public String tranformStringToDocumentW3C(Document dom) throws TransformerException {
+
+        StreamResult result = null;
+        Transformer transformer = TransformerFactory.newInstance().newTransformer();
+        result = new StreamResult(new StringWriter());
+        DOMSource source = new DOMSource(dom);
+        transformer.transform(source, result);
+
+        return  result.getWriter().toString();
+
+    }
+
+
 }
