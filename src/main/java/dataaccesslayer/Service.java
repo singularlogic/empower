@@ -11,6 +11,7 @@ package dataaccesslayer;
 public class Service {
     int service_id;
     String  name;
+    String  version;
     String wsdl;
     String namespace;
     boolean exposed;
@@ -22,12 +23,21 @@ public class Service {
         this.exposed = exposed;
     }
     
-    public Service(int service_id, String name, String wsdl , String namespace,boolean exposed) {
+    public Service(int service_id, String name, String version, String wsdl , String namespace,boolean exposed) {
         this.service_id = service_id;
         this.name = name;
+        this.version = version;
         this.wsdl = wsdl;
         this.namespace = namespace;
         this.exposed = exposed;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
     
     public boolean isExposed() {

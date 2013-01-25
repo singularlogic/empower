@@ -6,12 +6,13 @@
         <link rel="stylesheet" type="text/css" href="./style/menu_style.css"/>
         <link rel="stylesheet" type="text/css" href="./style/layout4_setup.css"/>
         <link rel="stylesheet" type="text/css" href="./style/container.css"/>
-	<link rel="stylesheet" type="text/css" href="./js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgrid.css">
-	<link rel="stylesheet" type="text/css" href="./js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgrid_skins.css">
+	    <link rel="stylesheet" type="text/css" href="./js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgrid.css">
+	    <link rel="stylesheet" type="text/css" href="./js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgrid_skins.css">
         <script src="./js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxcommon.js"></script>
-	<script src="./js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgrid.js"></script>
+	    <script src="./js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgrid.js"></script>
         <script src="./js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgridcell.js"></script>
         <script src="./js/dhtmlxSuite/dhtmlxGrid/codebase/excells/dhtmlxgrid_excell_link.js"></script>
+        <script type="text/javascript" src="./js/jquery.js"></script>
         <style type="text/css">
             div.gridbox_inverse table.hdr td {background-color:#A0D651; color:white; font-weight:bold;}
             div.gridbox_inverse table.obj td{background-color: #D9EFB9;text-align: center;}
@@ -19,7 +20,16 @@
         </style>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">        
         <title>Services</title>
-         <script type="text/javascript">                                          
+        <script type="text/javascript">
+            jQuery(document).ready(function(){
+        dhtmlxAjax.get("./DIController?op=showcurrentsoftcomp&software_id=<%=request.getParameter("software_id")%>", putTitle);
+            });
+
+            function putTitle(loader) {
+                if (loader.xmlDoc.responseText != null){
+                    $("#pageTitle").html("Registered Web Services of "+ loader.xmlDoc.responseText+ " Software Component");
+                }
+            }
             function deleteservice(service_id){
                 var r=confirm("Are you sure you want to delete?");
                 if (r==true)
@@ -64,17 +74,26 @@
                 </div>
         </div>    
         <div class="main-content">
+            <div style="width:600px">
+                <h2 id="pageTitle"></h2>
+                <br><br>
+                <p class="info_message">List of all the registered Web services for the aformentioned Software Component.
+                Please note that a web service has to be fully annotated at functional and data level in order to be available for bridging and
+                that when deleting a web service,the bridges this web service participates are automatically disabled</p>
+            </div>
             <br>
             <div id="box_grid" style="width:600px; height:200px"></div>
                 <script>
                         grid = new dhtmlXGridObject("box_grid");
                         grid.setImagePath("js/dhtmlxSuite/dhtmlxGrid/codebase/imgs");
                         if(<%=session.getAttribute("userType").equals("organization")%>){
-                        grid.setHeader("Service name,Action,,Fully Annotated");//set column names
+                        grid.setHeader("Service name,Functional Annotation,Data Annotation (CPP),Fully Annotated");//set column names
                         grid.setColTypes("ro,link,link,img");
+                            grid.setInitWidths("200,160,130,*");
                         }else{
-                        grid.setHeader("Service name,Action,,Fully Annotated,");//set column names
+                        grid.setHeader("Service name,Functional Annotation,Data Annotation (CVP),Fully Annotated,Delete Web Service");//set column names
                         grid.setColTypes("ro,link,link,img,link");
+                        grid.setInitWidths("170,150,120,80,80");
                         }
                 //        grid.attachEvent("onRowSelect", doOnRowSelected);
                         grid.setSkin("light");//set grid skin

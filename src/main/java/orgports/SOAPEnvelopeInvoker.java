@@ -247,6 +247,7 @@ public class SOAPEnvelopeInvoker {
                     removetypesFromSoapResponse=false;
             }
 
+
            outputXML="";
 
             if (removetypesFromSoapResponse){
@@ -262,11 +263,37 @@ public class SOAPEnvelopeInvoker {
 
                 String sbstring = result.getWriter().toString();
 
+                System.out.println("EnvelopeResponse with one to many removed: "+resp.toString());
+                SOAPEnvelopeInvokerResponse.put("Soap:EnvelopeResponse", sbstring);
+
                 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder builder = factory.newDocumentBuilder();
                 Document sbstringdoc = builder.parse(new InputSource(new StringReader(sbstring)));
 
                 org.w3c.dom.Node returnode = sbstringdoc.getFirstChild().getFirstChild().getFirstChild();
+
+                //---------------------------------------------------
+                /*
+                 String returnnameToReplace = returnode.getNodeName().toString();
+
+
+                Transformer transformer1 = TransformerFactory.newInstance().newTransformer();
+                StreamResult result1;
+                result1 = new StreamResult(new StringWriter());
+                DOMSource source1 = new DOMSource(returnode);
+                transformer1.transform(source1, result1);
+
+                String finalreturn =   result1.getWriter().toString();
+
+                outputXML ="<"+complexType_output+"><return>";
+                finalreturn =  finalreturn.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>","");
+                finalreturn = finalreturn.replace("<"+returnnameToReplace+">","");
+                finalreturn = finalreturn.replace("</"+returnnameToReplace+">","");
+                outputXML = outputXML + finalreturn;
+                outputXML= outputXML +"</return></"+complexType_output+">";
+                 */
+                //----------------------------------------------------
+
 
                 outputXML ="<"+complexType_output+"><return>";
 
@@ -293,6 +320,7 @@ public class SOAPEnvelopeInvoker {
 
             }
             else{
+                System.out.println("eimai mesa sto ELSE removetypesFromSoapResponse"+ removetypesFromSoapResponse);
             outputXML="";
             try {
             // remove all nodes that have more than 2 depth so as to get the return values and their foreign keys
@@ -350,6 +378,7 @@ public class SOAPEnvelopeInvoker {
                // The Soap Response is null
 
                 outputXML="";
+                SOAPEnvelopeInvokerResponse.put("Soap:EnvelopeResponse", "");
 
             }
             

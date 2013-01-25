@@ -12,16 +12,22 @@
                     else{    
                          if(<%=request.getParameter("service_id")%>){
                             dhtmlxAjax.get("./DIController?op=getPreviousFuncAnnotation&service_id=<%= request.getParameter("service_id")%>&operation="+tree.getAllChecked(), placeInfo);
-                            }else if (<%=request.getParameter("schema_id")%>){     
+                            }else if (<%=request.getParameter("schema_id")%>){
                               dhtmlxAjax.get("./DIController?op=getPreviousFuncAnnotation&schema_id=<%= request.getParameter("schema_id")%>&operation_id="+tree.getAllChecked(), placeInfo);  
                             }             
                     }
                 });
-               
-              
+                if(<%=request.getParameter("service_id")%>){
+                dhtmlxAjax.get("./DIController?op=showcurrentwebservice&service_id=<%=request.getParameter("service_id")%>", putSubTitle);
+                }
             });
-    
-             
+
+            function putSubTitle(loader) {
+                if (loader.xmlDoc.responseText != null){
+                    $("#subPageTitle").html("Functional Annotation of Web Service : "+loader.xmlDoc.responseText);
+                }
+            }
+
             function placeInfo(loader) {
                 if (loader.xmlDoc.responseText != null)
                    alert(loader.xmlDoc.responseText);
@@ -99,9 +105,13 @@
                     </script>
                 </div>
             </div>    
-            <div class="main-content" style="width: 650px;"> 
+            <div class="main-content" style="width: 650px;">
+                <h2 id="subPageTitle" style="width: 488px; float: left;"></h2><br><br>
+                <p class="info_message" style="width: 488px; float: left;">Functional Annotation of the operations of the web service. Please select the  operation from the left side and
+                    the Functional Taxonomy category from the right side. In order to see the existing functional annotation of an operation
+                    click on "See existing Annotation" link.</p><br><br>
                 <div style="float: left;width:240px;margin-right: 10px;">
-                    <p><h2>Operations</h2>
+                    <p><h2>Available Operations</h2>
 
                     <br>            
                     <div id="box_tree" style="width:230px; height:300px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;"/>
@@ -120,7 +130,7 @@
 
             </div>
             <div style="float: left;width:240px;">
-                <p><h2>Operations Taxonomy</h2>
+                <p><h2>Functional Taxonomy</h2>
                 <br>
                 <div id="box_tree_func" style="width:230px; height:300px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;"/>
                 <script>
@@ -145,7 +155,7 @@
                 <!--<input type="submit" value="Annotate" name="annotate_button">-->
                 <input TYPE="image" src="./img/Annotate.png" name="annotate_button"/>
             </form>
-            <a id="get_previousfuncannotation">See previous Annotation</a>
+            <a id="get_previousfuncannotation">See existing Annotation</a>
         </div>
     </div>
 </div>

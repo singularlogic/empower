@@ -97,8 +97,8 @@ public class MainControlDB {
             this.dbHandler.dbOpen();
 
             //"select ws.service_id as service_id,ws.name as service_name , da.dataAnnotations_id as dataAnnotations from web_service ws LEFT JOIN operation o on ws.service_id=o.service_id LEFT JOIN operation_schema os  on o.operation_id = os.operation_id LEFT JOIN schema_xsd  s  on os.schema_id = s.schema_id RIGHT JOIN dataannotations  da  on  s.schema_id = da.schema_id where ws.software_id=" + software_id+" and ws.wsdl "+wsdl
-            rs = (cvp) ? this.dbHandler.dbQuery("select ws.service_id as service_id, ws.name as service_name, ws.exposed as exposed, ws.wsdl as wsdl, ws.namespace as namespace from web_service ws,cvp cvp where ws.service_id=cvp.service_id and ws.software_id=" + software_id + " and ws.wsdl " + wsdl)
-                    : this.dbHandler.dbQuery("select ws.service_id as service_id, ws.name as service_name, ws.exposed as exposed, ws.wsdl as wsdl, ws.namespace as namespace from web_service ws where ws.software_id=" + software_id + " and ws.wsdl " + wsdl);
+            rs = (cvp) ? this.dbHandler.dbQuery("select ws.service_id as service_id, ws.name as service_name, ws.version as service_version, ws.exposed as exposed, ws.wsdl as wsdl, ws.namespace as namespace from web_service ws,cvp cvp where ws.service_id=cvp.service_id and ws.software_id=" + software_id + " and ws.wsdl " + wsdl)
+                    : this.dbHandler.dbQuery("select ws.service_id as service_id, ws.name as service_name, ws.version as service_version, ws.exposed as exposed, ws.wsdl as wsdl, ws.namespace as namespace from web_service ws where ws.software_id=" + software_id + " and ws.wsdl " + wsdl);
 
 
             dbConnector dbHand = new dbConnector();
@@ -108,8 +108,8 @@ public class MainControlDB {
 
             if (rs != null) {
                 while (rs.next()) {
-                    compList.add(new Service(rs.getInt("service_id"), rs.getString("service_name"), rs.getString("wsdl"), rs.getString("namespace"), rs.getBoolean("exposed")));
-                    System.out.println("service_id " + rs.getInt("service_id") + "service_name " + rs.getString("service_name") + "exposed " + rs.getBoolean("exposed"));
+                    compList.add(new Service(rs.getInt("service_id"), rs.getString("service_name"),rs.getString("service_version"), rs.getString("wsdl"), rs.getString("namespace"), rs.getBoolean("exposed")));
+                    System.out.println("service_id " + rs.getInt("service_id") + "service_name " + rs.getString("service_name") +"service_version"+rs.getString("service_version")+ "exposed " + rs.getBoolean("exposed"));
                 }
             }
 
@@ -559,7 +559,7 @@ public class MainControlDB {
 
             if (rs != null) {
                 rs.next();
-                service = new Service(service_id, rs.getString("name"), rs.getString("wsdl"), rs.getString("namespace"), rs.getBoolean("exposed"));
+                service = new Service(service_id, rs.getString("name"),rs.getString("version"), rs.getString("wsdl"), rs.getString("namespace"), rs.getBoolean("exposed"));
             }
 
             rs.close();

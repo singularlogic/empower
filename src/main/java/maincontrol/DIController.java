@@ -132,6 +132,8 @@ public class DIController extends HttpServlet {
                     this.showAvailableSources_title(request, response, session);
                 } else if (operation.equals("showcurrentsoftcomp")) {
                     this.showcurrentsoftcomp(request, response, session);
+                } else if (operation.equals("showcurrentwebservice")) {
+                    this.showcurrentwebservice(request, response, session);
                 } else if (operation.equals("get_menu")) {
                     this.getMenu(request, response, session);
                 } else if (operation.equals("show_service")) {
@@ -418,14 +420,14 @@ public class DIController extends HttpServlet {
             img_link = (service.isExposed()) ? "js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/green.gif" : "js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/red.gif";
 
             //String delete_wservice_option = (verifyUser("vendor", session)) ? "<cell>Delete Service^./VendorManager?op=delete_wservice&amp;service_id=" + service.getService_id() + "^_self</cell>" : "";
-            String delete_wservice_option = (verifyUser("vendor", session)) ? "<cell>Delete Service^javascript:deleteservice("+service.getService_id()+")^_self</cell>" : "";
+            String delete_wservice_option = (verifyUser("vendor", session)) ? "<cell>Delete^javascript:deleteservice("+service.getService_id()+")^_self</cell>" : "";
 
 
             System.out.println("img_link" + img_link);
             out.write("<row id=\"" + service.getService_id() + "\">"
-                    + "<cell>" + service.getName() + "</cell>"
-                    + "<cell>Annotate Functions^./presentOperationTree.jsp?service_id=" + service.getService_id() + "^_self</cell>"
-                    + "<cell>Annotate Data^./presentDataTree.jsp?service_id=" + service.getService_id() + "^_self</cell>"
+                    + "<cell>" + service.getName()+" -- V."+service.getVersion() + "</cell>"
+                    + "<cell>Functional Annotation^./presentOperationTree.jsp?service_id=" + service.getService_id() + "^_self</cell>"
+                    + "<cell>Data Annotation^./presentDataTree.jsp?service_id=" + service.getService_id() + "^_self</cell>"
                     + "<cell type=\"img\">" + img_link + "</cell>"
                     + delete_wservice_option
                     + "</row>");
@@ -975,6 +977,23 @@ public class DIController extends HttpServlet {
         out.flush();
     }
 
+    /*
+    * show current web service name and version. usefull for the presentOperationTree page
+    */
+    protected void showcurrentwebservice(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws ServletException, IOException {
+        MainControlDB mainControlDB = new MainControlDB();
+
+        Service service = mainControlDB.getService(Integer.parseInt(request.getParameter("service_id")));
+
+        response.setContentType("text/xml; charset=UTF-8");
+        PrintWriter out = response.getWriter();
+        out.write(service.getName()+" --V."+service.getVersion());
+        out.flush();
+    }
+
+
+
     protected void getMenu(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws ServletException, IOException {
 
@@ -1013,14 +1032,15 @@ public class DIController extends HttpServlet {
 
         if (verifyUser("vendor", session)) {
             out.write("<row id='1'><cell>Home^"+ sign_out +"DIController?op=redirectToHomePage^_self</cell></row>"
-                    +"<row id='2'><cell>Register new software^" + menu_level + "softwareReg.jsp^_self</cell></row>"
+                    +"<row id='2'><cell>Register software components^" + menu_level + "softwareReg.jsp^_self</cell></row>"
                     + "<row id='3'><cell>Show software components^" + menu_level + "showSoftwareComponent.jsp^_self</cell></row>"
                     + "<row id='4'><cell>Logout^" + sign_out + "DIController?op=signout^_self</cell></row>");
         } else if (verifyUser("organization", session)) {
             out.write("<row id='1'><cell>Home^"+ sign_out +"DIController?op=redirectToHomePage^_self</cell></row>"
-                    + "<row id='2'><cell>Show software components^" + menu_level + "showSoftwareComponent.jsp?bridging=false^_self</cell></row>"
-                    + "<row id='3'><cell>Create My Bridges^" + menu_level + "showSoftwareComponent.jsp?bridging=true^_self</cell></row>"
-                    + "<row id='4'><cell>Show My Bridges^" + menu_level + "showMyBridges.jsp^_self</cell></row>"
+                    + "<row id='6'><cell>Manage WebService Installations^" + menu_level + "showSoftwareComponent.jsp?bridging=false^_self</cell></row>"
+                    + "<row id='2'><cell>Define CPP's^" + menu_level + "showSoftwareComponent.jsp?bridging=false^_self</cell></row>"
+                    + "<row id='3'><cell>Define CPA (Bridge)^" + menu_level + "showSoftwareComponent.jsp?bridging=true^_self</cell></row>"
+                    + "<row id='4'><cell>Show My CPA's (Bridges)^" + menu_level + "showMyBridges.jsp^_self</cell></row>"
                     + "<row id='5'><cell>Logout^" + sign_out + "DIController?op=signout^_self</cell></row>");
         } else if (verifyUser("admin", session)) {
             out.write("<row id='1'><cell>Home^"+ sign_out +"DIController?op=redirectToHomePage^_self</cell></row>"

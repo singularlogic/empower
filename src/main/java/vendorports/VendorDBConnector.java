@@ -395,7 +395,7 @@ public class VendorDBConnector {
         return schema_id;
     }
 
-    public int insertServiceInfo(int software_id, String serviceName, String wsdlFilename, String xmlRepPath, String namespace) {
+    public int insertServiceInfo(int software_id, String serviceName, String service_version , String wsdlFilename, String xmlRepPath, String namespace) {
         ResultSet rs;
         int service_id = -1;
         Iterator servicePorts;
@@ -414,8 +414,8 @@ public class VendorDBConnector {
             numberMessages = wsdlParser.getMessageNumber();
             System.out.println("numberMessages: " + numberMessages);
 
-            service_id = this.dbHandler.dbUpdate("insert into web_service(name,software_id,namespace,wsdl,operation_number, messages_number) values('"
-                    + serviceName + "'," + software_id + ",'" + namespace + "','" + wsdlFilename + "'," + numberOperations + "," + numberMessages + ");");
+            service_id = this.dbHandler.dbUpdate("insert into web_service(name,version,software_id,namespace,wsdl,operation_number, messages_number) values('"
+                    + serviceName + "','" +service_version + "'," +software_id + ",'" + namespace + "','" + wsdlFilename + "'," + numberOperations + "," + numberMessages + ");");
 
             servicePorts = wsdlParser.returnServicePortsString();
 

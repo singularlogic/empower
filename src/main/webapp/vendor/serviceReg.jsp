@@ -26,13 +26,30 @@
         <script src="../js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgrid.js"></script>
         <script src="../js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgridcell.js"></script>
         <script src="../js/dhtmlxSuite/dhtmlxGrid/codebase/excells/dhtmlxgrid_excell_link.js"></script>
+        <script type="text/javascript" src="../js/jquery.js"></script>
 
         <style type="text/css">
             div.gridbox_inverse table.hdr td {background-color:#A0D651; color:white; font-weight:bold;}
             div.gridbox_inverse table.obj td{background-color: #D9EFB9;text-align: center;}
             div.gridbox_inverse table.obj tr{height: 30px;}
         </style>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">        
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script type="text/javascript">
+        jQuery(document).ready(function(){
+            $("input[name='from']").click(function(){
+
+                if ($("input[name='from']:checked").val()=="FromUrlPath") {
+                    $('#FromUrlPath').removeAttr('disabled');
+                    $('#service_wsdl_fromFilePath').attr('disabled', 'disabled');
+                }else  if ($("input[name='from']:checked").val()=="service_wsdl_fromFilePath") {
+                    $('#service_wsdl_fromFilePath').removeAttr('disabled');
+                    $('#FromUrlPath').attr('disabled', 'disabled');
+                }
+            })
+
+        });
+        </script>
+
         <title>Service registration</title>
     </head>
     <body class="yui-skin-sam">
@@ -77,7 +94,8 @@
             <div class="main-content">
               <div>
                 <br><h2><b>Register service details</b></h2>
-                  <div><p class="info_message">Please be sure that the service name and the namespace are the same with the ones in the .wsdl file you are about to register</p></div>
+                  <div><p class="info_message">Please be sure that the service name and the namespace are the same with the ones in the .wsdl file you are about to register.
+                  Also check first the radio button in order to activate the "Load wsdl" field of the form (from file or URL) </p></div>
                   <br>
                 <%if (request.getParameter("jsp").equalsIgnoreCase("true")) { %>
                 <form method="POST" action="/empower/DIController?op=service_reg" name="ws_registration" enctype="multipart/form-data">
@@ -94,15 +112,30 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td align="right">Namespace::</td>
+                                <td align="right">Namespace:</td>
                                 <td align="left">
                                     <input type="text" name="service_namespace" size="20">
                                 </td>
                             </tr>
                             <tr>
-                                <td align="right">File:</td>
+                                <td align="right">Version:</td>
                                 <td align="left">
-                                   <input type="file" name="service_wsdl" size="20">
+                                    <input type="text" name="service_version" size="20">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="right">Load the wsdl:</td>
+                                <td align="left">
+                                    <form>
+                                        <label for="LoadFrom">
+                                            <input name="from" type="radio" value="service_wsdl_fromFilePath"/>From File:
+                                            <input type="file" name="service_wsdl_fromFilePath" id="service_wsdl_fromFilePath"  size="20" disabled>
+                                            <br/><br/>
+                                            <input name="from" type="radio" value="FromUrlPath"/>From Url:
+                                            <input name="FromUrlPath"  type="text" id="FromUrlPath"  value="" disabled /><br/>
+                                        </label>
+                                        <br />
+                                    </form>
                                 </td>
                             </tr>
                             <tr>

@@ -138,7 +138,7 @@
             <div class="main-navigation">
                 <div class="round-border-topright"></div>
                 <!--<h1 class="first">Organization</h1>-->
-                <div id="menu_grid" style="width:180px; height:180px" class='glossymenu'>
+                <div id="menu_grid" style="width:180px; height:210px" class='glossymenu'>
                     <script>
                         menu_grid = new dhtmlXGridObject("menu_grid");
                         menu_grid.setImagePath("js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");

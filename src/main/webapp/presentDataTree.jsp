@@ -6,6 +6,18 @@
 <head>  
     <script type="text/javascript" src="./js/jquery.js"></script> 
 <script>
+    $(document).ready(function() {
+        if(<%=request.getParameter("service_id")%>){
+            dhtmlxAjax.get("./DIController?op=showcurrentwebservice&service_id=<%=request.getParameter("service_id")%>", putSubTitle);
+        }
+    });
+
+        function putSubTitle(loader) {
+            if (loader.xmlDoc.responseText != null){
+             $("#subPageTitle").html("Data Annotation of Web Service : "+loader.xmlDoc.responseText);
+             }
+        }
+
         function replaceValue()
         {
            if(<%=request.getParameter("service_id")%>){
@@ -126,8 +138,16 @@
          </div>
         </div>
            <div class="main-content" style="width: 650px;">
+               <h2 id="subPageTitle" style="width: 488px; float: left;"></h2><br><br>
+               <p class="info_message" style="width: 488px; float: left;">Data Annotation of the operations of the web service. Please select the  operation from the left side and
+                   the Part of Canonical Model from the right side. The "accountingEntriesComplexType" option of Canonical Model represents all the available fields, so in case you are not familiar with the
+                   specialization of the offered nodes of the canonical model, is better to choose the most generic annotation node(accountingEntriesComplexType).
+                   </p><br><br>
+               <p class="info_message" style="width: 488px; float: left;margin-top: 20px;"> By clicking on "Search for Matches" is shown the syntactic matching between the
+                   operation fields and the canonical Model. The aformentioned matching is provided by the Mediator Portal.
+               </p><br><br>
                 <div style="float: left;width:240px;margin-right: 10px;">
-                <p><h2>Service messages</h2>
+                <p><h2>Service Argument Structure</h2>
                 <br>
                 <div id="box_tree" style="width:240px; height:250px;background-color:#f5f5f5;border :1px solid Silver;overflow:auto;"/>
                 <script>
@@ -144,7 +164,7 @@
                 </div>
                 </div>
                 <div style="float: left;width:240px;">
-                <p><h2>Select XBRL data facet</h2>
+                <p><h2>Canonical Model</h2>
                 <br>
                 <div id="central_tree" style="width:240px; height:250px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;"/>
                 <script>

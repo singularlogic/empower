@@ -231,10 +231,10 @@ public class VendorManager extends HttpServlet {
                     + "<cell style='font-weight:bold;color: #055A78;'>" + comp.getName()
                     + "</cell><cell>" + comp.getVersion() + "</cell>"
                     //+ "<cell>Delete^../VendorManager?op=delete_software&amp;software_id="+ comp.getSoftwareID()+ "^_self</cell>"
-                    + "<cell>Delete^javascript:deletesoftcomp("+comp.getSoftwareID()+")^_self</cell>"
-                    + "<cell>Update^../VendorManager?op=load_software_reg&amp;software_id=" + comp.getSoftwareID()
-                    + "&amp;software_name=" + comp.getName() + "&amp;software_version=" + comp.getVersion()
-                    + "^_self</cell>"
+                    + "<cell>Delete Software^javascript:deletesoftcomp("+comp.getSoftwareID()+")^_self</cell>"
+                    //+ "<cell>Update^../VendorManager?op=load_software_reg&amp;software_id=" + comp.getSoftwareID()
+                    //+ "&amp;software_name=" + comp.getName() + "&amp;software_version=" + comp.getVersion()
+                    //+ "^_self</cell>"
                     + "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxTree/codebase/imgs/xsd.png^Schemas^../DIController?op=show_schema&amp;xsd=" + rowID + "_" + comp.getNum_xsds()
                     + "_" + comp.getSoftwareID() + "^_self</cell>" 
                      + "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxTree/codebase/imgs/wsdl.png^Services^../DIController?op=show_service&amp;service=" + rowID + "_" + comp.getNum_services() + 
@@ -330,6 +330,8 @@ public class VendorManager extends HttpServlet {
         String service_name = null; 
         String serviceFilename = null; 
         String service_namespace = null;
+        String service_version = null;
+        int sourceOfWSDL =  0;    // 0: no-source , 1: wsdl from file , 2: wsdl from url
         int software_id = 0;
         int service_id = 0;
         String message="";
@@ -359,26 +361,46 @@ public class VendorManager extends HttpServlet {
              if (item.getFieldName().equals("software_id")) {
                     software_id = Integer.parseInt(item.getString());
                 } else if (item.getFieldName().equals("service_name")) {
-                    service_name = item.getString(); 
+                    service_name = item.getString();
                 } else if (item.getFieldName().equals("service_namespace")) {
                     service_namespace = item.getString();
-                }
-            } else {
-                serviceFilename = new String(this.xml_rep_path + "/wsdl/" + software_id + "_" + service_name + "_" + ((int) (100000 * Math.random())) + ".wsdl");
+                } else if (item.getFieldName().equals("service_version")) {
+                 service_version = item.getString();
+                }else if (item.getFieldName().equals("from") && item.getString().equalsIgnoreCase("FromUrlPath")) {
+                 sourceOfWSDL =2;
+                }else if (item.getFieldName().equals("from") && item.getString().equalsIgnoreCase("service_wsdl_fromFilePath")) {
+                sourceOfWSDL =1;
+                }else if (item.getFieldName().equals("FromUrlPath") && sourceOfWSDL==2) {
+                    serviceFilename = new String(this.xml_rep_path + "/wsdl/" + software_id + "_" + service_name + "_" + ((int) (100000 * Math.random())) + ".wsdl");
+                    File uploadedFile = new File(serviceFilename);
+                    FileWriter fileWriter = new FileWriter(uploadedFile);
+                    URL wsdlurl = new URL(item.getString());
+                    BufferedReader in = new BufferedReader(new InputStreamReader(wsdlurl.openStream()));
 
+                    String inputLine;
+                    while ((inputLine = in.readLine()) != null) {
+                        fileWriter.write(inputLine);
+                    }
+                    in.close();
+                    fileWriter.close();
+                }
+            } else if(!item.isFormField() && sourceOfWSDL==1 ) {
+                serviceFilename = new String(this.xml_rep_path + "/wsdl/" + software_id + "_" + service_name + "_" + ((int) (100000 * Math.random())) + ".wsdl");
                 File uploadedFile = new File(serviceFilename);
                 item.write(uploadedFile);
             }
         }
 
+
         VendorDBConnector vendorDBConnector = new VendorDBConnector();
 
-        service_id = vendorDBConnector.insertServiceInfo(software_id, service_name ,serviceFilename, xml_rep_path,service_namespace);
+        service_id = vendorDBConnector.insertServiceInfo(software_id, service_name ,service_version,serviceFilename, xml_rep_path,service_namespace);
 
         if (service_id==-1)  message= "Service has NOT been succesfully registered. Please check that the service name and the namespace are the same with the ones in the .wsdl file.";
         else message= "Service has been succesfully registered.";
 
         this.forwardToPage("/vendor/succ.jsp?message="+message, request, response);
+
     }
      
      

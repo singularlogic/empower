@@ -778,68 +778,39 @@ public class OrganizationManager extends HttpServlet {
     protected void doBridgingService(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws ServletException, IOException, WSDLException, FileNotFoundException, ParserConfigurationException, SAXException, XPathExpressionException, FileUploadException, DocumentException, TransformerException {
 
-        String xml_input = "";
-        Parser parser = new Parser();
         int cpa_id = Integer.parseInt(request.getParameter("cpa_id"));
-        //JSONObject inputargs = (JSONObject) session.getAttribute("serviceInputArgs");
         JSONObject infoBridgingProcess = new JSONObject();
         MainControlDB mainControlDB = new MainControlDB();
 
 
-        /*
-         * 1. Get the request form parameters
-         */
-        boolean isMultipart = ServletFileUpload.isMultipartContent(request);
-        // Create a factory for disk-based file items
+        //---------GET XML DATA OF THE UPLOADED FILE----------------------//
         DiskFileItemFactory factory = new DiskFileItemFactory();
         factory.setSizeThreshold(30000);
         factory.setRepository(new File("/home/eleni/Desktop/"));
         ServletFileUpload upload = new ServletFileUpload(factory);
         upload.setSizeMax(30000);
 
-        // fill the json object with the values of the request
         List items = upload.parseRequest(request);
         String xml_data = "";
         Iterator iter = items.iterator();
 
         while (iter.hasNext()) {
             FileItem item = (FileItem) iter.next();
-
-            /*
-            if (item.isFormField()) {
-
-                if (inputargs.containsKey(item.getFieldName())) {
-                    inputargs.put(item.getFieldName(), item.getString());
-                    xml_input += "<" + item.getFieldName() + ">" + item.getString() + "</" + item.getFieldName() + ">";
-                }
-            } */
-            //for the source xml i parse it so as to fill the json inputargs
             if (!item.isFormField() && !item.getString().equalsIgnoreCase("")) {
                 xml_data = item.getString();
-
-               /*
-                inputargs = parser.parseXML(xml_data, inputargs);
-                */
             }
         }
-        /*
-         * 2. Get info of the web services {service_id operation_name
-         * service_namespace SoapAdressURL complexType_input complexType_output}
-         */
+
+        //--------------------GET INFO OF THE WEB SERVICES {service_id ,operation_name , service_namespace , SoapAdressURL , complexType_input , complexType_output}-----------------
+
         OrgDBConnector orgDBConnector = new OrgDBConnector();
         CPA cpa = orgDBConnector.getCPA(cpa_id);
         String cpa_info = cpa.getCpa_info();
 
         JSONObject o = (JSONObject) JSONSerializer.toJSON(cpa_info);
-
         JSONObject info_first = (JSONObject) JSONSerializer.toJSON(o.get("cppinfo_first"));
-
         JSONObject first_webServiceInfo = this.getWebServiceInfo(info_first);
 
-        // case is not submitted a xml file i create it by the input args
-        String xml_input_to_print = (xml_data == "") ? "<" + first_webServiceInfo.getString("complexType_input").split("\\$")[1] + ">" + xml_input + "</" + first_webServiceInfo.getString("complexType_input").split("\\$")[1] + ">" : xml_data;
-
-        System.out.println("xml_input_to_print" + xml_input_to_print);
 
         JSONObject info_second = (JSONObject) JSONSerializer.toJSON(o.get("cppinfo_second"));
         JSONObject second_webServiceInfo = this.getWebServiceInfo(info_second);
@@ -852,145 +823,88 @@ public class OrganizationManager extends HttpServlet {
         complexType.add(second_webServiceInfo.getString("complexType_output"));
 
 
-        /*
-         * 3.Call the web services (SOAP request response and the respective
-         * xmls)
-         */
-         String complexType_output_name_first = (first_webServiceInfo.getString("complexType_output").equalsIgnoreCase(""))?"":first_webServiceInfo.getString("complexType_output").split("\\$")[1];
+        //-------------------- PREPARE INVOCATION OF FIRST WEB SERVICE----------------------------------------------------------------
+
+        String complexType_output_name_first = (first_webServiceInfo.getString("complexType_output").equalsIgnoreCase(""))?"":first_webServiceInfo.getString("complexType_output").split("\\$")[1];
 
 
-        // Get Dao entity of web service operation if exists---------------------------------------------
-
+        // Get Dao entity of web service operation if exists
         Service FirstWservice = mainControlDB.getService(first_webServiceInfo.getInt("service_id"));
         WSDLParser firstWSDLParser = new WSDLParser(FirstWservice.getWsdl(), FirstWservice.getNamespace());
         String firstDaoEntity = firstWSDLParser.getDaoEntity(first_webServiceInfo.getString("operation_name"));
         String firstInputXML = prepareSoapBody(xml_data,first_webServiceInfo.getString("operation_name"),firstDaoEntity);
 
-        //-------------------------------------------------------------------------------------------------
+        //-------------------DO INVOCATION OF FIRST WEB SERVICE-------------------------------
 
-
-       SOAPEnvelopeInvoker soapEnvelopeInvoker = new SOAPEnvelopeInvoker(first_webServiceInfo.getString("SoapAdressURL"),
-               first_webServiceInfo.getString("operation_name"), first_webServiceInfo.getString("complexType_input").split("\\$")[1],
-               complexType_output_name_first, first_webServiceInfo.getString("service_namespace"),firstInputXML);
-
-
+       SOAPEnvelopeInvoker soapEnvelopeInvoker = new SOAPEnvelopeInvoker(first_webServiceInfo.getString("SoapAdressURL"), first_webServiceInfo.getString("operation_name"), first_webServiceInfo.getString("complexType_input").split("\\$")[1], complexType_output_name_first, first_webServiceInfo.getString("service_namespace"),firstInputXML);
        JSONObject SOAPEnvelopeInvokerResponse = soapEnvelopeInvoker.callWebService();
 
-
-       /*
-        * 4. In case of that the call to the web service erases
-        * adoBridgingServicen exception (ex.404 Not Found) redirect to Error
-        * page with the respective message
-        */
+        //-------------------MANIPULATE RESPONSE OF FIRST WEB SERVICE-------------------------------
 
         if (SOAPEnvelopeInvokerResponse.containsKey("ErrorMessage")) {
+            //Case that the call to the web service erases an ErrorMessage (ex.404 Not Found) redirect to Error page/
+
             this.forwardToPage("/error/generic_error.jsp?errormsg=" + SOAPEnvelopeInvokerResponse.getString("ErrorMessage"), request, response);
+
         } else if(SOAPEnvelopeInvokerResponse.get("outputXML").toString().equalsIgnoreCase("")){
-            // in case that the first web service has no Response
+            // Case that the first web service has no Response
 
-            infoBridgingProcess.put("FirstSoapRequest", SOAPEnvelopeInvokerResponse.get("Soap:EnvelopeRequest"));
-            infoBridgingProcess.put("FirstSoapResponse","<info>The first Web Service has no response</info>");
-            infoBridgingProcess.put("Upcasting xslt","");
-            infoBridgingProcess.put("Downcasting xslt","");
+           infoBridgingProcess = fillΙnfoBridgingProcess(SOAPEnvelopeInvokerResponse.get("Soap:EnvelopeRequest").toString(),"<info>The first Web Service has no response</info>","","","","", "<info>The second Web Service has not been invoked</info>", "<info>The second Web Service has not been invoked</info>", "<info>The second Web Service has not been invoked</info>");
 
-            infoBridgingProcess.put("SecondSoapRequest","<info>The second Web Service has not been invoked</info>");
-            infoBridgingProcess.put("SecondSoapResponse","<info>The second Web Service has not been invoked</info>");
-            infoBridgingProcess.put("SecondoutputXML", "<info>The second Web Service has not been invoked</info>");
+            updateSessionOfShowBridgingResults(session,xml_data,"<info><fact>The second Web Service has not been invoked</fact><reason>Because the First Web Service gives no response</reason></info>", infoBridgingProcess);
 
-
-            session.setAttribute("source_xml", xml_input_to_print);
-            session.setAttribute("target_xml", "<info>" +
-                    "<fact>The second Web Service has not been invoked</fact>" +
-                    "<reason>Because the First Web Service gives no response</reason></info>");
-            session.removeAttribute("infoBridgingProcess");
-            session.setAttribute("infoBridgingProcess", infoBridgingProcess);
             this.forwardToPage("/organization/showBridging.jsp?type=service", request, response);
         }
         else {
-
-            /*
-             * 5. Recolect all the important info of the requests in the
-             * infoBridgingProcess JSONObject
-             */
-            infoBridgingProcess.put("FirstSoapRequest", SOAPEnvelopeInvokerResponse.get("Soap:EnvelopeRequest"));
-            infoBridgingProcess.put("FirstSoapResponse", SOAPEnvelopeInvokerResponse.get("Soap:EnvelopeResponse"));
-            infoBridgingProcess.put("Output XML from First Web Service for XBRL UPCasting", SOAPEnvelopeInvokerResponse.get("outputXML"));
-
-            Boolean redirectPage= false;
+            // Case that the first web service has Response
 
             CPA cpainfo = orgDBConnector.getinfocpa(cpa_id);
-
             int cpp_a = cpainfo.getCpp_id_first();
             int cpp_b = cpainfo.getCpp_id_second();
 
-            /*
-             * 5. Do upcasting and Downcasting and transform the output of the
-             * source web service to an input of the target Web service
-             */
+
+           //-------------------- TRANSFORM (upcasting & Downcasting) the output of the  source web service to an input of the target Web service--------------------
 
             JSONObject transform_response = this.transform(cpp_a, cpp_b, SOAPEnvelopeInvokerResponse.getString("outputXML"), cpainfo.getCpa_info(), complexType);
-
             String target_xml = transform_response.getString("xml");
 
-            infoBridgingProcess.put("XML after XBRL DownCasting - Input to Second Web Service", target_xml);
 
-            //inputargs = parser.parseXML(target_xml, inputargs);
+            //-------------------- PREPARE INVOCATION OF SECOND WEB SERVICE----------------------------------------------------------------
 
             String complexType_output_name_second = (second_webServiceInfo.getString("complexType_output").equalsIgnoreCase(""))?"":second_webServiceInfo.getString("complexType_output").split("\\$")[1];
 
 
-            // Get Dao entity of web service operation if exists---------------------------------------------
-
+            //Get Dao entity of web service operation if exists
             Service SecondWservice = mainControlDB.getService(second_webServiceInfo.getInt("service_id"));
             WSDLParser secondWSDLParser = new WSDLParser(SecondWservice.getWsdl(), SecondWservice.getNamespace());
             String daoEntity = secondWSDLParser.getDaoEntity(second_webServiceInfo.getString("operation_name"));
             String secondInputXML = prepareSoapBody(target_xml,second_webServiceInfo.getString("operation_name"),daoEntity);
 
-            //-------------------------------------------------------------------------------------------------
+            //-------------------DO INVOCATION OF SECOND WEB SERVICE-------------------------------
 
-
-            SOAPEnvelopeInvoker targetsoapEnvelopeInvoker = new SOAPEnvelopeInvoker(second_webServiceInfo.getString("SoapAdressURL"),
-                   second_webServiceInfo.getString("operation_name"),
-                   second_webServiceInfo.getString("complexType_input").split("\\$")[1], complexType_output_name_second,
-                   second_webServiceInfo.getString("service_namespace"),secondInputXML);
-
-
+            SOAPEnvelopeInvoker targetsoapEnvelopeInvoker = new SOAPEnvelopeInvoker(second_webServiceInfo.getString("SoapAdressURL"), second_webServiceInfo.getString("operation_name"), second_webServiceInfo.getString("complexType_input").split("\\$")[1], complexType_output_name_second, second_webServiceInfo.getString("service_namespace"),secondInputXML);
             JSONObject targetsoapEnvelopeInvokerResponse = targetsoapEnvelopeInvoker.callWebService();
 
+            //-------------------MANIPULATE RESPONSE OF SECOND WEB SERVICE-------------------------------
+
             if (targetsoapEnvelopeInvokerResponse.containsKey("ErrorMessage")) {
+
                 this.forwardToPage("/error/generic_error.jsp?errormsg=" + targetsoapEnvelopeInvokerResponse.getString("ErrorMessage"), request, response);
+
             }else if(targetsoapEnvelopeInvokerResponse.get("outputXML").toString().equalsIgnoreCase("")){
 
-                transform_response.getString("xml");
-                infoBridgingProcess.put("Upcasting xslt", transform_response.get("xsltRulesFirst"));
-                infoBridgingProcess.put("Downcasting xslt", transform_response.get("xsltRulesSecond"));
+                infoBridgingProcess = fillΙnfoBridgingProcess(SOAPEnvelopeInvokerResponse.get("Soap:EnvelopeRequest").toString(),SOAPEnvelopeInvokerResponse.get("Soap:EnvelopeResponse").toString(),SOAPEnvelopeInvokerResponse.get("outputXML").toString(),target_xml,transform_response.get("xsltRulesFirst").toString(),transform_response.get("xsltRulesSecond").toString(), targetsoapEnvelopeInvokerResponse.get("Soap:EnvelopeRequest").toString(),targetsoapEnvelopeInvokerResponse.get("Soap:EnvelopeResponse").toString(), "<return>This Operation has no Response</return>" );
 
-                infoBridgingProcess.put("SecondSoapRequest", targetsoapEnvelopeInvokerResponse.get("Soap:EnvelopeRequest"));
-                infoBridgingProcess.put("SecondSoapResponse", targetsoapEnvelopeInvokerResponse.get("Soap:EnvelopeResponse"));
-                infoBridgingProcess.put("SecondoutputXML", "<return>This Operation has no Response</return>");
+                updateSessionOfShowBridgingResults(session,xml_data,"<return>This Operation has no Response</return>",infoBridgingProcess);
 
-
-                session.setAttribute("source_xml", xml_input_to_print);
-                session.setAttribute("target_xml", "<return>This Operation has no Response</return>");
-                session.removeAttribute("infoBridgingProcess");
-                session.setAttribute("infoBridgingProcess", infoBridgingProcess);
                 this.forwardToPage("/organization/showBridging.jsp?type=service", request, response);
 
             } else {
 
-                transform_response.getString("xml");
-                infoBridgingProcess.put("Upcasting xslt", transform_response.get("xsltRulesFirst"));
-                infoBridgingProcess.put("Downcasting xslt", transform_response.get("xsltRulesSecond"));
+                infoBridgingProcess = fillΙnfoBridgingProcess(SOAPEnvelopeInvokerResponse.get("Soap:EnvelopeRequest").toString(),SOAPEnvelopeInvokerResponse.get("Soap:EnvelopeResponse").toString(), SOAPEnvelopeInvokerResponse.get("outputXML").toString(), target_xml,transform_response.get("xsltRulesFirst").toString(), transform_response.get("xsltRulesSecond").toString(), targetsoapEnvelopeInvokerResponse.get("Soap:EnvelopeRequest").toString(), targetsoapEnvelopeInvokerResponse.get("Soap:EnvelopeResponse").toString(), targetsoapEnvelopeInvokerResponse.get("outputXML").toString());
 
-                infoBridgingProcess.put("SecondSoapRequest", targetsoapEnvelopeInvokerResponse.get("Soap:EnvelopeRequest"));
-                infoBridgingProcess.put("SecondSoapResponse", targetsoapEnvelopeInvokerResponse.get("Soap:EnvelopeResponse"));
-                infoBridgingProcess.put("SecondoutputXML", targetsoapEnvelopeInvokerResponse.get("outputXML"));
+                updateSessionOfShowBridgingResults(session,xml_data,targetsoapEnvelopeInvokerResponse.getString("outputXML"),infoBridgingProcess);
 
-
-                session.setAttribute("source_xml", xml_input_to_print);
-                session.setAttribute("target_xml", targetsoapEnvelopeInvokerResponse.getString("outputXML"));
-                session.removeAttribute("infoBridgingProcess");
-                session.setAttribute("infoBridgingProcess", infoBridgingProcess);
                 this.forwardToPage("/organization/showBridging.jsp?type=service", request, response);
             }
         }
@@ -1030,6 +944,39 @@ public class OrganizationManager extends HttpServlet {
         webServiceInfo.put("complexType_output", complexType_output);
         webServiceInfo.put("xsdTypes", xsdTypes);
         return webServiceInfo;
+    }
+
+    /*Fill the JSONObject  infoBridgingProcess.
+    * In this JSONObject is stored all the info that is printed at the  showBridging page so as to inform the end user about the process of the bridging
+    */
+    private JSONObject fillΙnfoBridgingProcess(String FirstSoapRequest, String FirstSoapResponse,String FirstOutputXML,String XMLAfterDownCasting, String UpcastingXSLT, String DowncastingXSLT, String SecondSoapRequest, String  SecondSoapResponse, String SecondoutputXML  ){
+        JSONObject infoBridgingProcess = new JSONObject();
+
+
+        infoBridgingProcess.put("FirstSoapRequest", FirstSoapRequest);
+        infoBridgingProcess.put("FirstSoapResponse",FirstSoapResponse);
+        infoBridgingProcess.put("Output XML from First Web Service for XBRL UPCasting",FirstOutputXML);
+        infoBridgingProcess.put("XML after XBRL DownCasting - Input to Second Web Service", XMLAfterDownCasting);
+        infoBridgingProcess.put("Upcasting xslt",UpcastingXSLT);
+        infoBridgingProcess.put("Downcasting xslt",DowncastingXSLT);
+
+        infoBridgingProcess.put("SecondSoapRequest",SecondSoapRequest);
+        infoBridgingProcess.put("SecondSoapResponse",SecondSoapResponse);
+        infoBridgingProcess.put("SecondoutputXML", SecondoutputXML);
+
+        return  infoBridgingProcess;
+    }
+
+    /*
+    * Update the session attributes of the showBridging page so as to inform the end user about the process of the bridging
+    * */
+    private void updateSessionOfShowBridgingResults(HttpSession session,String source_xml, String target_xml, JSONObject infoBridgingProcess){
+
+        session.setAttribute("source_xml",source_xml);
+        session.setAttribute("target_xml", target_xml);
+        session.removeAttribute("infoBridgingProcess");
+        session.setAttribute("infoBridgingProcess", infoBridgingProcess);
+
     }
 
      

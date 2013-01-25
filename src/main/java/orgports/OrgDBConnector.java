@@ -147,13 +147,13 @@ public class OrgDBConnector {
             String tax= (taxonomy_id.equalsIgnoreCase("All")) ? " IS NOT NULL": "='"+taxonomy_id+"'";
             String software_id = (softwareID.equalsIgnoreCase("All")) ? " IS NOT NULL": "="+softwareID;
            
-            rs = this.dbHandler.dbQuery("select ws.service_id as service_id, ws.name as service_name, ws.exposed as exposed, ws.wsdl as wsdl, ws.namespace as namespace from web_service ws,operation o where ws.service_id=o.service_id and ws.exposed=1 and o.taxonomy_id"+tax +" and ws.software_id"+software_id+" group by ws.service_id");
+            rs = this.dbHandler.dbQuery("select ws.service_id as service_id, ws.name as service_name, ws.version as service_version, ws.exposed as exposed, ws.wsdl as wsdl, ws.namespace as namespace from web_service ws,operation o where ws.service_id=o.service_id and ws.exposed=1 and o.taxonomy_id"+tax +" and ws.software_id"+software_id+" group by ws.service_id");
             System.out.println("select ws.service_id as service_id, ws.name as service_name, ws.exposed as exposed, ws.wsdl as wsdl, ws.namespace as namespace from web_service ws,operation o where ws.service_id=o.service_id and ws.exposed=1 and o.taxonomy_id"+tax+" and ws.software_id"+software_id+" group by ws.service_id");
             
             
             if (rs != null) {
                 while (rs.next()) {
-                    ServiceList.add(new Service(rs.getInt("service_id"), rs.getString("service_name"),rs.getString("wsdl"),rs.getString("namespace"),rs.getBoolean("exposed")));
+                    ServiceList.add(new Service(rs.getInt("service_id"), rs.getString("service_name"),rs.getString("service_version"),rs.getString("wsdl"),rs.getString("namespace"),rs.getBoolean("exposed")));
                 }
             }
 
