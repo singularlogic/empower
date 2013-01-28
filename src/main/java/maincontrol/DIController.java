@@ -405,9 +405,19 @@ public class DIController extends HttpServlet {
 
         MainControlDB mainControlDB = new MainControlDB();
 
-        servIterator = (verifyUser("vendor", session)) ? mainControlDB.getServices((String) request.getParameter("software_id"), false, "IS NOT NULL").iterator()
-                : mainControlDB.getServices((String) request.getParameter("software_id"), true, "IS NOT NULL").iterator();
 
+        if (verifyUser("vendor", session)) {
+
+            servIterator =  mainControlDB.getServices((String) request.getParameter("software_id"), false, "IS NOT NULL").iterator();
+        } else{
+
+            servIterator =  mainControlDB.getExposedServices((String) request.getParameter("software_id"), "IS NOT NULL").iterator();
+        }
+
+        /*
+        servIterator = (verifyUser("vendor", session)) ? mainControlDB.getServices((String) request.getParameter("software_id"), false, "IS NOT NULL").iterator()
+               : mainControlDB.getServices((String) request.getParameter("software_id"), true, "IS NOT NULL").iterator();
+        */
 
         response.setContentType("text/xml; charset=UTF-8");
         PrintWriter out = response.getWriter();
@@ -419,13 +429,15 @@ public class DIController extends HttpServlet {
             Service service = (Service) servIterator.next();
             img_link = (service.isExposed()) ? "js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/green.gif" : "js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/red.gif";
 
-            //String delete_wservice_option = (verifyUser("vendor", session)) ? "<cell>Delete Service^./VendorManager?op=delete_wservice&amp;service_id=" + service.getService_id() + "^_self</cell>" : "";
             String delete_wservice_option = (verifyUser("vendor", session)) ? "<cell>Delete^javascript:deleteservice("+service.getService_id()+")^_self</cell>" : "";
+
+            String cppNameID =  (verifyUser("vendor", session)) ? "": "<cell>"+service.getCpp_name()+" ID:"+service.getCpp_id()+"</cell>";
 
 
             System.out.println("img_link" + img_link);
             out.write("<row id=\"" + service.getService_id() + "\">"
                     + "<cell>" + service.getName()+" -- V."+service.getVersion() + "</cell>"
+                    + cppNameID
                     + "<cell>Functional Annotation^./presentOperationTree.jsp?service_id=" + service.getService_id() + "^_self</cell>"
                     + "<cell>Data Annotation^./presentDataTree.jsp?service_id=" + service.getService_id() + "^_self</cell>"
                     + "<cell type=\"img\">" + img_link + "</cell>"
@@ -668,12 +680,22 @@ public class DIController extends HttpServlet {
         String centralTree = request.getParameter("centraltree");
         String mapping = null;
         String xbrl_mismatch = "false";
+        String map_type="";
 
         MainControlDB mainControlDB = new MainControlDB();
         Schema schema = mainControlDB.getSchema(schema_id);
         String filename = ((String) schema.getLocation()).split("/xsd/")[1];
 
-        DataAnnotations dataannotations = mainControlDB.getMapping(schema_id, -1, inputoutput + "$" + schema_data);
+        request.setAttribute("mapping", mapping);
+        if (verifyUser("vendor", session)) {
+            request.setAttribute("map_type", "cvp");
+            map_type="cvp";
+        } else {
+            request.setAttribute("map_type", "cpp");
+            map_type="cpp";
+        }
+
+        DataAnnotations dataannotations = mainControlDB.getMapping(schema_id, -1, inputoutput + "$" + schema_data,map_type);
         mapping = dataannotations.getMapping();
 
         if (mapping != null) {
@@ -681,12 +703,9 @@ public class DIController extends HttpServlet {
             //System.out.println("==== mapping=" + mapping.substring(0, 500));
         }
 
-        request.setAttribute("mapping", mapping);
-        if (verifyUser("vendor", session)) {
-            request.setAttribute("map_type", "cvp");
-        } else {
-            request.setAttribute("map_type", "cpp");
-        }
+
+
+
 
 
         request.setAttribute("selections", inputoutput + "$" + schema_data);
@@ -725,14 +744,17 @@ public class DIController extends HttpServlet {
         String mapping = new String("");
         String choice =  new String("");
         String xbrl_mismatch = "false";
+        String map_type= "";
         if (verifyUser("vendor", session)) {
             request.setAttribute("map_type", "cvp");
+            map_type="cvp";
         } else {
             request.setAttribute("map_type", "cpp");
+            map_type="cpp";
         }
 
         MainControlDB mainControlDB = new MainControlDB();
-        DataAnnotations dataannotations = mainControlDB.getMapping(-1, service_id, selections);
+        DataAnnotations dataannotations = mainControlDB.getMapping(-1, service_id, selections, map_type);
         mapping = dataannotations.getMapping();
 
 
@@ -821,6 +843,7 @@ public class DIController extends HttpServlet {
     protected void managePostMappings(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws IOException, ServletException {
         Integer cvpID = -1;
+        Integer cppID = -1;
         String json = request.getParameter("json");
 
         String xml = request.getParameter("xml");
@@ -846,14 +869,17 @@ public class DIController extends HttpServlet {
 
         if (mapType.equals("cvp")) {
             cvpID = new Integer(mainControlDB.insertCVP(schema_id, service_id, name));
+            mainControlDB.insert_cvp_dataannotations(cvpID, xml, schema_id, service_id, name, json, selections, xbrlType);
         }
         if (mapType.equals("cpp")) {
             cvpID = new Integer(mainControlDB.getCVP(schema_id, service_id));
+            cppID = new Integer(mainControlDB.getCPP(schema_id, service_id,cvpID,selections));
             System.out.println("MapType is cpp");
-            Integer cppID = new Integer(mainControlDB.insertCPP(schema_id, service_id, name));
+            //Integer cppID = new Integer(mainControlDB.insertCPP(schema_id, service_id, name));
+            mainControlDB.insert_cpp_dataannotations(cvpID, xml, schema_id, service_id, name, json, selections, xbrlType, cppID);
         }
 
-        mainControlDB.insert_dataannotations(cvpID, xml, schema_id, service_id, name, json, selections, xbrlType);
+
         isFullyMatched = (service_id != -1) ? mainControlDB.isFullyMatched(0, service_id, cvpID) : false;
         this.forwardToPage("/annotationResult.jsp?schema_id=" + schema_id + "&service_id=" + service_id + "&dataannotation=true", request, response);
 

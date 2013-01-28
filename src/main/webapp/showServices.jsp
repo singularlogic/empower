@@ -87,9 +87,9 @@
                         grid = new dhtmlXGridObject("box_grid");
                         grid.setImagePath("js/dhtmlxSuite/dhtmlxGrid/codebase/imgs");
                         if(<%=session.getAttribute("userType").equals("organization")%>){
-                        grid.setHeader("Service name,Functional Annotation,Data Annotation (CPP),Fully Annotated");//set column names
-                        grid.setColTypes("ro,link,link,img");
-                            grid.setInitWidths("200,160,130,*");
+                        grid.setHeader("Service name,CPP Name,Functional Annotation,Data Annotation (CPP),Fully Annotated");//set column names
+                        grid.setColTypes("ro,ro,link,link,img");
+                            grid.setInitWidths("180,80,150,120,*");
                         }else{
                         grid.setHeader("Service name,Functional Annotation,Data Annotation (CVP),Fully Annotated,Delete Web Service");//set column names
                         grid.setColTypes("ro,link,link,img,link");

@@ -15,6 +15,13 @@ public class Service {
     String wsdl;
     String namespace;
     boolean exposed;
+    int cvp_id;
+    String cpp_name;
+    int cpp_id;
+
+
+
+    int vendor_id;
 
     
     public Service(int service_id, String name,boolean exposed) {
@@ -22,14 +29,70 @@ public class Service {
         this.name = name;
         this.exposed = exposed;
     }
-    
-    public Service(int service_id, String name, String version, String wsdl , String namespace,boolean exposed) {
+
+
+
+    public Service(int service_id, String name , String version, String wsdl , String namespace,boolean exposed) {
         this.service_id = service_id;
         this.name = name;
         this.version = version;
         this.wsdl = wsdl;
         this.namespace = namespace;
         this.exposed = exposed;
+    }
+
+    public Service(int service_id, String name, String version, String wsdl , String namespace,boolean exposed,int cvp_id, int vendor_id) {
+        this.service_id = service_id;
+        this.name = name;
+        this.version = version;
+        this.wsdl = wsdl;
+        this.namespace = namespace;
+        this.exposed = exposed;
+        this.cvp_id= cvp_id;
+        this.vendor_id=vendor_id;
+    }
+
+
+    public Service(int service_id, String name, String cpp_name, int cpp_id, String version, String wsdl , String namespace,boolean exposed) {
+        this.service_id = service_id;
+        this.name = name;
+        this.cpp_name = cpp_name;
+        this.cpp_id =  cpp_id;
+        this.version = version;
+        this.wsdl = wsdl;
+        this.namespace = namespace;
+        this.exposed = exposed;
+    }
+
+    public int getVendor_id() {
+        return vendor_id;
+    }
+
+    public void setVendor_id(int vendor_id) {
+        this.vendor_id = vendor_id;
+    }
+
+    public String getCpp_name() {
+        return cpp_name;
+    }
+
+    public void setCpp_name(String cpp_name) {
+        this.cpp_name = cpp_name;
+    }
+
+    public int getCvp_id() {
+        return cvp_id;
+    }
+
+    public void setCvp_id(int cvp_id) {
+        this.cvp_id = cvp_id;
+    }
+    public int getCpp_id() {
+        return cpp_id;
+    }
+
+    public void setCpp_id(int cpp_id) {
+        this.cpp_id = cpp_id;
     }
 
     public String getVersion() {

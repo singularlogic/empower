@@ -122,6 +122,100 @@ public class MainControlDB {
 
         return compList;
     }
+
+
+    /*
+    * Add info for this function...
+    */
+    public Collection getExposedServices(String software_id, String wsdl) {
+        ResultSet rs,rs1,rs3;
+        LinkedList<Service> cvpServList = new LinkedList<Service>();
+        LinkedList<Service> cppServList = new LinkedList<Service>();
+
+        try {
+
+            this.dbHandler.dbOpen();
+            //get only the exposed web services of the specific software component
+            rs = this.dbHandler.dbQuery("select ws.service_id as service_id, ws.name as service_name, ws.version as service_version, ws.exposed as exposed, ws.wsdl as wsdl, ws.namespace as namespace, cvp.cvp_id as cvp_id, cvp.vendor_id as vendor_id from web_service ws,cvp cvp where ws.service_id=cvp.service_id and ws.exposed=1 and ws.software_id=" + software_id + " and ws.wsdl " + wsdl);
+
+            if (rs != null) {
+                while (rs.next()) {
+
+                    cvpServList.add(new Service(rs.getInt("service_id"), rs.getString("service_name"), rs.getString("service_version"), rs.getString("wsdl"), rs.getString("namespace"), rs.getBoolean("exposed"), rs.getInt("cvp_id"), rs.getInt("vendor_id")));
+                }}
+
+            rs.close();
+
+            for(Service service : cvpServList){
+
+                rs1= this.dbHandler.dbQuery("SELECT * FROM cvp, cpp  WHERE cvp.cvp_id=cpp.cvp_id and  cvp.service_id="+service.getService_id()+ " and cpp.name='basic'");
+
+                System.out.println("ti select kanei??"+"SELECT * FROM cvp, cpp  WHERE cvp.cvp_id=cpp.cvp_id and  cvp.service_id="+service.getService_id()+ " and cpp.name='basic'");
+
+                 if (!rs1.next()) {
+                     //if the exposed web service has no cpps with the name basic we duplicate cvp (create a new cpp as specialization on cvp)
+                     System.out.println("-------duplicate cvp----------");
+                     this.specializeCVPToCPPBacic(service.getCvp_id(), service.getVendor_id(),1);
+                 }
+                rs1.close();
+
+                //Always i display all cpp definitions
+                   System.out.println("------Get all cpps----------");
+                   rs3 = this.dbHandler.dbQuery("select ws.service_id as service_id, ws.name as service_name, ws.version as service_version, cpp.name as cpp_name,cpp.cpp_id as cpp_id, ws.exposed as exposed, ws.wsdl as wsdl, ws.namespace as namespace" +
+                           " from web_service ws,cvp cvp,cpp cpp where ws.service_id=cvp.service_id and cpp.cvp_id=cvp.cvp_id and ws.exposed=1 and ws.software_id="+software_id+" and ws.wsdl IS NOT NULL");
+
+                     if (rs3 != null) {
+                         while (rs3.next()) {
+
+                             cppServList.add(new Service(rs3.getInt("service_id"), rs3.getString("service_name"),rs3.getString("cpp_name"),rs3.getInt("cpp_id"),rs3.getString("service_version"), rs3.getString("wsdl"), rs3.getString("namespace"), rs3.getBoolean("exposed")));
+                             System.out.println("service_id " + rs3.getInt("service_id") + "service_name " + rs3.getString("service_name") +"service_version"+rs3.getString("service_version")+ "exposed " + rs3.getBoolean("exposed"));
+                         }
+                     }
+            }
+
+            this.dbHandler.dbClose();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+
+        return cppServList;
+    }
+
+
+    public void specializeCVPToCPPBacic(int cvp_id,int vendor_id,int organization_id) {
+        ResultSet rs;
+        LinkedList<DataAnnotations> daList = new LinkedList<DataAnnotations>();
+        try {
+
+            this.dbHandler.dbOpen();
+            // create cpp with the given cvp_id and organization_id
+           int cpp_id=  this.dbHandler.dbUpdate("insert into cpp(name,cvp_id,vendor_id,organization_id) values('basic'," + cvp_id + ","+vendor_id +","+ organization_id +");");
+
+
+            //get all data annotations with specific cvp and insert them adding the cpp_id
+
+            rs= this.dbHandler.dbQuery("SELECT * FROM `dataannotations` WHERE cvp_id="+cvp_id);
+
+            if (rs != null) {
+                while (rs.next()) {
+                    daList.add(new DataAnnotations(rs.getInt("dataAnnotations_id"), rs.getString("xslt_annotations"), rs.getString("mapping"), rs.getString("selections"), rs.getString("xbrl")));
+                }}
+
+            for (DataAnnotations da: daList){
+
+                //this.dbHandler.dbUpdate("INSERT INTO dataannotations(xslt_annotations,mapping,selections,xbrl,cvp_id,cpp_id) VALUES ('"+da.getXslt_annotations().toString()+"','"+da.getMapping().toString()+"','"+da.getSelections().toString()+"','"+da.getXbrl().toString()+"',"+cvp_id+","+cpp_id+")");
+               int newda_id= this.dbHandler.dbUpdate("INSERT INTO dataannotations (xslt_annotations , mapping, selections,xbrl) SELECT xslt_annotations , mapping, selections,xbrl FROM dataannotations  WHERE dataAnnotations_id ="+da.getDataAnnotations_id());
+               this.dbHandler.dbUpdate("update dataannotations set cvp_id='" + cvp_id + "',cpp_id=" + cpp_id + " where dataAnnotations_id=" + newda_id);
+            }
+
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+
+    }
+
+
+
     /*
      * Get all schemas that belong to a software component. if cvp is true the
      * functions only returns those that have been annotated. We put that
@@ -274,16 +368,26 @@ public class MainControlDB {
         return schema;
     }
 
-    public DataAnnotations getMapping(int schema_id, int service_id, String selections) {
+    public DataAnnotations getMapping(int schema_id, int service_id, String selections, String mapType) {
         ResultSet rs;
         String mappings = null;
         DataAnnotations dataAnnotations = new DataAnnotations();
-
+        String filtercvp_cpp="";
         try {
+
+            if (mapType.equalsIgnoreCase("cvp")){
+
+                filtercvp_cpp= " and da.cpp_id IS NULL";
+
+            }else if (mapType.equalsIgnoreCase("cpp")) {
+
+                filtercvp_cpp= " and da.cpp_id IS NOT NULL";
+            }
+
             this.dbHandler.dbOpen();
             System.out.println("selections: " + selections);
             rs = (service_id == -1) ? this.dbHandler.dbQuery("select da.dataAnnotations_id as dataAnnotations_id ,da.mapping as mapping, da.xbrl as xbrl from dataannotations da where schema_id=" + schema_id + " and selections='" + selections + "'")
-                    : this.dbHandler.dbQuery("select da.dataAnnotations_id as dataAnnotations_id ,da.mapping as mapping , da.xbrl as xbrl from dataannotations da, cvp cvp where cvp.cvp_id=da.cvp_id and cvp.service_id=" + service_id + " and da.selections='" + selections + "'");
+                    : this.dbHandler.dbQuery("select da.dataAnnotations_id as dataAnnotations_id ,da.mapping as mapping , da.xbrl as xbrl from dataannotations da, cvp cvp where cvp.cvp_id=da.cvp_id and cvp.service_id=" + service_id + " and da.selections='" + selections + "'" + filtercvp_cpp);
 
 
             if (rs.next()) {
@@ -346,10 +450,11 @@ public class MainControlDB {
         return cvp_id;
     }
 
-    public int insert_dataannotations(int cvp_id, String annotations, int schema_id, int service_id, String vendorName, String json, String selections, String xbrlType) {
+    public int insert_cpp_dataannotations(int cvp_id, String annotations, int schema_id, int service_id, String vendorName, String json, String selections, String xbrlType,int cppID) {
         ResultSet rs;
         int cvp = 0, dataannotations_id, vendor_id;
         int num = 0;
+
 
         try {
 
@@ -357,7 +462,7 @@ public class MainControlDB {
             this.dbHandler.dbOpen();
 
             rs = (service_id == -1) ? this.dbHandler.dbQuery("select da.dataAnnotations_id as dataAnnotations_id from dataannotations  da where da.cvp_id =" + cvp_id + " and da.schema_id=" + schema_id)
-                    : this.dbHandler.dbQuery("select da.dataAnnotations_id as dataAnnotations_id from dataannotations  da where da.cvp_id =" + cvp_id + " and da.selections='" + selections + "'");
+                    : this.dbHandler.dbQuery("select da.dataAnnotations_id as dataAnnotations_id from dataannotations  da where da.cvp_id =" + cvp_id + " and da.selections='" + selections + "' and da.cpp_id ="+cppID );
 
             System.out.println("service_id: " + service_id + " cvp_id: " + cvp_id + " selections: " + selections + " schema_id: " + schema_id);
             if (rs.next()) {
@@ -368,10 +473,51 @@ public class MainControlDB {
                 System.out.println("update dataannotations");
             } else {
                 //create dataannotations info
-                dataannotations_id = (service_id == -1) ? this.dbHandler.dbUpdate("insert into dataannotations (schema_id, xslt_annotations,mapping,selections,cvp_id,xbrl) values (" + schema_id + ",'" + annotations + "','" + json + "','" + selections + "'," + cvp_id + ",'" + xbrlType + "');")
-                        : this.dbHandler.dbUpdate("insert into dataannotations (xslt_annotations,mapping,selections,cvp_id,xbrl) values ('" + annotations + "','" + json + "','" + selections + "'," + cvp_id + ",'" + xbrlType + "');");
+
+
+                    dataannotations_id = (service_id == -1) ? this.dbHandler.dbUpdate("insert into dataannotations (schema_id, xslt_annotations,mapping,selections,cvp_id,xbrl) values (" + schema_id + ",'" + annotations + "','" + json + "','" + selections + "'," + cvp_id + ",'" + xbrlType + "');")
+                            : this.dbHandler.dbUpdate("insert into dataannotations (xslt_annotations,mapping,selections,cvp_id,cpp_id,xbrl) values ('" + annotations + "','" + json + "','" + selections + "'," + cvp_id + ","+cppID+",'" + xbrlType + "');");
+                    System.out.println("tora kano insert ena cpp");
 
                 System.out.println(" create dataannotations:" + dataannotations_id);
+            }
+
+            this.dbHandler.dbClose();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+
+        return cvp;
+    }
+
+    public int insert_cvp_dataannotations(int cvp_id, String annotations, int schema_id, int service_id, String vendorName, String json, String selections, String xbrlType) {
+        ResultSet rs;
+        int cvp = 0, dataannotations_id, vendor_id;
+        int num = 0;
+
+
+        try {
+
+            System.out.println("xbrlType: " + xbrlType);
+            this.dbHandler.dbOpen();
+
+            rs = (service_id == -1) ? this.dbHandler.dbQuery("select da.dataAnnotations_id as dataAnnotations_id from dataannotations  da where da.cvp_id =" + cvp_id + " and da.schema_id=" + schema_id)
+                    : this.dbHandler.dbQuery("select da.dataAnnotations_id as dataAnnotations_id from dataannotations  da where da.cvp_id =" + cvp_id + " and da.selections='" + selections + "' and da.cpp_id IS NULL");
+
+            System.out.println("service_id: " + service_id + " cvp_id: " + cvp_id + " selections: " + selections + " schema_id: " + schema_id);
+            if (rs.next()) {
+                dataannotations_id = rs.getInt("dataAnnotations_id");
+                System.out.println(" dataannotations_id exists:" + dataannotations_id);
+                //update dataannotations info
+                this.dbHandler.dbUpdate("update dataannotations set mapping='" + json + "', xslt_annotations ='" + annotations + "', selections = '" + selections + "', xbrl='" + xbrlType + "'  where dataannotations_id=" + dataannotations_id + ";");
+                System.out.println("update dataannotations");
+            } else {
+                //create dataannotations info
+                    dataannotations_id = (service_id == -1) ? this.dbHandler.dbUpdate("insert into dataannotations (schema_id, xslt_annotations,mapping,selections,cvp_id,xbrl) values (" + schema_id + ",'" + annotations + "','" + json + "','" + selections + "'," + cvp_id + ",'" + xbrlType + "');")
+                            : this.dbHandler.dbUpdate("insert into dataannotations (xslt_annotations,mapping,selections,cvp_id,xbrl) values ('" + annotations + "','" + json + "','" + selections + "'," + cvp_id + ",'" + xbrlType + "');");
+                System.out.println(" create dataannotations:" + dataannotations_id);
+                System.out.println("tora kano insert ena cvp");
+
             }
 
             this.dbHandler.dbClose();
@@ -407,6 +553,33 @@ public class MainControlDB {
         return cvp_id;
 
     }
+
+    public int getCPP(int schema_id, int service_id, int cvpID, String selections) {
+        ResultSet rs, rs1;
+        int cvp = 0, vendor_id, cpp_id = -1;
+        int num = 0;
+        //here i have not changed the schema get cpp
+        try {
+           this.dbHandler.dbOpen();
+
+            rs = (service_id == -1) ? this.dbHandler.dbQuery("select cvp.cvp_id as cvp_id from operation_schema os, operation o, cvp cvp where  o.operation_id=os.operation_id and cvp.service_id = o.service_id and os.schema_id =" + schema_id)
+                    : this.dbHandler.dbQuery("select da.cpp_id from dataannotations  da where da.cvp_id ="+cvpID+" and da.selections='"+selections+"' and cpp_id is not null");
+
+            if (rs.next()) {
+                cpp_id = rs.getInt("cpp_id");
+            } else {
+                throw new EmptyStackException();
+            }
+
+            this.dbHandler.dbClose();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+        return cpp_id;
+
+    }
+
+
 
     public int insertCPP(int schema_id, int service_id, String orgName) {
         ResultSet rs, rs1;
@@ -573,7 +746,7 @@ public class MainControlDB {
     }
 
     public boolean isFullyMatched(int cpp, int service_id, int cvpID) {
-        ResultSet rs, tmpSet, funcSet;
+        ResultSet rs, tmpSet, funcSet,isexposedSet;
         int numberMessages, numberOperations, funcMessages, dataMessages;
         String serviceName = null;
         String operationName = null;
@@ -614,16 +787,24 @@ public class MainControlDB {
                 System.out.println(funcMessages);
                 if (dataMessages == numberMessages && funcMessages == numberOperations) {
                     System.out.println("dataMessages==numberMessages" + dataMessages + numberMessages + "&& funcMessages==numberOperations " + funcMessages + numberOperations);
-                    this.dbHandler.dbUpdate("update web_service set exposed=1 where service_id=" + service_id);
+                    //check if the exposed field is zero and duplicate the dataannotation as cpp before mark the web service as full annotated
+                    isexposedSet = this.dbHandler.dbQuery("SELECT exposed FROM web_service WHERE service_id="+service_id);
+                    if (isexposedSet.next()) {
+                        if (isexposedSet.getInt("exposed")==0){
+                            this.dbHandler.dbUpdate("update web_service set exposed=1 where service_id=" + service_id);
+                        }
+                        rs.close();
+
+                        this.dbHandler.dbClose();
+                    }
+
                     return true;
                 } else {
                     return false;
                 }
             }
 
-            rs.close();
 
-            this.dbHandler.dbClose();
         } catch (Throwable t) {
             t.printStackTrace();
         }

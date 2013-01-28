@@ -379,7 +379,7 @@ public class VendorManager extends HttpServlet {
 
                     String inputLine;
                     while ((inputLine = in.readLine()) != null) {
-                        fileWriter.write(inputLine);
+                        fileWriter.write(inputLine+System.getProperty( "line.separator" ));
                     }
                     in.close();
                     fileWriter.close();

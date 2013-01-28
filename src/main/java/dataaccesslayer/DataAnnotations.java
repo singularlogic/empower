@@ -13,6 +13,8 @@ public class DataAnnotations {
     private int dataAnnotations_id;
     private String mapping;
     private String xbrl;
+    private String xslt_annotations;
+    private String selections;
     
     
      public DataAnnotations(int dataAnnotations_id, String mapping,String xbrl) {
@@ -21,11 +23,34 @@ public class DataAnnotations {
         this.xbrl = xbrl;
     }
 
+    public DataAnnotations(int dataAnnotations_id,String xslt_annotations,String mapping, String selections, String xbrl) {
+        this.dataAnnotations_id= dataAnnotations_id;
+        this.xslt_annotations = xslt_annotations;
+        this.mapping = mapping;
+        this.selections = selections;
+        this.xbrl = xbrl;
+    }
+
     public DataAnnotations() {
         
     }
 
-    
+
+    public String getXslt_annotations() {
+        return xslt_annotations;
+    }
+
+    public void setXslt_annotations(String xslt_annotations) {
+        this.xslt_annotations = xslt_annotations;
+    }
+
+    public String getSelections() {
+        return selections;
+    }
+
+    public void setSelections(String selections) {
+        this.selections = selections;
+    }
 
     public int getDataAnnotations_id() {
         return dataAnnotations_id;

@@ -345,6 +345,7 @@ public class WSDLParser
 
         // get the entity type so as to add it to xsdTypes
         Parser parser = new Parser();
+
         JSONObject daoEntity = parser.getTypes(xsdTypes);
 
        // in case that element is different from daoEntity parse again wsdl so as to get the entity complexType
@@ -418,9 +419,12 @@ public class WSDLParser
 
         if (!xsdTypes.equalsIgnoreCase("null")) xsdTypes += "</xs:complexType>";
 
+
+
         return xsdTypes;
 
     }
+
 
 
     public String getForeignKeyElementfromXSD(String element) throws IOException, ParserConfigurationException, SAXException {
