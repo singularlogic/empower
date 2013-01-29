@@ -1,3 +1,4 @@
+<%@ page import="net.sf.json.JSONObject" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@include file="timedoutRedirect.jsp" %>
 <!DOCTYPE html>
@@ -61,7 +62,7 @@
         </div>
         <div class="main">
         <div class="main-navigation">
-            <div id="menu_grid" style="width:180px; height:<%=(session.getAttribute("userType").equals("organization"))?180:150%>px" class='glossymenu'>
+            <div id="menu_grid" style="width:180px; height:<%=(session.getAttribute("userType").equals("organization"))?210:150%>px" class='glossymenu'>
                     <script>
                         menu_grid = new dhtmlXGridObject("menu_grid");
                         menu_grid.setImagePath("js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");
@@ -104,7 +105,30 @@
                 <br>
                 <% if (session.getAttribute("userType").equals("vendor")){ %>
                 <p><a href='./vendor/serviceReg.jsp?software_id=<%= request.getParameter("software_id")%>&jsp=true'>Add new service to the current Software Component</a>
-                <%}%>
+                <%}else{ %>
+
+            <div>
+            <p>Create a New CPP:</p>
+            <form method="POST" action="./OrganizationManager?op=cpp_reg&software_id=<%= request.getParameter("software_id") %>" name="cpp_registration"">
+            <select name="CPPid" id="CPPsPerSoftCompPerOrg" style="margin:10px;">
+               <%
+                    if (session.getAttribute("CPPsPerSoftCompPerOrg") != "") {
+                        JSONObject cpps = (JSONObject) session.getAttribute("CPPsPerSoftCompPerOrg");
+                        for (Object o : cpps.keySet()) {
+                            String key = (String) o;
+                            String value = cpps.getString(key);
+                            System.out.println("key: " + key + " value: " + value);
+                %> <option value="<%=key%>"><%=value%></option><%
+                    }
+                }
+            %>
+            </select>
+            <input type="text" name="cpp_name" size="20">
+            <input type="submit" value="Create CPP" name="submit_button"></td>
+            </form>
+            </div>
+
+                    <% }%>
         </div>
         </div>
             <div class="footer"><p>Copyright &copy; 2012 Empower Consortium | All Rights Reserved</p></div>

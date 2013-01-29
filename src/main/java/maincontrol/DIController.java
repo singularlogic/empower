@@ -38,6 +38,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import orgports.OrgDBConnector;
+import orgports.OrganizationManager;
 import vendorports.VendorDBConnector;
 import xml.Parser;
 import xml.WSDLParser;
@@ -46,8 +47,7 @@ import org.dom4j.DocumentException;
 
 /**
  *
- * @author elenithis.forwardToPage("/VendorManager?op=schema_reg&software_id=" +
- * softwareID, request, response);
+ * @author eleni
  *
  */
 public class DIController extends HttpServlet {
@@ -392,6 +392,19 @@ public class DIController extends HttpServlet {
             if (service_num.equals("0")) {
                 this.forwardToPage("/info.jsp?message_code=2", request, response);
             } else {
+
+                //-------------Prepare the select option so as to create new CPP's------------
+                JSONObject json_cppsOfOrganization = new JSONObject();
+                OrgDBConnector orgDBConnector = new OrgDBConnector();
+                LinkedList<Service> cppsofOrg = orgDBConnector.getCPPs((String) session.getAttribute("name"),Integer.parseInt(software_id));
+
+                Iterator cppsofOrg_iterator = cppsofOrg.iterator();
+                while (cppsofOrg_iterator.hasNext()) {
+                    Service cpp_service = (Service) cppsofOrg_iterator.next();
+                    json_cppsOfOrganization.put(cpp_service.getCpp_id(), cpp_service.getName() + "  V." + cpp_service.getVersion() + "   CPP Name: " +cpp_service.getCpp_name() + "  ID: " +cpp_service.getCpp_id());
+                }
+                session.setAttribute("CPPsPerSoftCompPerOrg", json_cppsOfOrganization);
+
                 this.forwardToPage("/showServices.jsp?software_id=" + software_id, request, response);
             }
         }
@@ -403,6 +416,7 @@ public class DIController extends HttpServlet {
         Iterator servIterator;
         String img_link = "";
 
+
         MainControlDB mainControlDB = new MainControlDB();
 
 
@@ -410,8 +424,11 @@ public class DIController extends HttpServlet {
 
             servIterator =  mainControlDB.getServices((String) request.getParameter("software_id"), false, "IS NOT NULL").iterator();
         } else{
+            String organization_name = (String) session.getAttribute("name");
+            int organization_id = mainControlDB.getuserid(organization_name);
+            // get all the CPPs the currend organization user paricipates
+            servIterator =  mainControlDB.getExposedServices((String) request.getParameter("software_id"), "IS NOT NULL",organization_id).iterator();
 
-            servIterator =  mainControlDB.getExposedServices((String) request.getParameter("software_id"), "IS NOT NULL").iterator();
         }
 
         /*
@@ -427,6 +444,7 @@ public class DIController extends HttpServlet {
 
         while (servIterator.hasNext()) {
             Service service = (Service) servIterator.next();
+
             img_link = (service.isExposed()) ? "js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/green.gif" : "js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/red.gif";
 
             String delete_wservice_option = (verifyUser("vendor", session)) ? "<cell>Delete^javascript:deleteservice("+service.getService_id()+")^_self</cell>" : "";
@@ -435,7 +453,7 @@ public class DIController extends HttpServlet {
 
 
             System.out.println("img_link" + img_link);
-            out.write("<row id=\"" + service.getService_id() + "\">"
+            out.write("<row id=\"" + service.getService_id() +"$"+service.getCpp_id()+ "\">"
                     + "<cell>" + service.getName()+" -- V."+service.getVersion() + "</cell>"
                     + cppNameID
                     + "<cell>Functional Annotation^./presentOperationTree.jsp?service_id=" + service.getService_id() + "^_self</cell>"
@@ -447,6 +465,8 @@ public class DIController extends HttpServlet {
 
         out.write("</rows>");
         out.flush();
+
+
 
         return;
     }

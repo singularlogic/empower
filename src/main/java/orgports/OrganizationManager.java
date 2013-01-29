@@ -124,7 +124,12 @@ public class OrganizationManager extends HttpServlet {
                     this.getModelsForComparationSchema(request, response, session);
                 } else if (operation.equals("getModelsForComparationSchemaXBRL")) {
                     this.getModelsForComparationSchemaXBRL(request, response, session);
+                } else if (operation.equals("cpp_reg")) {
+                    this.CPPRegistration(request, response, session);
                 }
+
+
+
                 
                 
 
@@ -172,6 +177,20 @@ public class OrganizationManager extends HttpServlet {
 
         out.write("</rows>");
         out.flush();
+
+    }
+
+    protected void CPPRegistration(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException, ServletException {
+
+        int cpp_id = Integer.parseInt(request.getParameter("CPPid"));
+        String organization_name = (String) session.getAttribute("name");
+        String cpp_name= (String)  request.getParameter("cpp_name");
+        String software_id = (String) request.getParameter("software_id");
+
+
+        OrgDBConnector orgDBConnector = new OrgDBConnector();
+        orgDBConnector.insertNewCPP(cpp_id,organization_name,cpp_name);
+        this.forwardToPage("/showServices.jsp?software_id=" + software_id, request, response);
 
     }
 

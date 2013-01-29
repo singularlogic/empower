@@ -437,11 +437,38 @@ public class OrgDBConnector {
 	}
         return cpp_id;
     }
-    
-    
-    
-    
-     /*
+
+    // Given an organization and a Soft Component we get all CPPS
+    public LinkedList<Service> getCPPs(String organization_name, int software_id){
+        ResultSet rs;
+        LinkedList<Service> cppServList = new LinkedList<Service>();
+        try{
+            int organization_id = this.getUserID(organization_name);
+
+            this.dbHandler.dbOpen();
+
+            rs = this.dbHandler.dbQuery("select ws.service_id as service_id, ws.name as service_name, ws.version as service_version, cpp.name as cpp_name,cpp.cpp_id as cpp_id, ws.exposed as exposed, ws.wsdl as wsdl, ws.namespace as namespace" +
+                    " from web_service ws,cvp cvp,cpp cpp where ws.service_id=cvp.service_id and cpp.cvp_id=cvp.cvp_id and ws.exposed=1 and ws.software_id="+software_id+" and cpp.organization_id="+organization_id+"  and ws.wsdl IS NOT NULL");
+
+
+            if (rs != null) {
+                while (rs.next()) {
+
+                    cppServList.add(new Service(rs.getInt("service_id"), rs.getString("service_name"),rs.getString("cpp_name"),rs.getInt("cpp_id"),rs.getString("service_version"), rs.getString("wsdl"), rs.getString("namespace"), rs.getBoolean("exposed")));
+                }}
+
+                    this.dbHandler.dbClose();
+        }
+        catch(Throwable t)
+        {
+            t.printStackTrace();
+        }
+        return cppServList;
+    }
+
+
+
+    /*
      * Given the cvp_in we look for the cpp_id so as to create the cpa registry
      * if ther is not no cpp we create it
      */
@@ -519,6 +546,49 @@ public class OrgDBConnector {
 	}
     
     
+    }
+
+
+
+    public void insertNewCPP(int father_cpp_id,String organization_name,String cpp_name) {
+        ResultSet rs;
+        int cvp_id = 0;
+        int vendor_id = 0;
+        LinkedList<DataAnnotations> daList = new LinkedList<DataAnnotations>();
+        try {
+
+            int organization_id =  this.getUserID(organization_name);
+
+            this.dbHandler.dbOpen();
+
+
+            //get all data annotations with specific cvp and insert them adding the cpp_id
+
+            rs= this.dbHandler.dbQuery("SELECT * FROM dataannotations da, cpp cpp WHERE da.cpp_id=cpp.cpp_id and da.cpp_id="+father_cpp_id);
+
+            if (rs != null) {
+                while (rs.next()) {
+                    daList.add(new DataAnnotations(rs.getInt("dataAnnotations_id"), rs.getString("xslt_annotations"), rs.getString("mapping"), rs.getString("selections"), rs.getString("xbrl")));
+                    cvp_id= rs.getInt("cvp_id");
+                    vendor_id = rs.getInt("vendor_id");
+                }}
+
+            // create cpp with the given cvp_id and organization_id
+            int new_cpp_id=  this.dbHandler.dbUpdate("insert into cpp(name,cvp_id,vendor_id,organization_id) values('"+cpp_name+"'," + cvp_id + ","+vendor_id +","+ organization_id +");");
+
+
+            for (DataAnnotations da: daList){
+
+                int newda_id= this.dbHandler.dbUpdate("INSERT INTO dataannotations (xslt_annotations , mapping, selections,xbrl) SELECT xslt_annotations , mapping, selections,xbrl FROM dataannotations  WHERE dataAnnotations_id ="+da.getDataAnnotations_id());
+                this.dbHandler.dbUpdate("update dataannotations set cvp_id='" + cvp_id + "',cpp_id=" + new_cpp_id + " where dataAnnotations_id=" + newda_id);
+            }
+
+            System.out.println("ole le to ebalaaaaaaa");
+
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+
     }
     
 }

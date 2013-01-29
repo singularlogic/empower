@@ -127,7 +127,7 @@ public class MainControlDB {
     /*
     * Add info for this function...
     */
-    public Collection getExposedServices(String software_id, String wsdl) {
+    public Collection getExposedServices(String software_id, String wsdl,int organization_id) {
         ResultSet rs,rs1,rs3;
         LinkedList<Service> cvpServList = new LinkedList<Service>();
         LinkedList<Service> cppServList = new LinkedList<Service>();
@@ -148,21 +148,24 @@ public class MainControlDB {
 
             for(Service service : cvpServList){
 
-                rs1= this.dbHandler.dbQuery("SELECT * FROM cvp, cpp  WHERE cvp.cvp_id=cpp.cvp_id and  cvp.service_id="+service.getService_id()+ " and cpp.name='basic'");
+                rs1= this.dbHandler.dbQuery("SELECT * FROM cvp, cpp  WHERE cvp.cvp_id=cpp.cvp_id and  cvp.service_id="+service.getService_id()+ " and cpp.name='basic' and cpp.organization_id="+organization_id);
 
-                System.out.println("ti select kanei??"+"SELECT * FROM cvp, cpp  WHERE cvp.cvp_id=cpp.cvp_id and  cvp.service_id="+service.getService_id()+ " and cpp.name='basic'");
 
                  if (!rs1.next()) {
                      //if the exposed web service has no cpps with the name basic we duplicate cvp (create a new cpp as specialization on cvp)
                      System.out.println("-------duplicate cvp----------");
-                     this.specializeCVPToCPPBacic(service.getCvp_id(), service.getVendor_id(),1);
+                     this.specializeCVPToCPPBacic(service.getCvp_id(), service.getVendor_id(),organization_id);
                  }
                 rs1.close();
 
                 //Always i display all cpp definitions
                    System.out.println("------Get all cpps----------");
                    rs3 = this.dbHandler.dbQuery("select ws.service_id as service_id, ws.name as service_name, ws.version as service_version, cpp.name as cpp_name,cpp.cpp_id as cpp_id, ws.exposed as exposed, ws.wsdl as wsdl, ws.namespace as namespace" +
-                           " from web_service ws,cvp cvp,cpp cpp where ws.service_id=cvp.service_id and cpp.cvp_id=cvp.cvp_id and ws.exposed=1 and ws.software_id="+software_id+" and ws.wsdl IS NOT NULL");
+                           " from web_service ws,cvp cvp,cpp cpp where ws.service_id=cvp.service_id and cpp.cvp_id=cvp.cvp_id and ws.exposed=1 and ws.software_id="+software_id+" and cpp.organization_id="+organization_id+"  and ws.wsdl IS NOT NULL");
+
+                System.out.println("select ws.service_id as service_id, ws.name as service_name, ws.version as service_version, cpp.name as cpp_name,cpp.cpp_id as cpp_id, ws.exposed as exposed, ws.wsdl as wsdl, ws.namespace as namespace" +
+                        " from web_service ws,cvp cvp,cpp cpp where ws.service_id=cvp.service_id and cpp.cvp_id=cvp.cvp_id and ws.exposed=1 and ws.software_id="+software_id+" and cpp.organization_id="+organization_id+"  and ws.wsdl IS NOT NULL");
+
 
                      if (rs3 != null) {
                          while (rs3.next()) {
@@ -194,7 +197,7 @@ public class MainControlDB {
 
             //get all data annotations with specific cvp and insert them adding the cpp_id
 
-            rs= this.dbHandler.dbQuery("SELECT * FROM `dataannotations` WHERE cvp_id="+cvp_id);
+            rs= this.dbHandler.dbQuery("SELECT * FROM `dataannotations` WHERE cvp_id="+cvp_id+ "and cpp_id IS NULL");
 
             if (rs != null) {
                 while (rs.next()) {
