@@ -125,7 +125,7 @@
         </div>
         <div class="main">
         <div class="main-navigation">
-          <div id="menu_grid" style="width:180px; height:<%=(session.getAttribute("userType").equals("organization"))?180:150%>px" class='glossymenu'>
+          <div id="menu_grid" style="width:180px; height:<%=(session.getAttribute("userType").equals("organization"))?210:150%>px" class='glossymenu'>
            <script>
               menu_grid = new dhtmlXGridObject("menu_grid");
               menu_grid.setImagePath("js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");
@@ -183,7 +183,8 @@
                     <input type='hidden' name='schema_id' value='<%= request.getParameter("schema_id") %>'>
                     <input type='hidden' name='service_id' value='<%= request.getParameter("service_id") %>'>
                     <input type='hidden' name='selections'  value='null'>
-                    <input type='hidden' name='centraltree'  value='null'>                                        
+                    <input type='hidden' name='centraltree'  value='null'>
+                    <input type='hidden' name='cpp_id'  value='<%= request.getParameter("cpp_id") %>'>
                     <input TYPE="image" src="./img/Annotate.png" name="annotate_button"/>
                 </form>
                  </div>

@@ -126,6 +126,8 @@ public class OrganizationManager extends HttpServlet {
                     this.getModelsForComparationSchemaXBRL(request, response, session);
                 } else if (operation.equals("cpp_reg")) {
                     this.CPPRegistration(request, response, session);
+                } else if (operation.equals("cpp_delete")) {
+                    this.CPPDelete(request, response, session);
                 }
 
 
@@ -190,7 +192,23 @@ public class OrganizationManager extends HttpServlet {
 
         OrgDBConnector orgDBConnector = new OrgDBConnector();
         orgDBConnector.insertNewCPP(cpp_id,organization_name,cpp_name);
-        this.forwardToPage("/showServices.jsp?software_id=" + software_id, request, response);
+        String message= "A new CPP has been created!!!" ;
+        System.out.println("message"+message);
+        this.forwardToPage("/showServices.jsp?software_id=" + software_id+"&message="+message, request, response);
+
+    }
+
+    protected void CPPDelete(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException, ServletException {
+
+        int cpp_id = Integer.parseInt(request.getParameter("cpp_id"));
+        String software_id = (String) request.getParameter("software_id");
+
+
+        OrgDBConnector orgDBConnector = new OrgDBConnector();
+        orgDBConnector.deleteCPP(cpp_id);
+        String message= "The CPP with ID:"+cpp_id+" has been succesfully deleted!!!" ;
+        System.out.println("message"+message);
+        this.forwardToPage("/showServices.jsp?software_id=" + software_id+"&message="+message, request, response);
 
     }
 

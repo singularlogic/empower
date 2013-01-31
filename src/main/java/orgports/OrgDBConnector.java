@@ -583,7 +583,21 @@ public class OrgDBConnector {
                 this.dbHandler.dbUpdate("update dataannotations set cvp_id='" + cvp_id + "',cpp_id=" + new_cpp_id + " where dataAnnotations_id=" + newda_id);
             }
 
-            System.out.println("ole le to ebalaaaaaaa");
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+
+    }
+
+    public void deleteCPP(int cpp_id) {
+
+        try {
+
+            this.dbHandler.dbOpen();
+
+            this.dbHandler.dbUpdate("DELETE FROM dataannotations WHERE cpp_id="+cpp_id);
+
+            this.dbHandler.dbUpdate("DELETE FROM cpp WHERE cpp_id="+cpp_id);
 
         } catch (Throwable t) {
             t.printStackTrace();

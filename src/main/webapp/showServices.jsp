@@ -74,7 +74,7 @@
                     </script>
                 </div>
         </div>    
-        <div class="main-content">
+        <div class="main-content" style="width:600px">
             <div style="width:600px">
                 <h2 id="pageTitle"></h2>
                 <br><br>
@@ -88,8 +88,8 @@
                         grid = new dhtmlXGridObject("box_grid");
                         grid.setImagePath("js/dhtmlxSuite/dhtmlxGrid/codebase/imgs");
                         if(<%=session.getAttribute("userType").equals("organization")%>){
-                        grid.setHeader("Service name,CPP Name,Functional Annotation,Data Annotation (CPP),Fully Annotated");//set column names
-                        grid.setColTypes("ro,ro,link,link,img");
+                        grid.setHeader("Service name,CPP Name,Functional Annotation,Data Annotation (CPP),Delete CPP");//set column names
+                        grid.setColTypes("ro,ro,link,link,link");
                             grid.setInitWidths("180,80,150,120,*");
                         }else{
                         grid.setHeader("Service name,Functional Annotation,Data Annotation (CVP),Fully Annotated,Delete Web Service");//set column names
@@ -108,8 +108,8 @@
                 <%}else{ %>
 
             <div>
-            <p>Create a New CPP:</p>
-            <form method="POST" action="./OrganizationManager?op=cpp_reg&software_id=<%= request.getParameter("software_id") %>" name="cpp_registration"">
+            <h2 style="border-bottom: 2px solid;">Create a New CPP:</h2>
+            <form method="POST" action="./OrganizationManager?op=cpp_reg&software_id=<%= request.getParameter("software_id") %>" name="cpp_registration" >
             <select name="CPPid" id="CPPsPerSoftCompPerOrg" style="margin:10px;">
                <%
                     if (session.getAttribute("CPPsPerSoftCompPerOrg") != "") {
@@ -127,8 +127,10 @@
             <input type="submit" value="Create CPP" name="submit_button"></td>
             </form>
             </div>
+            <br><br>
+            <div id="createDeleteCppMessage"><p class="info_message"  style="margin: 10px; border:2px solid;"><%=request.getParameter("message")%></p></div>
 
-                    <% }%>
+            <% }%>
         </div>
         </div>
             <div class="footer"><p>Copyright &copy; 2012 Empower Consortium | All Rights Reserved</p></div>

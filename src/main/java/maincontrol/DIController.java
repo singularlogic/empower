@@ -384,7 +384,7 @@ public class DIController extends HttpServlet {
                 // if software component with any service
                 this.forwardToPage("/vendor/serviceReg.jsp?software_id=" + software_id + "&jsp=false", request, response);
             } else {
-                this.forwardToPage("/showServices.jsp?software_id=" + software_id, request, response);
+                this.forwardToPage("/showServices.jsp?software_id=" + software_id+"&message=", request, response);
             }
         }
 
@@ -405,7 +405,7 @@ public class DIController extends HttpServlet {
                 }
                 session.setAttribute("CPPsPerSoftCompPerOrg", json_cppsOfOrganization);
 
-                this.forwardToPage("/showServices.jsp?software_id=" + software_id, request, response);
+                this.forwardToPage("/showServices.jsp?software_id=" + software_id+"&message=", request, response);
             }
         }
 
@@ -449,6 +449,8 @@ public class DIController extends HttpServlet {
 
             String delete_wservice_option = (verifyUser("vendor", session)) ? "<cell>Delete^javascript:deleteservice("+service.getService_id()+")^_self</cell>" : "";
 
+            String delete_cpp_option = (verifyUser("vendor", session)) ? "<cell type=\"img\">" + img_link + "</cell>" : "<cell>Delete^./OrganizationManager?op=cpp_delete&amp;software_id="+request.getParameter("software_id")+"&amp;cpp_id=" + service.getCpp_id()+ "^_self</cell>";
+
             String cppNameID =  (verifyUser("vendor", session)) ? "": "<cell>"+service.getCpp_name()+" ID:"+service.getCpp_id()+"</cell>";
 
 
@@ -456,9 +458,9 @@ public class DIController extends HttpServlet {
             out.write("<row id=\"" + service.getService_id() +"$"+service.getCpp_id()+ "\">"
                     + "<cell>" + service.getName()+" -- V."+service.getVersion() + "</cell>"
                     + cppNameID
-                    + "<cell>Functional Annotation^./presentOperationTree.jsp?service_id=" + service.getService_id() + "^_self</cell>"
-                    + "<cell>Data Annotation^./presentDataTree.jsp?service_id=" + service.getService_id() + "^_self</cell>"
-                    + "<cell type=\"img\">" + img_link + "</cell>"
+                    + "<cell>Functional Annotation^./presentOperationTree.jsp?service_id=" + service.getService_id()+ "^_self</cell>"
+                    + "<cell>Data Annotation^./presentDataTree.jsp?service_id=" + service.getService_id()+"&amp;cpp_id="+service.getCpp_id()+"^_self</cell>"
+                    + delete_cpp_option
                     + delete_wservice_option
                     + "</row>");
         }
@@ -761,21 +763,25 @@ public class DIController extends HttpServlet {
         int service_id = Integer.parseInt((String) request.getParameter("service_id"));
         String selections = request.getParameter("selections");
         String centralTree = request.getParameter("centraltree");
+        String cpp_id=  request.getParameter("cpp_id");
         String mapping = new String("");
         String choice =  new String("");
         String xbrl_mismatch = "false";
         String map_type= "";
+
         if (verifyUser("vendor", session)) {
             request.setAttribute("map_type", "cvp");
             map_type="cvp";
         } else {
-            request.setAttribute("map_type", "cpp");
-            map_type="cpp";
+
+            request.setAttribute("map_type", "cpp$"+cpp_id);
+            map_type="cpp$"+cpp_id;
         }
 
         MainControlDB mainControlDB = new MainControlDB();
         DataAnnotations dataannotations = mainControlDB.getMapping(-1, service_id, selections, map_type);
         mapping = dataannotations.getMapping();
+        System.out.println("This is the mapping i get"+mapping);
 
 
         if (mapping != null) {
@@ -891,9 +897,10 @@ public class DIController extends HttpServlet {
             cvpID = new Integer(mainControlDB.insertCVP(schema_id, service_id, name));
             mainControlDB.insert_cvp_dataannotations(cvpID, xml, schema_id, service_id, name, json, selections, xbrlType);
         }
-        if (mapType.equals("cpp")) {
+        if (mapType.contains("cpp")) {
             cvpID = new Integer(mainControlDB.getCVP(schema_id, service_id));
-            cppID = new Integer(mainControlDB.getCPP(schema_id, service_id,cvpID,selections));
+            //cppID = new Integer(mainControlDB.getCPP(schema_id, service_id,cvpID,selections));
+            cppID = Integer.parseInt(mapType.split("\\$")[1]);
             System.out.println("MapType is cpp");
             //Integer cppID = new Integer(mainControlDB.insertCPP(schema_id, service_id, name));
             mainControlDB.insert_cpp_dataannotations(cvpID, xml, schema_id, service_id, name, json, selections, xbrlType, cppID);

@@ -378,13 +378,15 @@ public class MainControlDB {
         String filtercvp_cpp="";
         try {
 
-            if (mapType.equalsIgnoreCase("cvp")){
+            if (mapType.contains("cvp")){
 
                 filtercvp_cpp= " and da.cpp_id IS NULL";
 
-            }else if (mapType.equalsIgnoreCase("cpp")) {
+            }else if (mapType.contains("cpp")) {
 
-                filtercvp_cpp= " and da.cpp_id IS NOT NULL";
+                String cpp_id = mapType.split("\\$")[1];
+                filtercvp_cpp= " and da.cpp_id="+cpp_id;
+
             }
 
             this.dbHandler.dbOpen();
@@ -392,6 +394,7 @@ public class MainControlDB {
             rs = (service_id == -1) ? this.dbHandler.dbQuery("select da.dataAnnotations_id as dataAnnotations_id ,da.mapping as mapping, da.xbrl as xbrl from dataannotations da where schema_id=" + schema_id + " and selections='" + selections + "'")
                     : this.dbHandler.dbQuery("select da.dataAnnotations_id as dataAnnotations_id ,da.mapping as mapping , da.xbrl as xbrl from dataannotations da, cvp cvp where cvp.cvp_id=da.cvp_id and cvp.service_id=" + service_id + " and da.selections='" + selections + "'" + filtercvp_cpp);
 
+            System.out.println("Ti select kans???? select da.dataAnnotations_id as dataAnnotations_id ,da.mapping as mapping , da.xbrl as xbrl from dataannotations da, cvp cvp where cvp.cvp_id=da.cvp_id and cvp.service_id=\" + service_id + \" and da.selections='\" + selections + \"'\" + filtercvp_cpp)");
 
             if (rs.next()) {
                 dataAnnotations.setDataAnnotations_id(rs.getInt("dataAnnotations_id"));
