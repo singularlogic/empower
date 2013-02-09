@@ -128,12 +128,18 @@ public class OrganizationManager extends HttpServlet {
                     this.CPPRegistration(request, response, session);
                 } else if (operation.equals("cpp_delete")) {
                     this.CPPDelete(request, response, session);
+                } else if (operation.equals("ws_installations")) {
+                    this.getWebServicesInstallations(request, response, session);
+                } else if (operation.equals("addUrlBinding")) {
+                    this.addUrlBinding(request, response, session);
+                } else if (operation.equals("deleteUrlBinding")) {
+                    this.deleteUrlBinding(request, response, session);
+                } else if (operation.equals("getCPPsInstallations")) {
+                    this.getCPPsInstallations(request, response, session);
+                } else if (operation.equals("showCppsForBridging")) {
+                    this.showCppsForBridging(request, response, session);
                 }
 
-
-
-                
-                
 
             }
         } catch (Throwable t) {
@@ -191,7 +197,7 @@ public class OrganizationManager extends HttpServlet {
 
 
         OrgDBConnector orgDBConnector = new OrgDBConnector();
-        orgDBConnector.insertNewCPP(cpp_id,organization_name,cpp_name);
+        orgDBConnector.insertNewCPP(cpp_id,organization_name,cpp_name,-1);
         String message= "A new CPP has been created!!!" ;
         System.out.println("message"+message);
         this.forwardToPage("/showServices.jsp?software_id=" + software_id+"&message="+message, request, response);
@@ -212,6 +218,37 @@ public class OrganizationManager extends HttpServlet {
 
     }
 
+
+    protected void addUrlBinding(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException, ServletException {
+
+
+        String service_id = request.getParameter("add_url").split("\\$")[0].split("WS")[1];
+        String url_binding= (String)  request.getParameter("url");
+
+
+        OrgDBConnector orgDBConnector = new OrgDBConnector();
+        orgDBConnector.insertNewUrlBinding(service_id, url_binding) ;
+        String message= "A new Url Binding has been added at the service "+ orgDBConnector.getServiceName(Integer.parseInt(service_id))+ "!!!";
+        System.out.println("message"+message);
+        this.forwardToPage("/organization/manageinstallations.jsp?software_id=-1&message="+message, request, response);
+
+    }
+
+
+
+
+    protected void deleteUrlBinding(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException, ServletException {
+        String url_binding_id = request.getParameter("delete_url").split("IB")[1];
+
+        OrgDBConnector orgDBConnector = new OrgDBConnector();
+        orgDBConnector.deleteUrlBindingID(url_binding_id);
+        String message= "The selected Url Binding has been succesfully deleted!!!" ;
+        System.out.println("message"+message);
+        this.forwardToPage("/organization/manageinstallations.jsp?software_id=-1&message="+message, request, response);
+
+    }
+
+
     protected void manageBridgingSchemas(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws IOException, ServletException, ParserConfigurationException, SAXException {
         String software_id = (String) request.getParameter("software_id");
@@ -226,8 +263,6 @@ public class OrganizationManager extends HttpServlet {
         while (schemas_it.hasNext()) {
 
             Schema schema = schemas_it.next();
-
-            //System.out.println("Schema: " + schema.getService() + " " + schema.getOperation_id() + " " + schema.getOperation() + " " + schema.getInputoutput() + " " + schema.getSchema_id() + " " + schema.getName() + " " + schema.getCvp_id() + " " + schema.getSchema_id());
 
             XSDParser p = new XSDParser(schema);
             xml_string += p.convertSchemaToXML();
@@ -286,7 +321,6 @@ public class OrganizationManager extends HttpServlet {
             throws IOException, ServletException, ParserConfigurationException, SAXException, WSDLException {
 
         String form = request.getParameter("form");
-        System.out.println("form: " + form);
         OrgDBConnector orgDBConnector = new OrgDBConnector();
         String tax = request.getParameter("tax");
         String software_id = request.getParameter("software_id");
@@ -298,6 +332,7 @@ public class OrganizationManager extends HttpServlet {
 
             String xml = "";
             String wsdlParserString = "";
+            String listWS= "<option value=\"-1\">Choose WS</option>";
 
             if (services.size() > 0) {
                 Iterator serv_iterator = services.iterator();
@@ -307,6 +342,10 @@ public class OrganizationManager extends HttpServlet {
                     WSDLParser wsdlParser = new WSDLParser(service.getWsdl(), service.getNamespace());
                     wsdlParser.loadService(service.getName());
                     wsdlParserString = wsdlParserString.concat(wsdlParser.outputFunctionsToXMLFromRoot(xml, service.getName(), service.getService_id()));
+
+                    //Prepare dropdownlist with services
+
+                    listWS += "<option value="+service.getService_id()+">"+service.getName()+" V."+ service.getVersion()+"</option>";
                 }
             }
 
@@ -314,10 +353,13 @@ public class OrganizationManager extends HttpServlet {
 
             Map<String, Object> data = new HashMap<String, Object>();
             data.put("tree", xml);
+            data.put("listWS", listWS);
+            //data.put("listOfWebServices",json_listWS);
             // Write response data as JSON.
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
             response.getWriter().write(new Gson().toJson(data));
+
 
         } else if (form.equalsIgnoreCase("out")) {
 
@@ -338,6 +380,39 @@ public class OrganizationManager extends HttpServlet {
                 out.write("</tree>");
                 out.close();
             }
+        }
+
+    }
+
+
+
+    protected void showCppsForBridging(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws IOException, ServletException, ParserConfigurationException, SAXException, WSDLException {
+
+        String form = request.getParameter("form");
+        MainControlDB mainControlDB = new MainControlDB();
+        int service_id =Integer.parseInt(request.getParameter("service_id"));
+        Service service = mainControlDB.getService(service_id);
+
+        if (form.equalsIgnoreCase("json")) {
+
+            String xml = "";
+            String wsdlParserString = "";
+
+             WSDLParser wsdlParser = new WSDLParser(service.getWsdl(), service.getNamespace());
+             wsdlParser.loadService(service.getName());
+             wsdlParserString = wsdlParserString.concat(wsdlParser.outputFunctionsToXMLFromRoot(xml, service.getName(), service.getService_id()));
+
+
+            xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<tree id=\"0\">" + wsdlParserString + "</tree>";
+
+            Map<String, Object> data = new HashMap<String, Object>();
+            data.put("tree", xml);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write(new Gson().toJson(data));
+
+
         }
 
     }
@@ -408,12 +483,14 @@ public class OrganizationManager extends HttpServlet {
         int service_id_source = Integer.parseInt(selections_source.split("\\$")[0]);
         String operation_name_source = (String) selections_source.split("\\$")[1];
 
-        int cpp_source = orgDBConnector.getCPP(service_id_source);
+        //int cpp_source = orgDBConnector.getCPP(service_id_source);
+        int cpp_source = Integer.parseInt(request.getParameter("CPPs_source"));
+        int installations_source = Integer.parseInt(request.getParameter("installations_source"));
 
         //create the cpp entity in case the org user type has not changed the annotations
-        if (cpp_source == -1) {
-            cpp_source = mainControlDB.insertCPP(-1, service_id_source, organization_name);
-        }
+        //if (cpp_source == -1) {
+        //    cpp_source = mainControlDB.insertCPP(-1, service_id_source, organization_name);
+        //}
 
         System.out.println("cpp_source: " + cpp_source);
 
@@ -423,11 +500,15 @@ public class OrganizationManager extends HttpServlet {
         String operation_name_target = (String) selections_target.split("\\$")[1];
 
 
-        int cpp_target = orgDBConnector.getCPP(service_id_target);
+        //int cpp_target = orgDBConnector.getCPP(service_id_target);
+        int cpp_target = Integer.parseInt(request.getParameter("CPPs_target"));
+        int installations_target = Integer.parseInt(request.getParameter("installations_target"));
 
-        if (cpp_target == -1) {
-            cpp_target = mainControlDB.insertCPP(-1, service_id_target, organization_name);
-        }
+
+
+        //if (cpp_target == -1) {
+        //    cpp_target = mainControlDB.insertCPP(-1, service_id_target, organization_name);
+        //}
 
 
         System.out.println("cpp_target: " + cpp_target);
@@ -435,8 +516,8 @@ public class OrganizationManager extends HttpServlet {
 
 
         Map<String, CPP> CPPList = new HashMap<String, CPP>();
-        CPP cppinfo_first = new CPP(cpp_source, service_id_source, operation_name_source);
-        CPP cppinfo_second = new CPP(cpp_target, service_id_target, operation_name_target);
+        CPP cppinfo_first = new CPP(cpp_source, service_id_source, operation_name_source,installations_source);
+        CPP cppinfo_second = new CPP(cpp_target, service_id_target, operation_name_target,installations_target);
 
 
         CPPList.put("cppinfo_first", cppinfo_first);
@@ -680,7 +761,7 @@ public class OrganizationManager extends HttpServlet {
 
             System.out.println("o_first.get(schema)::" + o_first.get("schema"));
 
-            String active_bridge_schema = (cpa.isDisabled()) ? "<cell>Disabled</cell>" : "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/usebridge.png^Use Bridge^../DIController?op=doBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>";
+            String active_bridge_schema = (cpa.isDisabled()) ? "<cell>Disabled</cell>" : "<cell type=\"img\">./js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/usebridge.png^Use Bridge^./DIController?op=doBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>";
 
 
             additional_schema_info = (o_first.get("schema") == null) ? "" : "<row id=\"" + cpa.getCpa_id() + "3\">"
@@ -701,12 +782,12 @@ public class OrganizationManager extends HttpServlet {
                     + active_bridge_schema
                     //+ "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/usebridge.png^Use bridge^../DIController?op=doBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
                     //+ "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/deletebridge.png^Delete Bridge^../OrganizationManager?op=deleteBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
-                    + "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/deletebridge.png^Delete Bridge^javascript:deletebridge("+cpa.getCpa_id()+")^_self</cell>"
+                    + "<cell type=\"img\">./js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/deletebridge.png^Delete Bridge^javascript:deletebridge("+cpa.getCpa_id()+")^_self</cell>"
                     + "</row>";
 
 
             String active_bridge = (cpa.isDisabled()) ? "<cell>Disabled</cell>"
-                    : "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/usebridge.png^Use Bridge^../OrganizationManager?op=doBridgingServicePrepare&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>";
+                    : "<cell type=\"img\">./js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/usebridge.png^Use Bridge^../OrganizationManager?op=doBridgingServicePrepare&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>";
 
             /*
             dobridging_url = (o_first.get("schema") == null) ? active_bridge + "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/deletebridge.png^Delete Bridge^../OrganizationManager?op=deleteBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"
@@ -714,7 +795,7 @@ public class OrganizationManager extends HttpServlet {
                     + "<cell></cell>";
             */
             
-              dobridging_url = (o_first.get("schema") == null) ? active_bridge + "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/deletebridge.png^Delete Bridge^javascript:deletebridge("+cpa.getCpa_id()+")^_self</cell>"
+              dobridging_url = (o_first.get("schema") == null) ? active_bridge + "<cell type=\"img\">./js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/deletebridge.png^Delete Bridge^javascript:deletebridge("+cpa.getCpa_id()+")^_self</cell>"
                     : "<cell></cell>"
                     + "<cell></cell>";
 
@@ -961,7 +1042,9 @@ public class OrganizationManager extends HttpServlet {
         wsdlParser.loadService(service.getName());
         String service_namespace = service.getNamespace();
 
-        String SoapAdressURL = wsdlParser.getSoapAdressURL(service.getName());
+        //String SoapAdressURL = wsdlParser.getSoapAdressURL(service.getName());
+        String SoapAdressURL = (String) info.get("urlbinding");
+
 
         LinkedList<String> complexType = wsdlParser.getXSDAttibutes(operation_name);
        
@@ -1186,6 +1269,244 @@ public class OrganizationManager extends HttpServlet {
 
               return body;
     }
+
+
+    protected void getWebServicesInstallations(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws IOException, ServletException, ParserConfigurationException, SAXException, WSDLException {
+
+        OrgDBConnector orgDBConnector = new OrgDBConnector();
+
+        response.setContentType("text/xml; charset=UTF-8");
+        String software_id = (String) request.getParameter("software_id");
+        String form = request.getParameter("form");
+        JSONObject softcomp = new JSONObject();
+        JSONObject wservices = new JSONObject();
+
+        LinkedList<Service> services = (LinkedList<Service>) orgDBConnector.getWebServicesInstallations(software_id, (String) session.getAttribute("name"));
+        String xml= "";
+
+        for(Service serv:services){
+            if(!softcomp.containsKey(serv.getSoftware_id())){
+                softcomp.put(serv.getSoftware_id(),serv.getSoftware_name()+" V."+serv.getSoftware_version());
+            }
+        }
+
+        for(Service serv:services){
+            if(!wservices.containsKey(serv.getService_id()))
+            {
+                wservices.put(serv.getService_id()+"$"+serv.getSoftware_id(),serv.getName()+" V."+serv.getVersion());
+            }
+        }
+
+        if (form.equalsIgnoreCase("json")){
+
+          xml="<?xml version=\"1.0\" encoding=\"UTF-8\"?><tree id=\"0\">";
+
+            Iterator sc = softcomp.keys();
+            while(sc.hasNext()){
+                String key = (String)sc.next();
+                String value = softcomp.getString(key);
+                xml += "<item text='"+value+"' id='SC"+key+"' nocheckbox=\"true\">";
+
+                Iterator ws = wservices.keys();
+                while(ws.hasNext()){
+
+                    String wskey = (String)ws.next();
+                    int webservice_id= Integer.parseInt(wskey.split("\\$")[0]);
+                    String webservice_software_id= wskey.split("\\$")[1].toString();
+
+                    if (webservice_software_id.equalsIgnoreCase(key.toString())){
+                        String wsvalue = wservices.getString(wskey);
+                        xml +="<item text='"+wsvalue+"' id='WS"+wskey+"'>";
+
+                        for(Service service:services){
+                            if(webservice_id==service.getService_id())
+                            {
+                                xml +="<item text='"+service.getUrl_binding()+"' id='IB"+service.getInstalledbinding_id()+"'></item>";
+                            }
+                        }
+                        xml +="</item>";
+                    }
+
+                }
+                xml +="</item>";
+            }
+            xml +="</tree>";
+
+
+            Map<String, Object> data = new HashMap<String, Object>();
+            data.put("tree", xml);
+
+            System.out.println("Auto einai to tree"+data.get("tree"));
+            // Write response data as JSON.
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write(new Gson().toJson(data));
+
+
+        } else if (form.equalsIgnoreCase("out")) {
+
+            System.out.println("i am in out");
+
+            PrintWriter out = response.getWriter();
+            out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+            out.write("<tree id=\"0\">");
+
+            xml="<?xml version=\"1.0\" encoding=\"UTF-8\"?><tree id=\"0\">";
+
+            Iterator sc = softcomp.keys();
+            while(sc.hasNext()){
+                String key = (String)sc.next();
+                String value = softcomp.getString(key);
+                out.write("<item text='"+value+"' id='SC"+key+"' nocheckbox=\"true\" >");
+                Iterator ws = wservices.keys();
+                while(ws.hasNext()){
+
+                    String wskey = (String)ws.next();
+                    int webservice_id= Integer.parseInt(wskey.split("\\$")[0]);
+                    String webservice_software_id= wskey.split("\\$")[1].toString();
+
+                    if (webservice_software_id.equalsIgnoreCase(key.toString())){
+                        String wsvalue = wservices.getString(wskey);
+                        out.write("<item text='"+wsvalue+"' id='WS"+wskey+"'>");
+                        for(Service service:services){
+                            if(webservice_id==service.getService_id())
+                            {
+                                out.write("<item text='"+service.getUrl_binding()+"' id='IB"+service.getInstalledbinding_id()+"'></item>");
+                            }
+                        }
+                        out.write("</item>");
+                    }
+
+                }
+                out.write("</item>");
+            }
+            out.write("</tree>");
+            out.close();
+        }
+    }
+
+    protected void getCPPsInstallations(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws IOException, ServletException, ParserConfigurationException, SAXException, WSDLException {
+
+        String form = request.getParameter("form");
+        OrgDBConnector orgDBConnector = new OrgDBConnector();
+        String service_id = request.getParameter("service_id");
+        String organization_name = (String) session.getAttribute("name");
+        LinkedList<Service> services_installations = (LinkedList<Service>) orgDBConnector.getWebServicesInstallationsByWS(service_id);
+        LinkedList<Service> services_cpps = (LinkedList<Service>) orgDBConnector.getCPPByWS(service_id,organization_name);
+
+        if (form.equalsIgnoreCase("json")) {
+
+            String xml = "";
+            String wsdlParserString = "";
+            String list_installations= "";
+            String list_CPP= "";
+
+            if (services_installations.size() > 0) {
+                Iterator serv_iterator = services_installations.iterator();
+                while (serv_iterator.hasNext()) {
+                    Service service = (Service) serv_iterator.next();
+                    //Prepare dropdownlist with installations
+                    list_installations += "<option value="+service.getInstalledbinding_id()+">"+service.getUrl_binding()+"</option>";
+                }
+            }
+
+            if (services_cpps.size() > 0) {
+                Iterator serv_iterator = services_cpps.iterator();
+                while (serv_iterator.hasNext()) {
+                    Service service = (Service) serv_iterator.next();
+                    //Prepare dropdownlist with cpps
+                    list_CPP += "<option value="+service.getCpp_id()+">"+service.getCpp_name()+"</option>";
+                }
+            }
+
+
+            Map<String, Object> data = new HashMap<String, Object>();
+            data.put("list_installations", list_installations);
+            data.put("list_CPP", list_CPP);
+            // Write response data as JSON.
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write(new Gson().toJson(data));
+
+
+        }
+    }
+
+    /*
+    protected void getWebServicesInstallations(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws IOException, ServletException, ParserConfigurationException, SAXException, WSDLException {
+
+        OrgDBConnector orgDBConnector = new OrgDBConnector();
+
+        response.setContentType("text/xml; charset=UTF-8");
+        String software_id = (String) request.getParameter("software_id");
+
+
+        JSONObject softcomp = new JSONObject();
+        JSONObject wservices = new JSONObject();
+
+        LinkedList<Service> services = (LinkedList<Service>) orgDBConnector.getWebServicesInstallations(software_id, (String) session.getAttribute("name"));
+
+
+        for(Service serv:services){
+            if(!softcomp.containsKey(serv.getSoftware_id())){
+                softcomp.put(serv.getSoftware_id(),serv.getSoftware_name()+" V."+serv.getSoftware_version());
+            }
+
+        }
+
+        for(Service serv:services){
+            if(!wservices.containsKey(serv.getService_id()))
+            {
+                wservices.put(serv.getService_id()+"$"+serv.getSoftware_id(),serv.getName()+" V."+serv.getVersion());
+            }
+        }
+
+        PrintWriter out = response.getWriter();
+        out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+        out.write("<tree id=\"0\">");
+
+
+        Iterator sc = softcomp.keys();
+        while(sc.hasNext()){
+            String key = (String)sc.next();
+            String value = softcomp.getString(key);
+            out.write("<item text='"+value+"' id='"+key+"' nocheckbox=\"true\" >");
+
+            Iterator ws = wservices.keys();
+            while(ws.hasNext()){
+
+                String wskey = (String)ws.next();
+                int webservice_id= Integer.parseInt(wskey.split("\\$")[0]);
+                String webservice_software_id= wskey.split("\\$")[1].toString();
+
+                if (webservice_software_id.equalsIgnoreCase(key.toString())){
+                    String wsvalue = wservices.getString(wskey);
+                    out.write("<item text='"+wsvalue+"' id='"+wskey+"'>");
+
+                    for(Service service:services){
+                        if(webservice_id==service.getService_id())
+                        {
+                            out.write("<item text='"+service.getCpp_name()+" ID."+service.getCpp_id()+"' id='"+service.getCpp_id()+"' nocheckbox=\"true\" ></item>");
+
+                        }
+                    }
+
+                    out.write("</item>");
+
+                }
+
+            }
+
+            out.write("</item>");
+
+        }
+
+        out.write("</tree>");
+        out.close();
+    } */
     
    
 

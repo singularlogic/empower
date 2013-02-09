@@ -72,7 +72,9 @@ public class OrgDBConnector {
         ResultSet rs;
         LinkedList<Schema> XSDList = new LinkedList<Schema>();
 
-        try {
+       String sofwareCondition = (software_id.equalsIgnoreCase("-1"))?"":" ws.software_id="+software_id+" and ";
+
+         try {
 
             this.dbHandler.dbOpen();
 
@@ -82,7 +84,7 @@ public class OrgDBConnector {
                     + "LEFT JOIN operation_schema os  on o.operation_id = os.operation_id "
                     + "LEFT JOIN schema_xsd  s  on os.schema_id = s.schema_id "
                     + "LEFT JOIN dataannotations da on da.schema_id=s.schema_id "
-                    + "LEFT JOIN cvp cvp on cvp.cvp_id = da.cvp_id where ws.software_id="+software_id+" and os.inputoutput='input'  and cvp.cvp_id IS NOT NULL order by ws.service_id ");
+                    + "LEFT JOIN cvp cvp on cvp.cvp_id = da.cvp_id where "+ sofwareCondition +" os.inputoutput='input'  and cvp.cvp_id IS NOT NULL order by ws.service_id ");
 
             if (rs != null) {
                 while (rs.next()) {
@@ -187,19 +189,28 @@ public class OrgDBConnector {
             
         
             if (rs1.next()){
-                data.put("existing",rs1.getInt("cpa_id"));
-                 this.dbHandler.dbUpdate("update cpa set cpa_info='"+ json +"' where cpa_id="+rs1.getInt("cpa_id"));
+              cpa_id=  rs1.getInt("cpa_id");
+              data.put("existing",rs1.getInt("cpa_id"));
+              this.dbHandler.dbUpdate("update cpa set cpa_info='"+ json +"' where cpa_id="+cpa_id);
             } 
             else{
                 cpa_id = this.dbHandler.dbUpdate("insert into cpa(cpp_id_first,cpp_id_second,cpa_info,disabled) values('"
                     + cvp_source + "','" + cvp_target + "','"+json+"',false)");
             
                 organization_cpa = this.dbHandler.dbUpdate("insert into organization_cpa(organization_id,cpa_id) values("+organization_id+","+cpa_id+")");
+
                 data.put("new_cpa_id", cpa_id);
             }
+
+            System.out.println("holaaaaaaa1   update cpp set fromTo='From in CPA:"+cpa_id+"'  where cpp_id=" + cvp_source);
+            this.dbHandler.dbUpdate("update cpp set fromTo='From/CPA:"+cpa_id+"'  where cpp_id=" + cvp_source);
+            this.dbHandler.dbUpdate("update cpp set fromTo='TO/CPA:"+cpa_id+"'  where cpp_id=" + cvp_target);
+
             rs1.close();
             
             this.dbHandler.dbClose();
+
+
         } catch (Throwable t) {
             t.printStackTrace();
         }
@@ -311,6 +322,26 @@ public class OrgDBConnector {
 		t.printStackTrace(); 
 	}
         return service_name;
+    }
+
+    public String getUrlBindingAddress(int urlBinding_id)
+    {
+        ResultSet rs;
+        String url_binding="";
+        try{
+            this.dbHandler.dbOpen();
+            rs = this.dbHandler.dbQuery("SELECT * FROM `installedbinding` WHERE installedbinding_id=" + urlBinding_id);
+
+            if(rs.next())
+                url_binding = rs.getString("url_binding");
+
+            this.dbHandler.dbClose();
+        }
+        catch(Throwable t)
+        {
+            t.printStackTrace();
+        }
+        return url_binding;
     }
     
      public String getOperationName(int operation_id)
@@ -438,6 +469,36 @@ public class OrgDBConnector {
         return cpp_id;
     }
 
+
+    public String getCPPName(int cpp_id){
+
+
+        ResultSet rs;
+        String cpp_name="";
+        try{
+
+            this.dbHandler.dbOpen();
+
+            rs = this.dbHandler.dbQuery("select cpp.name as name from cpp cpp where cpp.cpp_id="+cpp_id);
+
+            if(rs != null)
+            {
+                while(rs.next()){
+                cpp_name =rs.getString("name");
+                }
+
+            }
+            rs.close();
+            this.dbHandler.dbClose();
+        }
+        catch(Throwable t)
+        {
+            t.printStackTrace();
+        }
+        return cpp_name;
+    }
+
+
     // Given an organization and a Soft Component we get all CPPS
     public LinkedList<Service> getCPPs(String organization_name, int software_id){
         ResultSet rs;
@@ -550,7 +611,7 @@ public class OrgDBConnector {
 
 
 
-    public void insertNewCPP(int father_cpp_id,String organization_name,String cpp_name) {
+    public void insertNewCPP(int father_cpp_id,String organization_name,String cpp_name,int cpa_id) {
         ResultSet rs;
         int cvp_id = 0;
         int vendor_id = 0;
@@ -563,7 +624,6 @@ public class OrgDBConnector {
 
 
             //get all data annotations with specific cvp and insert them adding the cpp_id
-
             rs= this.dbHandler.dbQuery("SELECT * FROM dataannotations da, cpp cpp WHERE da.cpp_id=cpp.cpp_id and da.cpp_id="+father_cpp_id);
 
             if (rs != null) {
@@ -573,21 +633,67 @@ public class OrgDBConnector {
                     vendor_id = rs.getInt("vendor_id");
                 }}
 
-            // create cpp with the given cvp_id and organization_id
-            int new_cpp_id=  this.dbHandler.dbUpdate("insert into cpp(name,cvp_id,vendor_id,organization_id) values('"+cpp_name+"'," + cvp_id + ","+vendor_id +","+ organization_id +");");
+            System.out.println("insert into cpp(name,cvp_id,cpa_id,vendor_id,organization_id) values('"+cpp_name+"'," + cvp_id + ","+cpa_id +"," +vendor_id +","+ organization_id +")");
 
+
+
+            // create cpp with the given cvp_id and organization_id
+            int new_cpp_id=(cpa_id==-1)? this.dbHandler.dbUpdate("insert into cpp(name,cvp_id,vendor_id,organization_id) values('"+cpp_name+"'," + cvp_id + ","+vendor_id +","+ organization_id +");"):
+                    this.dbHandler.dbUpdate("insert into cpp(name,cvp_id,cpa_id,vendor_id,organization_id) values('"+cpp_name+"',"+ cvp_id + "," + cpa_id + "," +vendor_id +","+ organization_id +");");
+
+            System.out.println("new_cpp_id"+new_cpp_id);
 
             for (DataAnnotations da: daList){
 
                 int newda_id= this.dbHandler.dbUpdate("INSERT INTO dataannotations (xslt_annotations , mapping, selections,xbrl) SELECT xslt_annotations , mapping, selections,xbrl FROM dataannotations  WHERE dataAnnotations_id ="+da.getDataAnnotations_id());
+
+                if(cpa_id==-1){
                 this.dbHandler.dbUpdate("update dataannotations set cvp_id='" + cvp_id + "',cpp_id=" + new_cpp_id + " where dataAnnotations_id=" + newda_id);
-            }
+                } else{
+                this.dbHandler.dbUpdate("update dataannotations set cvp_id='" + cvp_id + "',cpp_id=" + new_cpp_id +", cpa_id=" + cpa_id + " where dataAnnotations_id=" + newda_id);
+                }
+             }
 
         } catch (Throwable t) {
             t.printStackTrace();
         }
 
     }
+
+    public void insertNewUrlBinding(String service_id,String url_binding) {
+
+        try {
+
+
+            this.dbHandler.dbOpen();
+            // create cpp with the given cvp_id and organization_id
+            int new_cpp_id=  this.dbHandler.dbUpdate("insert into installedbinding(service_id,url_binding) values("+service_id+",'"+url_binding +"');");
+
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+
+    }
+
+
+    public void deleteUrlBindingID(String url_binding_id) {
+
+        try {
+
+
+            this.dbHandler.dbOpen();
+            // create cpp with the given cvp_id and organization_id
+            int urlbinding_id_deleted=  this.dbHandler.dbUpdate("DELETE FROM installedbinding WHERE installedbinding_id="+url_binding_id);
+
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+
+    }
+
+
+
+
 
     public void deleteCPP(int cpp_id) {
 
@@ -604,5 +710,117 @@ public class OrgDBConnector {
         }
 
     }
+
+
+    public LinkedList<Service> getWebServicesInstallations(String software_id, String organization_name)
+    {
+        ResultSet rs;
+        LinkedList<Service> ServList = new LinkedList<Service>();
+
+        try{
+            int organization_id = this.getUserID(organization_name);
+            String software_id_restriction=(!software_id.toString().equalsIgnoreCase("-1"))?" and ws.software_id="+software_id:"";
+            this.dbHandler.dbOpen();
+
+            rs = this.dbHandler.dbQuery("select ws.software_id as software_id, sc.name  as software_name ,sc.version as software_version ,ws.service_id as service_id, ws.name as service_name, ws.version as service_version,ib.installedbinding_id,ib.url_binding " +
+                    " from web_service ws, softwarecomponent sc, installedbinding ib where ws.software_id=sc.software_id and  ws.service_id=ib.service_id and  ws.exposed=1  and ws.wsdl IS NOT NULL "+ software_id_restriction +"  order by sc.software_id, ws.service_id ");
+
+
+            if (rs != null) {
+                while (rs.next()) {
+
+                    ServList.add(new Service(rs.getInt("software_id"), rs.getString("software_name"),rs.getString("software_version") ,rs.getInt("service_id"), rs.getString("service_name"),rs.getString("service_version"),rs.getInt("installedbinding_id"), rs.getString("url_binding")));
+                }}
+
+            this.dbHandler.dbClose();
+        }
+        catch(Throwable t)
+        {
+            t.printStackTrace();
+        }
+        return ServList;
+    }
+
+    public LinkedList<Service> getWebServicesInstallationsByWS(String service_id)
+    {
+        ResultSet rs;
+        LinkedList<Service> ServList = new LinkedList<Service>();
+
+        try{
+           this.dbHandler.dbOpen();
+
+            rs = this.dbHandler.dbQuery("select ws.software_id as software_id ,ws.service_id as service_id, ws.name as service_name, ws.version as service_version,ib.installedbinding_id,ib.url_binding from web_service ws,installedbinding ib where  ws.service_id=ib.service_id and  ws.exposed=1  and ws.wsdl IS NOT NULL and ws.service_id="+service_id);
+
+            if (rs != null) {
+                while (rs.next()) {
+
+                    ServList.add(new Service(rs.getInt("software_id"), "","" ,rs.getInt("service_id"), rs.getString("service_name"),rs.getString("service_version"),rs.getInt("installedbinding_id"), rs.getString("url_binding")));
+                }}
+
+            this.dbHandler.dbClose();
+        }
+        catch(Throwable t)
+        {
+            t.printStackTrace();
+        }
+        return ServList;
+    }
+
+    public LinkedList<Service> getCPPByWS(String service_id,String organization_name)
+    {
+        ResultSet rs;
+        LinkedList<Service> ServList = new LinkedList<Service>();
+
+        try{
+            int organization_id = this.getUserID(organization_name);
+            this.dbHandler.dbOpen();
+
+            rs = this.dbHandler.dbQuery("select ws.software_id as software_id,ws.service_id as service_id, ws.name as service_name, ws.version as service_version, cpp.name as cpp_name,cpp.cpp_id as cpp_id, ws.exposed as exposed, ws.wsdl as wsdl, ws.namespace as namespace \n" +
+                    "from web_service ws,cvp cvp,cpp cpp where  ws.service_id=cvp.service_id and cpp.cvp_id=cvp.cvp_id and ws.exposed=1 and cpp.organization_id="+organization_id+"  and ws.wsdl IS NOT NULL  and ws.service_id="+service_id);
+            if (rs != null) {
+                while (rs.next()) {
+
+                    ServList.add(new Service(rs.getInt("software_id"),"","",rs.getInt("service_id"), rs.getString("service_name"),rs.getString("cpp_name"),rs.getInt("cpp_id"),rs.getString("service_version"), rs.getString("wsdl"), rs.getString("namespace"), rs.getBoolean("exposed")));
+                }}
+
+            this.dbHandler.dbClose();
+        }
+        catch(Throwable t)
+        {
+            t.printStackTrace();
+        }
+        return ServList;
+    }
+
+    /*
+
+    public LinkedList<Service> getWebServicesInstallations(String software_id, String organization_name)
+    {
+        ResultSet rs;
+        LinkedList<Service> ServList = new LinkedList<Service>();
+
+        try{
+            int organization_id = this.getUserID(organization_name);
+            String software_id_restriction=(!software_id.toString().equalsIgnoreCase("-1"))?" and ws.software_id="+software_id:"";
+            this.dbHandler.dbOpen();
+
+            rs = this.dbHandler.dbQuery("select ws.software_id as software_id, sc.name  as software_name ,sc.version as software_version ,ws.service_id as service_id, ws.name as service_name, ws.version as service_version, cpp.name as cpp_name,cpp.cpp_id as cpp_id, ws.exposed as exposed, ws.wsdl as wsdl, ws.namespace as namespace\n" +
+                    "from web_service ws,cvp cvp,cpp cpp, softwarecomponent sc where ws.software_id=sc.software_id and  ws.service_id=cvp.service_id and cpp.cvp_id=cvp.cvp_id and ws.exposed=1 and cpp.organization_id="+organization_id+"  and ws.wsdl IS NOT NULL  "+ software_id_restriction +"  order by sc.software_id, ws.service_id ");
+
+
+            if (rs != null) {
+                while (rs.next()) {
+
+                    ServList.add(new Service(rs.getInt("software_id"), rs.getString("software_name"),rs.getString("software_version") ,rs.getInt("service_id"), rs.getString("service_name"),rs.getString("cpp_name"),rs.getInt("cpp_id"),rs.getString("service_version"), rs.getString("wsdl"), rs.getString("namespace"), rs.getBoolean("exposed")));
+                }}
+
+            this.dbHandler.dbClose();
+        }
+        catch(Throwable t)
+        {
+            t.printStackTrace();
+        }
+        return ServList;
+    } */
     
 }

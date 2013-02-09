@@ -419,9 +419,11 @@ public class VendorDBConnector {
 
             servicePorts = wsdlParser.returnServicePortsString();
 
+            String soap_location= wsdlParser.getSoapAdressURL(serviceName);
+
             while (servicePorts.hasNext()) {
-                this.dbHandler.dbUpdate("insert into installedbinding(service_id,service_port_name) values("
-                        + service_id + ",'" + servicePorts.next().toString() + "');");
+                this.dbHandler.dbUpdate("insert into installedbinding(service_id,url_binding,service_port_name) values("
+                        + service_id + ",'" + soap_location+"','"+ servicePorts.next().toString() + "');");
             }
             System.out.println("servicePorts: " + servicePorts.next().toString());
 

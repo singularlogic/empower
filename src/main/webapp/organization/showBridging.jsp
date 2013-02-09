@@ -91,7 +91,7 @@
         </div>
         <div class="main">
             <div class="main-navigation">
-                <div id="menu_grid" style="width:180px; height:210px" class='glossymenu'>
+                <div id="menu_grid" style="width:180px; height:240px" class='glossymenu'>
                     <script>
                         menu_grid = new dhtmlXGridObject("menu_grid");
                         menu_grid.setImagePath("js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");

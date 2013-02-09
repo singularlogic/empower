@@ -18,9 +18,14 @@ public class Service {
     int cvp_id;
     String cpp_name;
     int cpp_id;
+    String software_name;
+    int software_id;
+    String software_version;
+    String fromTo;
 
 
-
+    int installedbinding_id;
+    String url_binding;
     int vendor_id;
 
     
@@ -63,6 +68,95 @@ public class Service {
         this.namespace = namespace;
         this.exposed = exposed;
     }
+
+    public Service(int service_id, String name, String cpp_name, int cpp_id, String version, String wsdl , String namespace,boolean exposed,String fromTo) {
+        this.service_id = service_id;
+        this.name = name;
+        this.cpp_name = cpp_name;
+        this.cpp_id =  cpp_id;
+        this.version = version;
+        this.wsdl = wsdl;
+        this.namespace = namespace;
+        this.exposed = exposed;
+        this.fromTo=fromTo;
+
+    }
+
+
+    public Service(int software_id,String software_name,String software_version,int service_id, String name, String cpp_name, int cpp_id, String version, String wsdl , String namespace,boolean exposed) {
+        this.service_id = service_id;
+        this.name = name;
+        this.cpp_name = cpp_name;
+        this.cpp_id =  cpp_id;
+        this.version = version;
+        this.wsdl = wsdl;
+        this.namespace = namespace;
+        this.exposed = exposed;
+        this.software_id= software_id;
+        this.software_name=software_name;
+        this.software_version=software_version;
+    }
+
+    public Service(int software_id,String software_name,String software_version,int service_id, String name, String version,int installedbinding_id, String url_binding) {
+        this.service_id = service_id;
+        this.name = name;
+        this.version = version;
+        this.software_id= software_id;
+        this.software_name=software_name;
+        this.software_version=software_version;
+        this.installedbinding_id= installedbinding_id;
+        this.url_binding= url_binding;
+    }
+
+
+    public String getFromTo() {
+        return fromTo;
+    }
+
+    public void setFromTo(String fromTo) {
+        this.fromTo = fromTo;
+    }
+
+    public String getUrl_binding() {
+        return url_binding;
+    }
+
+    public void setUrl_binding(String url_binding) {
+        this.url_binding = url_binding;
+    }
+
+    public String getSoftware_name() {
+        return software_name;
+    }
+
+    public void setSoftware_name(String software_name) {
+        this.software_name = software_name;
+    }
+
+    public int getSoftware_id() {
+        return software_id;
+    }
+
+    public void setSoftware_id(int software_id) {
+        this.software_id = software_id;
+    }
+
+    public int getInstalledbinding_id() {
+        return installedbinding_id;
+    }
+
+    public void setInstalledbinding_id(int installedbinding_id) {
+        this.installedbinding_id = installedbinding_id;
+    }
+
+    public String getSoftware_version() {
+        return software_version;
+    }
+
+    public void setSoftware_version(String software_version) {
+        this.software_version = software_version;
+    }
+
 
     public int getVendor_id() {
         return vendor_id;

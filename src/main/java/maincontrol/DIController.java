@@ -150,7 +150,14 @@ public class DIController extends HttpServlet {
                     this.getPreviousFuncAnnotation(request, response, session);
                 }else if (operation.equals("redirectToHomePage")) {
                     this.redirectToHomePage(request, response, session);
+                }else if (operation.equals("manageinstallations")) {
+                    this.manageinstallations(request, response, session);
+                }else if (operation.equals("createCPA")) {
+                    this.createCPA(request, response, session);
+                } else if (operation.equals("showCPAs")) {
+                    this.showCPAs(request, response, session);
                 }
+
 
 
 
@@ -398,6 +405,8 @@ public class DIController extends HttpServlet {
                 OrgDBConnector orgDBConnector = new OrgDBConnector();
                 LinkedList<Service> cppsofOrg = orgDBConnector.getCPPs((String) session.getAttribute("name"),Integer.parseInt(software_id));
 
+                System.out.println("To size mou einai"+cppsofOrg.size());
+
                 Iterator cppsofOrg_iterator = cppsofOrg.iterator();
                 while (cppsofOrg_iterator.hasNext()) {
                     Service cpp_service = (Service) cppsofOrg_iterator.next();
@@ -418,6 +427,7 @@ public class DIController extends HttpServlet {
 
 
         MainControlDB mainControlDB = new MainControlDB();
+
 
 
         if (verifyUser("vendor", session)) {
@@ -449,7 +459,7 @@ public class DIController extends HttpServlet {
 
             String delete_wservice_option = (verifyUser("vendor", session)) ? "<cell>Delete^javascript:deleteservice("+service.getService_id()+")^_self</cell>" : "";
 
-            String delete_cpp_option = (verifyUser("vendor", session)) ? "<cell type=\"img\">" + img_link + "</cell>" : "<cell>Delete^./OrganizationManager?op=cpp_delete&amp;software_id="+request.getParameter("software_id")+"&amp;cpp_id=" + service.getCpp_id()+ "^_self</cell>";
+            String delete_cpp_option = (verifyUser("vendor", session)) ? "<cell type=\"img\">" + img_link + "</cell>" : "<cell>Delete^./OrganizationManager?op=cpp_delete&amp;software_id="+request.getParameter("software_id")+"&amp;cpp_id=" + service.getCpp_id()+ "^_self</cell><cell>"+service.getFromTo()+"</cell>";
 
             String cppNameID =  (verifyUser("vendor", session)) ? "": "<cell>"+service.getCpp_name()+" ID:"+service.getCpp_id()+"</cell>";
 
@@ -458,8 +468,8 @@ public class DIController extends HttpServlet {
             out.write("<row id=\"" + service.getService_id() +"$"+service.getCpp_id()+ "\">"
                     + "<cell>" + service.getName()+" -- V."+service.getVersion() + "</cell>"
                     + cppNameID
-                    + "<cell>Functional Annotation^./presentOperationTree.jsp?service_id=" + service.getService_id()+ "^_self</cell>"
-                    + "<cell>Data Annotation^./presentDataTree.jsp?service_id=" + service.getService_id()+"&amp;cpp_id="+service.getCpp_id()+"^_self</cell>"
+                    + "<cell>Edit^./presentOperationTree.jsp?service_id=" + service.getService_id()+ "^_self</cell>"
+                    + "<cell>Edit^./presentDataTree.jsp?service_id=" + service.getService_id()+"&amp;cpp_id="+service.getCpp_id()+"^_self</cell>"
                     + delete_cpp_option
                     + delete_wservice_option
                     + "</row>");
@@ -472,6 +482,8 @@ public class DIController extends HttpServlet {
 
         return;
     }
+
+
 
     protected void presentServiceOperationsTree(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws IOException, ServletException, WSDLException {
@@ -936,35 +948,50 @@ public class DIController extends HttpServlet {
 
         if (verifyUser("organization", session)) {
 
-            MainControlDB mainControlDB = new MainControlDB();
-
-            LinkedList<String> taxomonies = (LinkedList<String>) mainControlDB.getTaxonomies();
-            System.out.println("taxomonies: " + taxomonies + "lenght: " + taxomonies.size());
-            if (taxomonies.size() > 0) {
-
-                JSONObject json_taxonomies = new JSONObject();
-                Iterator tax_iterator = taxomonies.iterator();
-                while (tax_iterator.hasNext()) {
-                    String tax = (String) tax_iterator.next();
-                    json_taxonomies.put(tax, tax);
-                }
-                session.setAttribute("taxonomies", json_taxonomies);
-            }
-
-            LinkedList<SoftwareComponent> softwareComponents = (LinkedList<SoftwareComponent>) mainControlDB.getSoftwareComponents();
-            if (softwareComponents.size() > 0) {
-
-                JSONObject json_softwareComp = new JSONObject();
-                Iterator softcomp_iterator = softwareComponents.iterator();
-                while (softcomp_iterator.hasNext()) {
-                    SoftwareComponent sc = (SoftwareComponent) softcomp_iterator.next();
-                    json_softwareComp.put(sc.getSoftware_id(), sc.getName() + " V" + sc.getVersion());
-                }
-                session.setAttribute("softwarecomponents", json_softwareComp);
-            }
+            this.addTaxonomiesToSession(session);
+            this.addSoftwareComponentsToSession(session);
             this.forwardToPage("/organization/showAvailableServices.jsp?software_id=" + software_id, request, response);
         }
+
     }
+
+
+    private void addTaxonomiesToSession(HttpSession session){
+
+        MainControlDB mainControlDB = new MainControlDB();
+
+        LinkedList<String> taxomonies = (LinkedList<String>) mainControlDB.getTaxonomies();
+        System.out.println("taxomonies: " + taxomonies + "lenght: " + taxomonies.size());
+        if (taxomonies.size() > 0) {
+
+            JSONObject json_taxonomies = new JSONObject();
+            Iterator tax_iterator = taxomonies.iterator();
+            while (tax_iterator.hasNext()) {
+                String tax = (String) tax_iterator.next();
+                json_taxonomies.put(tax, tax);
+            }
+            session.setAttribute("taxonomies", json_taxonomies);
+        }
+
+    }
+
+    protected void createCPA(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws ServletException, IOException {
+
+        this.addSoftwareComponentsToSession(session);
+        this.addTaxonomiesToSession(session);
+        this.forwardToPage("/organization/createCPA.jsp?bridging=true", request, response);
+
+
+    }
+
+    protected void showCPAs(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws ServletException, IOException {
+
+        this.addCPAsToSession(session);
+        this.forwardToPage("/organization/showMyBridges.jsp", request, response);
+
+
+    }
+
 
     protected void doBridging(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws ServletException, IOException {
@@ -989,12 +1016,17 @@ public class DIController extends HttpServlet {
             throws ServletException, IOException {
 
         MainControlDB mainControlDB = new MainControlDB();
+        int software_id = Integer.parseInt(request.getParameter("software_id"));
+        String title = "";
 
-        String software_name = mainControlDB.getSoftwareName(Integer.parseInt(request.getParameter("software_id")));
-
+        if (software_id!=-1) {
+            title = "<h2>Available Source Schemas for the software component: " + mainControlDB.getSoftwareName(software_id) + "<h2>";
+        } else   {
+            title= "<h2>All Available Source Schemas</h2>";
+        }
         response.setContentType("text/xml; charset=UTF-8");
         PrintWriter out = response.getWriter();
-        out.write("<h2>Available Source Schemas for the software component: " + software_name + "<h2>");
+        out.write(title);
         out.flush();
     }
     
@@ -1090,11 +1122,15 @@ public class DIController extends HttpServlet {
                     + "<row id='4'><cell>Logout^" + sign_out + "DIController?op=signout^_self</cell></row>");
         } else if (verifyUser("organization", session)) {
             out.write("<row id='1'><cell>Home^"+ sign_out +"DIController?op=redirectToHomePage^_self</cell></row>"
-                    + "<row id='6'><cell>Manage WebService Installations^" + menu_level + "showSoftwareComponent.jsp?bridging=false^_self</cell></row>"
+                    //+ "<row id='6'><cell>Manage Installations^"+ menu_level +"manageinstallations.jsp?software_id=-1^_self</cell></row>"
+                    + "<row id='6'><cell>Manage Installations^"+ sign_out + "DIController?op=manageinstallations^_self</cell></row>"
                     + "<row id='2'><cell>Define CPP's^" + menu_level + "showSoftwareComponent.jsp?bridging=false^_self</cell></row>"
-                    + "<row id='3'><cell>Define CPA (Bridge)^" + menu_level + "showSoftwareComponent.jsp?bridging=true^_self</cell></row>"
-                    + "<row id='4'><cell>Show My CPA's (Bridges)^" + menu_level + "showMyBridges.jsp^_self</cell></row>"
-                    + "<row id='5'><cell>Logout^" + sign_out + "DIController?op=signout^_self</cell></row>");
+                    //+ "<row id='3'><cell>Define CPA (Bridge)^" + menu_level + "showSoftwareComponent.jsp?bridging=true^_self</cell></row>"
+                    + "<row id='3'><cell>Define CPA (Bridge) -- Schemas^" + sign_out + "DIController?op=show_bridging_schemas&amp;software_id=-1^_self</cell></row>"
+                    + "<row id='4'><cell>Define CPA (Bridge) -- WS  ^" + sign_out + "DIController?op=createCPA^_self</cell></row>"
+                   // + "<row id='5'><cell>Show My CPA's (Bridges)^" + menu_level + "showMyBridges.jsp^_self</cell></row>"
+                    + "<row id='5'><cell>Show My CPA's (Bridges)^" + sign_out + "DIController?op=showCPAs^_self</cell></row>"
+                    + "<row id='7'><cell>Logout^" + sign_out + "DIController?op=signout^_self</cell></row>");
         } else if (verifyUser("admin", session)) {
             out.write("<row id='1'><cell>Home^"+ sign_out +"DIController?op=redirectToHomePage^_self</cell></row>"
                     +"<row id='3'><cell>Upload new directory to server^" + menu_level + "uploadDirectory.jsp^_self</cell></row>"
@@ -1202,6 +1238,53 @@ public class DIController extends HttpServlet {
             message = "You are not authorized to access this page!";
         }
         this.forwardToPage("/vendor/succImportSchema.jsp?message=" + message, request, response);
+    }
+
+
+    protected  void manageinstallations(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException, ServletException {
+        this.addSoftwareComponentsToSession(session);
+        this.forwardToPage("/organization/manageinstallations.jsp?software_id=-1&message=", request, response);
+    }
+
+    private void addSoftwareComponentsToSession(HttpSession session){
+
+        MainControlDB mainControlDB= new MainControlDB();
+
+
+        LinkedList<SoftwareComponent> softwareComponents = (LinkedList<SoftwareComponent>) mainControlDB.getSoftwareComponents();
+        if (softwareComponents.size() > 0) {
+
+            JSONObject json_softwareComp = new JSONObject();
+            Iterator softcomp_iterator = softwareComponents.iterator();
+            while (softcomp_iterator.hasNext()) {
+                SoftwareComponent sc = (SoftwareComponent) softcomp_iterator.next();
+                json_softwareComp.put(sc.getSoftware_id(), sc.getName() + " V" + sc.getVersion());
+            }
+            session.setAttribute("softwarecomponents", json_softwareComp);
+        }
+
+    }
+
+    private void addCPAsToSession(HttpSession session){
+
+        OrgDBConnector orgDBConnector= new OrgDBConnector();
+        LinkedList<CPA> cpas = (LinkedList<CPA>) orgDBConnector.getCPAs((String) session.getAttribute("name"));
+        if (cpas.size() > 0) {
+
+            JSONObject json_cpas = new JSONObject();
+            Iterator cpa_iterator = cpas.iterator();
+            while (cpa_iterator.hasNext()) {
+                CPA c = (CPA) cpa_iterator.next();
+                json_cpas.put(c.getCpa_id(),"CPA with id:"+ c.getCpa_id());
+               /*
+                json_cpas.put(c.getCpa_id(),
+                        "<input type=\"checkbox\" name=\""+c.getCpa_id()+"\" value=\""+c.getCpa_id()+"$"+c.getCpp_id_first()+"\"> "+c.getCpp_id_first_name() +" ID: "+c.getCpp_id_first()+"<br>" +
+                        "<input type=\"checkbox\" name=\""+c.getCpa_id()+"\" value=\""+c.getCpa_id()+"$"+c.getCpp_id_second()+"\"> "+c.getCpp_id_second_name() +" ID: "+c.getCpp_id_second()+"<br>");
+                        */
+            }
+            session.setAttribute("CPAsOfOrg", json_cpas);
+        }
+
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

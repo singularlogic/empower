@@ -11,6 +11,8 @@ import java.util.Collection;
 import java.util.EmptyStackException;
 import java.util.LinkedList;
 import net.sf.json.JSONObject;
+import orgports.OrgDBConnector;
+import orgports.OrganizationManager;
 
 /**
  *
@@ -160,17 +162,17 @@ public class MainControlDB {
 
                 //Always i display all cpp definitions
                    System.out.println("------Get all cpps----------");
-                   rs3 = this.dbHandler.dbQuery("select ws.service_id as service_id, ws.name as service_name, ws.version as service_version, cpp.name as cpp_name,cpp.cpp_id as cpp_id, ws.exposed as exposed, ws.wsdl as wsdl, ws.namespace as namespace" +
+                   rs3 = this.dbHandler.dbQuery("select ws.service_id as service_id, ws.name as service_name, ws.version as service_version, cpp.name as cpp_name,cpp.cpp_id as cpp_id, ws.exposed as exposed, ws.wsdl as wsdl, ws.namespace as namespace, cpp.fromTo as fromTo " +
                            " from web_service ws,cvp cvp,cpp cpp where ws.service_id=cvp.service_id and cpp.cvp_id=cvp.cvp_id and ws.exposed=1 and ws.software_id="+software_id+" and cpp.organization_id="+organization_id+"  and ws.wsdl IS NOT NULL");
 
-                System.out.println("select ws.service_id as service_id, ws.name as service_name, ws.version as service_version, cpp.name as cpp_name,cpp.cpp_id as cpp_id, ws.exposed as exposed, ws.wsdl as wsdl, ws.namespace as namespace" +
+                System.out.println("select ws.service_id as service_id, ws.name as service_name, ws.version as service_version, cpp.name as cpp_name,cpp.cpp_id as cpp_id, ws.exposed as exposed, ws.wsdl as wsdl, ws.namespace as namespace, cpp.fromTo as fromTo " +
                         " from web_service ws,cvp cvp,cpp cpp where ws.service_id=cvp.service_id and cpp.cvp_id=cvp.cvp_id and ws.exposed=1 and ws.software_id="+software_id+" and cpp.organization_id="+organization_id+"  and ws.wsdl IS NOT NULL");
 
 
                      if (rs3 != null) {
                          while (rs3.next()) {
 
-                             cppServList.add(new Service(rs3.getInt("service_id"), rs3.getString("service_name"),rs3.getString("cpp_name"),rs3.getInt("cpp_id"),rs3.getString("service_version"), rs3.getString("wsdl"), rs3.getString("namespace"), rs3.getBoolean("exposed")));
+                             cppServList.add(new Service(rs3.getInt("service_id"), rs3.getString("service_name"),rs3.getString("cpp_name"),rs3.getInt("cpp_id"),rs3.getString("service_version"), rs3.getString("wsdl"), rs3.getString("namespace"), rs3.getBoolean("exposed"),rs3.getString("fromTo")));
                              System.out.println("service_id " + rs3.getInt("service_id") + "service_name " + rs3.getString("service_name") +"service_version"+rs3.getString("service_version")+ "exposed " + rs3.getBoolean("exposed"));
                          }
                      }
@@ -197,7 +199,7 @@ public class MainControlDB {
 
             //get all data annotations with specific cvp and insert them adding the cpp_id
 
-            rs= this.dbHandler.dbQuery("SELECT * FROM `dataannotations` WHERE cvp_id="+cvp_id+ "and cpp_id IS NULL");
+            rs= this.dbHandler.dbQuery("SELECT * FROM `dataannotations` WHERE cvp_id="+cvp_id+ "  and cpp_id IS NULL");
 
             if (rs != null) {
                 while (rs.next()) {

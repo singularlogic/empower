@@ -62,7 +62,7 @@
         </div>
         <div class="main">
         <div class="main-navigation">
-            <div id="menu_grid" style="width:180px; height:<%=(session.getAttribute("userType").equals("organization"))?210:150%>px" class='glossymenu'>
+            <div id="menu_grid" style="width:180px; height:<%=(session.getAttribute("userType").equals("organization"))?240:150%>px" class='glossymenu'>
                     <script>
                         menu_grid = new dhtmlXGridObject("menu_grid");
                         menu_grid.setImagePath("js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");
@@ -88,9 +88,9 @@
                         grid = new dhtmlXGridObject("box_grid");
                         grid.setImagePath("js/dhtmlxSuite/dhtmlxGrid/codebase/imgs");
                         if(<%=session.getAttribute("userType").equals("organization")%>){
-                        grid.setHeader("Service name,CPP Name,Functional Annotation,Data Annotation (CPP),Delete CPP");//set column names
-                        grid.setColTypes("ro,ro,link,link,link");
-                            grid.setInitWidths("180,80,150,120,*");
+                        grid.setHeader("Service name,CPP Name,Functional Annotation,Data Annotation (CPP),Delete CPP,UsedByCPA");//set column names
+                        grid.setColTypes("ro,ro,link,link,link,ro");
+                            grid.setInitWidths("150,100,110,100,60,90");
                         }else{
                         grid.setHeader("Service name,Functional Annotation,Data Annotation (CVP),Fully Annotated,Delete Web Service");//set column names
                         grid.setColTypes("ro,link,link,img,link");
@@ -109,7 +109,7 @@
 
             <div>
             <h2 style="border-bottom: 2px solid;">Create a New CPP:</h2>
-            <form method="POST" action="./OrganizationManager?op=cpp_reg&software_id=<%= request.getParameter("software_id") %>" name="cpp_registration" >
+            <form method="POST" action="./OrganizationManager?op=cpp_reg&software_id=<%= request.getParameter("software_id") %>" name="cpp_registration"  >
             <select name="CPPid" id="CPPsPerSoftCompPerOrg" style="margin:10px;">
                <%
                     if (session.getAttribute("CPPsPerSoftCompPerOrg") != "") {

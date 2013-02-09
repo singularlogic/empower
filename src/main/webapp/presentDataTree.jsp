@@ -12,6 +12,11 @@
         }
     });
 
+    window.onload = function () {
+        centralTree.openAllItems(0);
+        tree.openAllItems(0);
+    }
+
         function putSubTitle(loader) {
             if (loader.xmlDoc.responseText != null){
              $("#subPageTitle").html("Data Annotation of Web Service : "+loader.xmlDoc.responseText);

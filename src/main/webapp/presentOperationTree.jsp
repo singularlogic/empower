@@ -7,7 +7,7 @@
         <script>
             
             $(document).ready(function() {
-                $("#get_previousfuncannotation").click(function() {   
+                $("#get_previousfuncannotation").click(function() {
                     if(tree.getAllChecked().split(",").length!=1 || tree.getAllChecked()=="" ) alert("You have to check only one input schema! Thank You!");
                     else{    
                          if(<%=request.getParameter("service_id")%>){
@@ -21,6 +21,11 @@
                 dhtmlxAjax.get("./DIController?op=showcurrentwebservice&service_id=<%=request.getParameter("service_id")%>", putSubTitle);
                 }
             });
+
+            window.onload = function () {
+                treeFunc.openAllItems(0);
+                tree.openAllItems(0);
+            }
 
             function putSubTitle(loader) {
                 if (loader.xmlDoc.responseText != null){
@@ -137,7 +142,7 @@
                     treeFunc = new dhtmlXTreeObject("box_tree_func", "100%", "100%", 0);
                     treeFunc.setImagePath("./js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
                     treeFunc.enableCheckBoxes(true, false);
-                    treeFunc.loadXML('./ontologies/functional_tax_facet.xml', null);                        
+                    treeFunc.loadXML('./ontologies/functional_tax_facet.xml', null);
                     //                        treeFunc.loadXML('../VendorManager?op=present_ftaxonomy', null);
                     //                        tree.loadXML('ManageServices?op=show_serv_bind&software_name=<%= request.getParameter("software_name")%>', null);
                 </script>

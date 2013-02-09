@@ -1,20 +1,21 @@
+<%@ page import="net.sf.json.JSONObject" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@include file="timedoutRedirect.jsp" %>
 <!DOCTYPE html>
 <html>
     <head>
         <title>Show My Bridges</title>
-        <link rel="stylesheet" type="text/css" href="../style/menu_style.css"/>
-        <link rel="stylesheet" type="text/css" href="../style/layout4_setup.css"/>        
-        <link rel="stylesheet" type="text/css" href="../style/layout4_text_simple.css"/>        
-        <link rel="stylesheet" type="text/css" href="../style/container.css"/>
-        <link rel="stylesheet" type="text/css" href="../js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgrid.css">
-        <link rel="stylesheet" type="text/css" href="../js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgrid_skins.css">        
-        <script src="../js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxcommon.js"></script>
-        <script src="../js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgrid.js"></script>
-        <script src="../js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgridcell.js"></script>
-        <script src="../js/dhtmlxSuite/dhtmlxGrid/codebase/excells/dhtmlxgrid_excell_link.js"></script>
-        <script type="text/javascript" src="../js/jquery.js"></script> 
+        <link rel="stylesheet" type="text/css" href="./style/menu_style.css"/>
+        <link rel="stylesheet" type="text/css" href="./style/layout4_setup.css"/>
+        <link rel="stylesheet" type="text/css" href="./style/layout4_text_simple.css"/>
+        <link rel="stylesheet" type="text/css" href="./style/container.css"/>
+        <link rel="stylesheet" type="text/css" href="./js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgrid.css">
+        <link rel="stylesheet" type="text/css" href="./js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgrid_skins.css">
+        <script src="./js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxcommon.js"></script>
+        <script src="./js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgrid.js"></script>
+        <script src="./js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgridcell.js"></script>
+        <script src="./js/dhtmlxSuite/dhtmlxGrid/codebase/excells/dhtmlxgrid_excell_link.js"></script>
+        <script type="text/javascript" src="./js/jquery.js"></script>
         <style type="text/css">
             div.gridbox_inverse table.hdr td {background-color:#A0D651; color:white; font-weight:bold;}
             div.gridbox_inverse table.obj td{background-color: #D9EFB9;text-align: center;}
@@ -25,7 +26,7 @@
                 var r=confirm("Are you sure you want to delete?");
                 if (r==true)
                 {
-                    document.location.href='../OrganizationManager?op=deleteBridging&cpa_id='+cpa_id;             
+                    document.location.href='./OrganizationManager?op=deleteBridging&cpa_id='+cpa_id;
                 }       
             }
         </script>
@@ -52,7 +53,7 @@
         </div>
         <div class="main">
             <div class="main-navigation">
-                <div id="menu_grid" style="width:180px; height:210px" class='<%=session.getAttribute("userType")%>'>
+                <div id="menu_grid" style="width:180px; height:240px" class='<%=session.getAttribute("userType")%>'>
                     <script>
                         menu_grid = new dhtmlXGridObject("menu_grid");
                         menu_grid.setImagePath("js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");
@@ -61,7 +62,7 @@
                         menu_grid.setSkin("light");//set grid skin
                         menu_grid.setSkin("inverse");
                         menu_grid.init();//initialize grid
-                        menu_grid.loadXML('../DIController?op=get_menu&level=2');
+                        menu_grid.loadXML('./DIController?op=get_menu&level=0');
                     </script>
                 </div>
             </div>    
@@ -71,7 +72,7 @@
                     Please delete the disabled bridges by yourself because the bridged web services are not available any more. 
                 </p>
                 <br>                  
-                <div id="box_grid" style="width:600px; height:500px"/>
+                <div id="box_grid" style="width:650px; height:500px"/>
                 <script>
                     grid = new dhtmlXGridObject("box_grid");
                     grid.setImagePath("/js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");
@@ -85,12 +86,12 @@
                     grid.setColWidth(0, '15');
                     grid.setColWidth(1, '33');
                     grid.setColWidth(2, '33');
-                    grid.setColWidth(3, '10');
-                    grid.setColWidth(4, '9');
-                    grid.loadXML("../DIController?op=showMyBridges");
+                    grid.setColWidth(3, '9');
+                    grid.setColWidth(4, '10');
+                    grid.loadXML("./DIController?op=showMyBridges");
                 </script>
             </div>
-        </div>
+            </div>
     </div>
     <div class="footer"><p>Copyright &copy; 2012 EMPOWER Consortium | All Rights Reserved</p></div>                                                
 

@@ -127,9 +127,9 @@
 .subcontent-unit-noborder-orange {width:185px; margin:0 0 2.5em 0; padding:0 0 10px 0; background-color:rgb(248,224,150);}
 
 .round-border-topleft {width:10px; height:10px; position:absolute; z-index:100; background:url(http://94.75.243.141:8080/empower/template/theme/img/bg_corner_topleft.gif) no-repeat; margin-top:-1px; margin-left:-1px;}
-.round-border-topright {width:10px; height:10px; position:absolute; z-index:100; background:url(http://94.75.243.141:8080/empower/template/theme/img/bg_corner_topright.gif) no-repeat; margin-top:-1px; margin-left:174px;}
+/*.round-border-topright {width:10px; height:10px; position:absolute; z-index:100; background:url(http://94.75.243.141:8080/empower/template/theme/img/bg_corner_topright.gif) no-repeat; margin-top:-1px; margin-left:174px;}*/
 .round-noborder-topleft {width:10px; height:10px; position:absolute; z-index:100; background:url(http://94.75.243.141:8080/empower/template/theme/img/bg_corner_topleft.gif) no-repeat; margin-top:0px; margin-left:0px;}
-.round-noborder-topright {width:10px; height:10px; position:absolute; z-index:100; background:url(http://94.75.243.141:8080/empower/template/theme/img/bg_corner_topright.gif) no-repeat; margin-top:0px; margin-left:175px;}
+/*.round-noborder-topright {width:10px; height:10px; position:absolute; z-index:100; background:url(http://94.75.243.141:8080/empower/template/theme/img/bg_corner_topright.gif) no-repeat; margin-top:0px; margin-left:175px;} */
 
 /********************/
 /*  FOOTER SECTION  */

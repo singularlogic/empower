@@ -22,8 +22,11 @@ public class CPP {
     private String schema;
     private int schema_id;
     private String schema_complexType;
-    
-     public CPP(int cppID, String dataAnnotations,int vendor_id) {
+    private String urlbinding;
+    private int urlbinding_id;
+
+
+    public CPP(int cppID, String dataAnnotations,int vendor_id) {
         this.cppID = cppID;
         this.dataAnnotations = dataAnnotations;
         this.vendor_id = vendor_id;
@@ -41,12 +44,31 @@ public class CPP {
         this.schema_complexType = schema_complexType;
     }
     
-     public CPP(int cppID, int service_id, String operation_name ) {
+     public CPP(int cppID, int service_id, String operation_name,int urlbinding_id){
         OrgDBConnector orgDBConnector = new OrgDBConnector();
         this.cppID = cppID;
         this.service = orgDBConnector.getServiceName(service_id);
         this.service_id = service_id;
         this.operation = operation_name;
+        this.urlbinding = orgDBConnector.getUrlBindingAddress(urlbinding_id);
+        this.urlbinding_id = urlbinding_id;
+
+    }
+
+    public String getUrlbinding() {
+        return urlbinding;
+    }
+
+    public void setUrlbinding(String urlbinding) {
+        this.urlbinding = urlbinding;
+    }
+
+    public int getUrlbinding_id() {
+        return urlbinding_id;
+    }
+
+    public void setUrlbinding_id(int urlbinding_id) {
+        this.urlbinding_id = urlbinding_id;
     }
 
     public int getCppID() {
