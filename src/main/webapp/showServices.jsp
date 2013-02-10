@@ -31,7 +31,6 @@
                     $("#pageTitle").html("Registered Web Services of "+ loader.xmlDoc.responseText+ " Software Component");
                 }
             }
-
         </script>
     </head>
     <body class="yui-skin-sam">
