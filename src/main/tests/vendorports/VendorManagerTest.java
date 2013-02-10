@@ -1,5 +1,8 @@
 package vendorports;
 
+import com.gargoylesoftware.htmlunit.BrowserVersion;
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import dataaccesslayer.dbConnector;
 import org.junit.Assert;
 import org.junit.Test;
@@ -35,13 +38,17 @@ public class VendorManagerTest {
         // assertEquals(1, 2);
 
         //1.Register two web services
-        int first_service = testRegisterService(75,"ResellerImplService","http://ws.eleni.com/","/home/eleni/Documents/ubi/empower/empower-deliverable-september/empowerTest/wsdl/ResellerImpl.wsdl");
-        int second_service = testRegisterService(75,"ERPImplService","http://wserp.eleni.com/","/home/eleni/Documents/ubi/empower/empower-deliverable-september/empowerTest/wsdl/ERPImplService.wsdl");
+        //int first_service = testRegisterService(75,"ResellerImplService","http://ws.eleni.com/","/home/eleni/Documents/ubi/empower/empower-deliverable-september/empowerTest/wsdl/ResellerImpl.wsdl");
+        //int second_service = testRegisterService(75,"ERPImplService","http://wserp.eleni.com/","/home/eleni/Documents/ubi/empower/empower-deliverable-september/empowerTest/wsdl/ERPImplService.wsdl");
+
+        //int second_service = testRegisterService(77,"TestServicefail","http://ws.demo/","/home/eleni/Desktop/Table114122012153701ORIGINAL.wsdl");
+       // int second_service = testRegisterService(77,"UserService"," http://web.feedback.roo.dw.com/","/home/eleni/Desktop/SpringRοοWS.wsdl");
+
 
         //2.Register two web services
 
     }
-
+    /*
 
     public int testRegisterService(int software_id, String service_name ,String service_namespace, String file_location) throws Exception {
 
@@ -59,13 +66,13 @@ public class VendorManagerTest {
 
         VendorDBConnector vendorDBConnector = new VendorDBConnector();
         System.out.println("3 mundo cruel");
-        int service_id = vendorDBConnector.insertServiceInfo(software_id, service_name ,serviceFilename, xml_rep_path,service_namespace);
+        //int service_id = vendorDBConnector.insertServiceInfo(software_id, service_name ,serviceFilename, xml_rep_path,service_namespace);
 
         dbConnector dbHandlerTest=new dbConnector();
 
         dbHandlerTest.dbOpen();
 
-        rs = dbHandlerTest.dbQuery("SELECT * FROM web_service WHERE service_id="+service_id);
+       // rs = dbHandlerTest.dbQuery("SELECT * FROM web_service WHERE service_id="+service_id);
 
         if (rs.next()) {
 
@@ -77,12 +84,12 @@ public class VendorManagerTest {
 
         } else Assert.fail();
 
-        return  service_id;
+        //return  service_id;
 
 
     }
 
-
+      */
 
     @Test
     public void testGetServletInfo() throws Exception {
@@ -112,4 +119,15 @@ public class VendorManagerTest {
             }
         }
     }
+
+
+
+    @Test
+    public void htmlAddSofComp() throws Exception {
+        final WebClient webClient = new WebClient(BrowserVersion.FIREFOX_3_6);
+        final HtmlPage page = webClient.getPage("http://127.0.0.1:8080/empower/signin.jsp");
+
+    }
+
+
 }

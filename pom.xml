@@ -256,11 +256,11 @@
                         <!-- Local configuration
                         <configuration>
                             <hostname>127.0.0.1</hostname>
-                            <port>9999</port>
+                            <port>9999</port>                                  http://192.168.1.202:8081/nexus/content/repositories/ubitech-snapshots
                             <username>jboss</username>
                             <password>ego</password>
-                        </configuration>    -->
-
+                        </configuration>
+                        -->
                     </execution>
                 </executions>
             </plugin>
@@ -282,21 +282,21 @@
 
     </build>
 
-   <!--
+
     <distributionManagement>
         <repository>
             <uniqueVersion>true</uniqueVersion>
             <id>ubitech-releases</id>
             <name>UBITECH release repository</name>
-            <url>http://192.168.1.201:8081/nexus/content/repositories/ubitech-releases/</url>
+            <url>http://192.168.1.202:6060/nexus/content/repositories/releases/</url>
         </repository>
         <snapshotRepository>
             <id>ubitech-snapshots</id>
             <name>UBITECH snapshot repository</name>
-            <url>http://192.168.1.201:8081/nexus/content/repositories/ubitech-snapshots/</url>
+            <url>http://192.168.1.202:6060/nexus/content/repositories/releases/</url>
         </snapshotRepository>
     </distributionManagement>
-     -->
+
 
     <!--
     <repositories>

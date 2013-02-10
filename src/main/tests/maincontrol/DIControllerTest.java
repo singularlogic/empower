@@ -3,6 +3,7 @@ package maincontrol;
 import dataaccesslayer.DataAnnotations;
 import dataaccesslayer.Service;
 import net.sf.json.JSONObject;
+import org.dom4j.DocumentException;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 import xml.Parser;
@@ -36,7 +37,7 @@ public class DIControllerTest {
 
     private static String xml_rep_path = "/home/eleni/Documents/ubi/empower/empower-deliverable-september/empowerTest/";
 
-
+    /*
     @Test
     public void annotate_data_service()
             throws IOException, ParserConfigurationException, SAXException, XPathExpressionException, WSDLException, TransformerConfigurationException, TransformerException {
@@ -70,7 +71,7 @@ public class DIControllerTest {
         WSDLParser wsdlParser = new WSDLParser(service.getWsdl(), service.getNamespace());
         choice = selections.split("\\$")[1];
        // choice[1] = selections.split("\\$")[2];
-        String inputoutput = selections.split("\\$")[0];
+        String inputoutput = selections.split("\\$")[toString()0];
         String xsdTypes = wsdlParser.extractXSD(choice);
         //String xsdTypes =    response_xsdTypes.getString("xsdTypes");
 
@@ -113,14 +114,15 @@ public class DIControllerTest {
         o.put("content", xsdTypes);
 
         this.forwardToPage("/proceedDataTree.jsp?schema_id=-1&service_id=" + service_id + "&xbrl_mismatch=" + xbrl_mismatch + "&data=" + o.toString(), request, response);
-        */
+        * /
     }
-
+       */
     @Test
     public void presentServiceTree()
             throws IOException, WSDLException {
         //int serviceID = 79;
-        int serviceID = 145;
+        //int serviceID = 145;
+        int serviceID = 167;
 
         MainControlDB mainControlDB = new MainControlDB();
         Service service = mainControlDB.getService(serviceID);
@@ -135,7 +137,7 @@ public class DIControllerTest {
     }
 
     @Test
-    public void testProperties() throws Exception {
+    public void testProperties(){
       /* Properties props = System.getProperties();
          Enumeration e = props.propertyNames();
          while (e.hasMoreElements()) {
@@ -179,8 +181,34 @@ public class DIControllerTest {
 
     }
 
+
     @Test
-    public void testGetServletInfo() throws Exception {
+    public void annotate_data_service() throws IOException, WSDLException, SAXException, XPathExpressionException, ParserConfigurationException, DocumentException, TransformerException {
+        //int serviceID = 79;
+        //int serviceID = 151;
+        int serviceID = 169;
+
+        MainControlDB mainControlDB = new MainControlDB();
+        Service service = mainControlDB.getService(serviceID);
+        WSDLParser wsdlParser = new WSDLParser(service.getWsdl(),service.getNamespace());
+        //String choice =   "getCustomerMessageOutput";
+        //String choice =   "findClientResponse";
+        //String choice =   "findClient";
+        String choice =   "saveClient";
+        String xsdTypes = wsdlParser.extractXSD(choice);
+
+
+        String filename = new String(service.getService_id() + service.getName() + choice + "dokimi.xsd");
+        String xsdFilename = new String(xml_rep_path + "/xsd/" + filename);
+
+        File f = new File(xsdFilename);
+        if(!f.exists()) {
+            PrintWriter xsdFile = new PrintWriter(xsdFilename);
+            xsdFile.write(xsdTypes);
+            xsdFile.close();
+        }
+
+
 
     }
 }
