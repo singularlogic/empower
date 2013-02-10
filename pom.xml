@@ -256,11 +256,11 @@
                         <!-- Local configuration
                         <configuration>
                             <hostname>127.0.0.1</hostname>
-                            <port>9999</port>                                  http://192.168.1.202:8081/nexus/content/repositories/ubitech-snapshots
+                            <port>9999</port>
                             <username>jboss</username>
                             <password>ego</password>
-                        </configuration>
-                        -->
+                        </configuration>     -->
+
                     </execution>
                 </executions>
             </plugin>

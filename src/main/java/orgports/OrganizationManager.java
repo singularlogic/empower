@@ -200,6 +200,27 @@ public class OrganizationManager extends HttpServlet {
         orgDBConnector.insertNewCPP(cpp_id,organization_name,cpp_name,-1);
         String message= "A new CPP has been created!!!" ;
         System.out.println("message"+message);
+
+
+         //---------------------------------------------
+
+        LinkedList<Service> cppsofOrg = orgDBConnector.getCPPs((String) session.getAttribute("name"),Integer.parseInt(software_id));
+
+        JSONObject json_cppsOfOrganization = new JSONObject();
+
+        Iterator cppsofOrg_iterator = cppsofOrg.iterator();
+        while (cppsofOrg_iterator.hasNext()) {
+            Service cpp_service = (Service) cppsofOrg_iterator.next();
+            json_cppsOfOrganization.put(cpp_service.getCpp_id(), cpp_service.getName() + "  V." + cpp_service.getVersion() + "   CPP Name: " +cpp_service.getCpp_name() + "  ID: " +cpp_service.getCpp_id());
+        }
+        session.removeAttribute("CPPsPerSoftCompPerOrg");
+        session.setAttribute("CPPsPerSoftCompPerOrg", json_cppsOfOrganization);
+
+
+
+        //---------------------------------------------
+
+
         this.forwardToPage("/showServices.jsp?software_id=" + software_id+"&message="+message, request, response);
 
     }
@@ -214,6 +235,26 @@ public class OrganizationManager extends HttpServlet {
         orgDBConnector.deleteCPP(cpp_id);
         String message= "The CPP with ID:"+cpp_id+" has been succesfully deleted!!!" ;
         System.out.println("message"+message);
+
+        //---------------------------------------------
+
+        LinkedList<Service> cppsofOrg = orgDBConnector.getCPPs((String) session.getAttribute("name"),Integer.parseInt(software_id));
+
+        JSONObject json_cppsOfOrganization = new JSONObject();
+
+        Iterator cppsofOrg_iterator = cppsofOrg.iterator();
+        while (cppsofOrg_iterator.hasNext()) {
+            Service cpp_service = (Service) cppsofOrg_iterator.next();
+            json_cppsOfOrganization.put(cpp_service.getCpp_id(), cpp_service.getName() + "  V." + cpp_service.getVersion() + "   CPP Name: " +cpp_service.getCpp_name() + "  ID: " +cpp_service.getCpp_id());
+        }
+        session.removeAttribute("CPPsPerSoftCompPerOrg");
+        session.setAttribute("CPPsPerSoftCompPerOrg", json_cppsOfOrganization);
+
+
+
+        //---------------------------------------------
+
+
         this.forwardToPage("/showServices.jsp?software_id=" + software_id+"&message="+message, request, response);
 
     }

@@ -38,17 +38,7 @@
                     document.location.href='./VendorManager?op=delete_wservice&service_id='+service_id;
                 }       
             }
-
-            function deletecpp(software_id,cpp_id){
-                var r=confirm("Are you sure you want to delete?");
-                if (r==true)
-                {
-                    $.getJSON('./OrganizationManager?op=cpp_delete&software_id='+software_id+'&cpp_id=' + cpp_id, function(data) {
-                    });
-                    location.reload();
-                }
-            }
-        </script>  
+        </script>
     </head>
     <body class="yui-skin-sam">
     <center>
@@ -120,7 +110,10 @@
             <div>
             <h2 style="border-bottom: 2px solid;">Create a New CPP:</h2>
             <form method="POST" action="./OrganizationManager?op=cpp_reg&software_id=<%= request.getParameter("software_id") %>" name="cpp_registration"  id="cpp_registration" >
-            <select name="CPPid" id="CPPsPerSoftCompPerOrg" style="margin:10px;">
+
+                <p class="info_message">Step 1: Choose The CPP you want to specialize:</p>
+
+                <select name="CPPid" id="CPPsPerSoftCompPerOrg" style="margin:10px;">
                <%
                     if (session.getAttribute("CPPsPerSoftCompPerOrg") != "") {
                         JSONObject cpps = (JSONObject) session.getAttribute("CPPsPerSoftCompPerOrg");
@@ -133,6 +126,7 @@
                 }
             %>
             </select>
+            <p class="info_message">Step 2: Name the New CPP:</p>
             <input type="text" name="cpp_name" size="20">
             <input type="submit" value="Create CPP" name="submit_button"></td>
             </form>
