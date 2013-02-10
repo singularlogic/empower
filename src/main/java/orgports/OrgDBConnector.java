@@ -202,7 +202,6 @@ public class OrgDBConnector {
                 data.put("new_cpa_id", cpa_id);
             }
 
-            System.out.println("holaaaaaaa1   update cpp set fromTo='From in CPA:"+cpa_id+"'  where cpp_id=" + cvp_source);
             this.dbHandler.dbUpdate("update cpp set fromTo='From/CPA:"+cpa_id+"'  where cpp_id=" + cvp_source);
             this.dbHandler.dbUpdate("update cpp set fromTo='TO/CPA:"+cpa_id+"'  where cpp_id=" + cvp_target);
 
@@ -791,6 +790,34 @@ public class OrgDBConnector {
         }
         return ServList;
     }
+
+
+    public void desactivateBridge(int cpp_id) {
+        ResultSet rs;
+        try {
+
+            this.dbHandler.dbOpen();
+
+            rs = this.dbHandler.dbQuery("select * from cpa where cpa.cpp_id_first="+cpp_id+" OR cpa.cpp_id_second="+cpp_id);
+
+            if (rs != null) {
+                while (rs.next()) {
+                    this.dbHandler.dbUpdate("update cpa set disabled=true where cpa_id=" + rs.getInt("cpa_id"));
+                    System.out.print("olele olele update cpa set disabled=true where cpa_id=" + rs.getInt("cpa_id"));
+                }}
+
+
+            this.dbHandler.dbUpdate("DELETE FROM dataannotations WHERE cpp_id="+cpp_id);
+
+            this.dbHandler.dbUpdate("DELETE FROM cpp WHERE cpp_id="+cpp_id);
+
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+
+    }
+
+
 
     /*
 

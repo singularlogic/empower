@@ -25,7 +25,7 @@ public class dbConnector {
             throws ClassNotFoundException, SQLException,
             InstantiationException, IllegalAccessException, IOException {
 
-        /*
+
       ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
       Properties properties = new Properties();
       InputStream in =classLoader.getResourceAsStream("myproperties.properties");
@@ -44,15 +44,15 @@ public class dbConnector {
       String dbName = properties.getProperty("database.jdbc.name").toString();
       String userName = properties.getProperty("database.jdbc.username").toString();
       String password = properties.getProperty("database.jdbc.password").toString();
-       */
 
-        /*    */
+
+        /*
         String url =    "jdbc:mysql://127.0.0.1:3306/";
         String driver = "com.mysql.jdbc.Driver";
         String dbName = "empower_db";
         String userName = "root";
         String password = "!uflow!";
-
+         */
 
         Class.forName(driver).newInstance();
                 dbConnection = DriverManager.getConnection(url+dbName,userName,password);

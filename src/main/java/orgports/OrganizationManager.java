@@ -254,6 +254,8 @@ public class OrganizationManager extends HttpServlet {
 
         //---------------------------------------------
 
+        //Desactivate Bridge
+        orgDBConnector.desactivateBridge(cpp_id);
 
         this.forwardToPage("/showServices.jsp?software_id=" + software_id+"&message="+message, request, response);
 
@@ -465,6 +467,7 @@ public class OrganizationManager extends HttpServlet {
 
         int cpa_id = -1;
         String selections_source = request.getParameter("selections_source");
+        //String installations_source =
         String cvp_source = selections_source.split("--")[4];
         int cpp_source = orgDBConnector.getCPP(Integer.parseInt(cvp_source), (String) session.getAttribute("name"));
         System.out.println("cpp_source: " + cpp_source);
