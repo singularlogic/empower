@@ -467,12 +467,15 @@ public class OrganizationManager extends HttpServlet {
 
         int cpa_id = -1;
         String selections_source = request.getParameter("selections_source");
-        //String installations_source =
+        String installations_source = request.getParameter("installations_source");
+
         String cvp_source = selections_source.split("--")[4];
         int cpp_source = orgDBConnector.getCPP(Integer.parseInt(cvp_source), (String) session.getAttribute("name"));
         System.out.println("cpp_source: " + cpp_source);
 
         String selections_target = request.getParameter("selections_target");
+        String installations_target = request.getParameter("installations_target");
+
         String cvp_target = selections_target.split("--")[4];
         int cpp_target = orgDBConnector.getCPP(Integer.parseInt(cvp_target), (String) session.getAttribute("name"));
         System.out.println("cpp_target: " + cpp_target);

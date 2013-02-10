@@ -224,10 +224,7 @@
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>2.3</version>
             </plugin>
-
-
-
-        </plugins>
+         </plugins>
 
         <resources>
             <resource>
@@ -264,7 +261,7 @@
         <profile>
             <id>development</id>
             <activation>
-            <activeByDefault>true</activeByDefault>
+                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
                 <db.driverClass>com.mysql.jdbc.Driver</db.driverClass>
@@ -275,7 +272,6 @@
                 <repo.path>/home/eleni/Documents/ubi/empower/empower-deliverable-september/empower/</repo.path>
             </properties>
             <build>
-                <pluginManagement>
                     <plugins>
                         <plugin>
                             <groupId>org.jboss.as.plugins</groupId>
@@ -283,7 +279,7 @@
                             <version>7.1.1.Final</version>
                             <executions>
                                 <execution>
-                                    <phase>deploy</phase>
+                                    <phase>install</phase>
                                     <goals>
                                         <goal>deploy</goal>
                                     </goals>
@@ -297,7 +293,7 @@
                             </executions>
                         </plugin>
                     </plugins>
-                </pluginManagement>
+
             </build>
         </profile>
 
