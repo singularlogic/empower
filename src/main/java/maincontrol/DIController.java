@@ -460,6 +460,7 @@ public class DIController extends HttpServlet {
             String delete_wservice_option = (verifyUser("vendor", session)) ? "<cell>Delete^javascript:deleteservice("+service.getService_id()+")^_self</cell>" : "";
 
             String delete_cpp_option = (verifyUser("vendor", session)) ? "<cell type=\"img\">" + img_link + "</cell>" : "<cell>Delete^./OrganizationManager?op=cpp_delete&amp;software_id="+request.getParameter("software_id")+"&amp;cpp_id=" + service.getCpp_id()+ "^_self</cell><cell>"+service.getFromTo()+"</cell>";
+            //String delete_cpp_option = (verifyUser("vendor", session)) ? "<cell type=\"img\">" + img_link + "</cell>" : "<cell>Delete^javascript:deleteservice("+request.getParameter("software_id")+","+service.getCpp_id()+")^_self</cell><cell>"+service.getFromTo()+"</cell>";
 
             String cppNameID =  (verifyUser("vendor", session)) ? "": "<cell>"+service.getCpp_name()+" ID:"+service.getCpp_id()+"</cell>";
 

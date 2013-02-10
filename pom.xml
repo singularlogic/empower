@@ -237,19 +237,19 @@
                 <version>7.1.1.Final</version>
                 <executions>
                     <execution>
-                        <phase>install</phase>
+                        <phase>deploy</phase>
                         <goals>
                             <goal>deploy</goal>
                         </goals>
 
-                        <!-- patroklos configuration  -->
+                        <!-- patroklos configuration 
                         <configuration>
                             <hostname>192.168.1.201</hostname>
                             <port>9999</port>
                             <username>admin</username>
                             <password>jboss</password>
                             <filename>empower.war</filename>
-                        </configuration> 
+                        </configuration>  -->
                         
                         <!-- Local configuration
                         <configuration>
@@ -257,8 +257,7 @@
                             <port>9999</port>
                             <username>jboss</username>
                             <password>ego</password>
-                        </configuration>
-                        -->
+                        </configuration>    -->
 
                     </execution>
                 </executions>
@@ -281,7 +280,7 @@
 
     </build>
 
-
+   <!--
     <distributionManagement>
         <repository>
             <uniqueVersion>true</uniqueVersion>
@@ -295,10 +294,10 @@
             <url>http://192.168.1.201:8081/nexus/content/repositories/ubitech-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
+     -->
 
-
+    <!--
     <repositories>
-        <!-- Global Repository -->
         <repository>
             <id>Jboss repository</id>
             <url>http://repository.jboss.org/nexus/content/repositories/releases</url>
@@ -306,7 +305,6 @@
                 <enabled>true</enabled>
             </releases>
         </repository>
-        <!-- UBITECH Repositories -->
         <repository>
             <id>ubitech-releases</id>
             <name>UBITECH release repository</name>
@@ -317,10 +315,10 @@
             <name>UBITECH snapshot repository</name>
             <url>http://192.168.1.201:8081/nexus/content/repositories/ubitech-snapshots/</url>
         </repository>
-
-
     </repositories>
+     -->
 
+    <!--
     <profiles>
         <profile>
             <id>development</id>
@@ -334,7 +332,6 @@
                 <db.username>root</db.username>
                 <db.password>!uflow!</db.password>
                 <repo.path>/home/eleni/Documents/ubi/empower/empower-deliverable-september/empower/</repo.path>
-                <!--<logo.image>mylogo.png</logo.image>-->
             </properties>
         </profile>
         <profile>
@@ -360,6 +357,7 @@
             </properties>
         </profile>
     </profiles>
+    -->
 
 
 </project>

@@ -195,8 +195,8 @@ public class OrganizationManager extends HttpServlet {
         String cpp_name= (String)  request.getParameter("cpp_name");
         String software_id = (String) request.getParameter("software_id");
 
-
         OrgDBConnector orgDBConnector = new OrgDBConnector();
+
         orgDBConnector.insertNewCPP(cpp_id,organization_name,cpp_name,-1);
         String message= "A new CPP has been created!!!" ;
         System.out.println("message"+message);
@@ -1401,7 +1401,7 @@ public class OrganizationManager extends HttpServlet {
             String xml = "";
             String wsdlParserString = "";
             String list_installations= "";
-            String list_CPP= "";
+            String list_CPP= "<option value=\"-1\">Choose CPP</option>";
 
             if (services_installations.size() > 0) {
                 Iterator serv_iterator = services_installations.iterator();
