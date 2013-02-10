@@ -194,26 +194,15 @@
     <build>
         <finalName>empower</finalName>
 
-
         <plugins>
             
-            <!--<plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                </configuration>
-            </plugin> -->
-            
             <plugin>
-		<artifactId>maven-compiler-plugin</artifactId>
-		<version>2.5.1</version>
-		<configuration>
-		<source>1.6</source>
-		<target>1.6</target>
-		</configuration>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.5.1</version>
+                <configuration>
+                <source>1.6</source>
+                <target>1.6</target>
+                </configuration>
             </plugin>
 
             <!-- Test plugin -->
@@ -228,41 +217,6 @@
                     </includes>
                 </configuration>
 
-            </plugin>
-
-
-            <!-- Transfer to JBOSS Plugin-->
-
-            <plugin>
-                <groupId>org.jboss.as.plugins</groupId>
-                <artifactId>jboss-as-maven-plugin</artifactId>
-                <version>7.1.1.Final</version>
-                <executions>
-                    <execution>
-                        <phase>deploy</phase>
-                        <goals>
-                            <goal>deploy</goal>
-                        </goals>
-
-                        <!-- patroklos configuration 
-                        <configuration>
-                            <hostname>192.168.1.201</hostname>
-                            <port>9999</port>
-                            <username>admin</username>
-                            <password>jboss</password>
-                            <filename>empower.war</filename>
-                        </configuration>  -->
-                        
-                        <!-- Local configuration
-                        <configuration>
-                            <hostname>127.0.0.1</hostname>
-                            <port>9999</port>
-                            <username>jboss</username>
-                            <password>ego</password>
-                        </configuration>     -->
-
-                    </execution>
-                </executions>
             </plugin>
 
             <plugin>
@@ -283,19 +237,7 @@
     </build>
 
 
-    <distributionManagement>
-        <repository>
-            <uniqueVersion>true</uniqueVersion>
-            <id>ubitech-releases</id>
-            <name>UBITECH release repository</name>
-            <url>http://192.168.1.202:6060/nexus/content/repositories/releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>ubitech-snapshots</id>
-            <name>UBITECH snapshot repository</name>
-            <url>http://192.168.1.202:6060/nexus/content/repositories/snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
+
 
 
 
@@ -322,7 +264,7 @@
     </repositories>
      -->
 
-    <!--
+
     <profiles>
         <profile>
             <id>development</id>
@@ -337,20 +279,35 @@
                 <db.password>!uflow!</db.password>
                 <repo.path>/home/eleni/Documents/ubi/empower/empower-deliverable-september/empower/</repo.path>
             </properties>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.jboss.as.plugins</groupId>
+                            <artifactId>jboss-as-maven-plugin</artifactId>
+                            <version>7.1.1.Final</version>
+                            <executions>
+                                <execution>
+                                    <phase>install</phase>
+                                    <goals>
+                                        <goal>deploy</goal>
+                                    </goals>
+                                       <configuration>
+                                           <hostname>127.0.0.1</hostname>
+                                           <port>9999</port>
+                                           <username>jboss</username>
+                                           <password>ego</password>
+                                       </configuration>
+                                </execution>
+                            </executions>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
         </profile>
+
         <profile>
-            <id>testing</id>
-            <properties>
-                <db.driverClass>com.mysql.jdbc.Driver</db.driverClass>
-                <db.connectionURL>jdbc:mysql://127.0.0.1:3306/</db.connectionURL>
-                <db.name>empower_dbTest</db.name>
-                <db.username>root</db.username>
-                <db.password>!uflow!</db.password>
-                <repo.path>/home/eleni/Documents/ubi/empower/empower-deliverable-september/empowerTest</repo.path>
-            </properties>
-        </profile>
-        <profile>
-            <id>production</id>
+            <id>deployment</id>
             <properties>
                 <db.driverClass>com.mysql.jdbc.Driver</db.driverClass>
                 <db.connectionURL>jdbc:mysql://127.0.0.1:3306/</db.connectionURL>
@@ -359,9 +316,24 @@
                 <db.password>!empower!</db.password>
                 <repo.path>/var/www/empower/empowerdata/</repo.path>
             </properties>
+
+            <distributionManagement>
+                <repository>
+                    <uniqueVersion>true</uniqueVersion>
+                    <id>ubitech-releases</id>
+                    <name>UBITECH release repository</name>
+                    <url>http://192.168.1.202:6060/nexus/content/repositories/releases/</url>
+                </repository>
+                <snapshotRepository>
+                    <id>ubitech-snapshots</id>
+                    <name>UBITECH snapshot repository</name>
+                    <url>http://192.168.1.202:6060/nexus/content/repositories/snapshots/</url>
+                </snapshotRepository>
+            </distributionManagement>
+
         </profile>
     </profiles>
-    -->
+
 
 
 </project>
