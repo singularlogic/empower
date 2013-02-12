@@ -31,13 +31,13 @@ public class dbConnector {
       InputStream in =classLoader.getResourceAsStream("myproperties.properties");
       properties.load(in);
 
-
+      /*
       Enumeration el =properties.propertyNames();
       while (el.hasMoreElements()) {
           System.out.println("4");
           String key = (String) el.nextElement();
           System.out.println(key + " -- " + properties.getProperty(key));
-      }
+      } */
 
       String url =    properties.getProperty("database.jdbc.connectionURL").toString();
       String driver = properties.getProperty("database.jdbc.driverClass").toString();

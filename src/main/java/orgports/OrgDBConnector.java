@@ -170,7 +170,7 @@ public class OrgDBConnector {
     }
         
         
-   public Map<String,Integer> insertBridging(int cvp_source , int cvp_target , String organization , String json) {
+   public Map<String,Integer> insertBridging(int cvp_source , int cvp_target, String organization , String json) {
         ResultSet rs,rs1;
         int organization_id = -1, cpa_id = -1, organization_cpa= -1;
         Map<String, Integer> data = new HashMap<String, Integer>();
@@ -191,8 +191,8 @@ public class OrgDBConnector {
             if (rs1.next()){
               cpa_id=  rs1.getInt("cpa_id");
               data.put("existing",rs1.getInt("cpa_id"));
-              this.dbHandler.dbUpdate("update cpa set cpa_info='"+ json +"' where cpa_id="+cpa_id);
-            } 
+              this.dbHandler.dbUpdate("update cpa set cpa_info='"+ json +"'  where cpa_id="+cpa_id);
+            }
             else{
                 cpa_id = this.dbHandler.dbUpdate("insert into cpa(cpp_id_first,cpp_id_second,cpa_info,disabled) values('"
                     + cvp_source + "','" + cvp_target + "','"+json+"',false)");

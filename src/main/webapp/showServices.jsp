@@ -31,6 +31,14 @@
                     $("#pageTitle").html("Registered Web Services of "+ loader.xmlDoc.responseText+ " Software Component");
                 }
             }
+
+            function deleteservice(service_id){
+                var r=confirm("Are you sure you want to delete?");
+                if (r==true)
+                {
+                    document.location.href='./VendorManager?op=delete_wservice&service_id='+service_id;
+                }
+            }
         </script>
     </head>
     <body class="yui-skin-sam">

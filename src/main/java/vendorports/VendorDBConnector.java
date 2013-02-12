@@ -189,6 +189,8 @@ public class VendorDBConnector {
     }
 
     public String deleteWebService(int service_id,String service_location,JSONObject xsdSchemasToDelete) {
+
+        System.out.println("eimai mesa sto deleteWebService");
         ResultSet rs;
         String message = "";
         int cvp_id = -1;

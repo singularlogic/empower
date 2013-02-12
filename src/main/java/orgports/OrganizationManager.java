@@ -467,14 +467,14 @@ public class OrganizationManager extends HttpServlet {
 
         int cpa_id = -1;
         String selections_source = request.getParameter("selections_source");
-        String installations_source = request.getParameter("installations_source");
+        int installations_source = Integer.parseInt((String) request.getParameter("installations_source"));
 
         String cvp_source = selections_source.split("--")[4];
         int cpp_source = orgDBConnector.getCPP(Integer.parseInt(cvp_source), (String) session.getAttribute("name"));
         System.out.println("cpp_source: " + cpp_source);
 
         String selections_target = request.getParameter("selections_target");
-        String installations_target = request.getParameter("installations_target");
+        int installations_target = Integer.parseInt((String) request.getParameter("installations_target"));
 
         String cvp_target = selections_target.split("--")[4];
         int cpp_target = orgDBConnector.getCPP(Integer.parseInt(cvp_target), (String) session.getAttribute("name"));
@@ -834,7 +834,7 @@ public class OrganizationManager extends HttpServlet {
 
 
             String active_bridge = (cpa.isDisabled()) ? "<cell>Disabled</cell>"
-                    : "<cell type=\"img\">./js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/usebridge.png^Use Bridge^../OrganizationManager?op=doBridgingServicePrepare&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>";
+                    : "<cell type=\"img\">./js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/usebridge.png^Use Bridge^./OrganizationManager?op=doBridgingServicePrepare&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>";
 
             /*
             dobridging_url = (o_first.get("schema") == null) ? active_bridge + "<cell type=\"img\">../js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/deletebridge.png^Delete Bridge^../OrganizationManager?op=deleteBridging&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>"

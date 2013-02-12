@@ -173,9 +173,9 @@ public class VendorManager extends HttpServlet {
         MainControlDB mainControlDB = new MainControlDB();
         Service service = mainControlDB.getService(service_id);
         
-        WSDLParser wsdlParser = new WSDLParser(service.getWsdl(),
-                                               service.getNamespace());
-        wsdlParser.loadService(service.getName());
+        WSDLParser wsdlParser = new WSDLParser(service.getWsdl(), service.getNamespace());
+
+         wsdlParser.loadService(service.getName());
         LinkedList<String> operations =  wsdlParser.returnOperationNames("");
         JSONObject operationsToDelete = new  JSONObject();
         JSONObject xsdSchemasToDelete = new  JSONObject();
@@ -190,10 +190,8 @@ public class VendorManager extends HttpServlet {
          xsdSchemasToDelete.put(service_id+service.getName()+element+".xsd",xml_rep_path+"/xsd/"+service_id+service.getName()+element+".xsd");
          System.out.println("operationsToDelete: "+service_id+"_"+element);
       }
-        
-         
-        
-        VendorDBConnector vendorDBConnector = new VendorDBConnector();
+
+         VendorDBConnector vendorDBConnector = new VendorDBConnector();
         String message = vendorDBConnector.deleteWebService(service_id,service.getWsdl(),xsdSchemasToDelete);
 
         System.out.println("message"+message);
