@@ -1027,6 +1027,8 @@ public class OrganizationManager extends HttpServlet {
             int cpp_a = cpainfo.getCpp_id_first();
             int cpp_b = cpainfo.getCpp_id_second();
 
+            System.out.println("ta neura mou"+ cpp_a + "--" +cpp_b );
+
 
            //-------------------- TRANSFORM (upcasting & Downcasting) the output of the  source web service to an input of the target Web service--------------------
 

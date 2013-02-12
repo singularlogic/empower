@@ -239,7 +239,13 @@ public class OrgDBConnector {
                     + " from dataannotations da, cvp cvp, cpp cpp ,operation_schema os  "
                     + " where cpp.cvp_id = cvp.cvp_id and da.cvp_id=cvp.cvp_id  and os.schema_id = da.schema_id "
                     + " and os.inputoutput='"+inputoutput+"' and cpp.cpp_id ="+cpp_id+"  and da.schema_id="+info.get("schema_id") +"  and da.selections LIKE '%"+info.get("schema_complexType")+"%'  and os.operation_id="+info.get("operation_id"));
-            if(rs.next())
+
+            System.out.println("ta neura mou 2  select da.xslt_annotations as xslt_annotations "
+                    + " from dataannotations da, cvp cvp, cpp cpp ,operation_schema os  "
+                    + " where cpp.cvp_id = cvp.cvp_id and da.cvp_id=cvp.cvp_id  and os.schema_id = da.schema_id "
+                    + " and os.inputoutput='"+inputoutput+"' and cpp.cpp_id ="+cpp_id+"  and da.schema_id="+info.get("schema_id") +"  and da.selections LIKE '%"+info.get("schema_complexType")+"%'  and os.operation_id="+info.get("operation_id"));
+
+                if(rs.next())
                 xsltCode = new String(rs.getString("xslt_annotations"));
 
             this.dbHandler.dbClose();
@@ -261,7 +267,7 @@ public class OrgDBConnector {
              
              System.out.println("select da.xslt_annotations as xslt_annotations "
                     + " from dataannotations da, cpp cpp    "
-                    + " where cpp.cvp_id=da.cvp_id and cpp.cpp_id ="+cpp_id+"  and da.selections='"+selections+"'");
+                    + " where cpp.cpp_id=da.cpp_id and cpp.cpp_id ="+cpp_id+"  and da.selections='"+selections+"'");
              
              
             if(rs.next())
