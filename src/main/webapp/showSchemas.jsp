@@ -70,10 +70,10 @@
                         grid = new dhtmlXGridObject("box_grid");
                         grid.setImagePath("js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");
                         if(<%=session.getAttribute("userType").equals("organization")%>){
-                            grid.setHeader("Schema name,Action, ");//set column names
-                            grid.setColTypes("ro,link,link");
+                            grid.setHeader("Schema name,CPP Name,Functional Annotation,Data Annotation,Delete CPP, UsedByCPA ");//set column names
+                            grid.setColTypes("ro,ro,link,link,link,ro");
                         }else{
-                            grid.setHeader("Schema name,Action, ,");//set column names
+                            grid.setHeader("Schema name,Functional Annotation,Data Annotation ,Delete Schema");//set column names
                             grid.setColTypes("ro,link,link,link");
                         }
                 //        grid.attachEvent("onRowSelect", doOnRowSelected);
@@ -88,7 +88,7 @@
                 <%}%>
         </div>
         </div>
-            <div class="footer"><p>Copyright &copy; 2012 Empower Consortium | All Rights Reserved</p></div>
+            <div class="footer"><p>Copyright &copy; 2011 - 2013 Empower Consortium | All Rights Reserved</p></div>
     </center>
 </body>
 </html>

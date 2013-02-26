@@ -53,6 +53,9 @@ import org.dom4j.DocumentException;
 public class DIController extends HttpServlet {
 
        private static String xml_rep_path;
+        // message_code = 001 -- everything is ok
+        // message_code = 002 -- there is a problem with the creation of user.home/empower/empowerdata folder structures of with the respective subfolders (wsdl,xsd,adminDirectory)
+        private String message_code;
 
 
     public DIController() throws IOException {
@@ -61,8 +64,39 @@ public class DIController extends HttpServlet {
         Properties properties = new Properties();
         InputStream in =classLoader.getResourceAsStream("myproperties.properties");
         properties.load(in);
-
         this.xml_rep_path= properties.getProperty("repo.path").toString();
+        System.out.println("xml_rep_path1"+this.xml_rep_path);
+
+        if (xml_rep_path.equalsIgnoreCase("/var/www/empower/empowerdata/")){
+        //if (this.xml_rep_path.equalsIgnoreCase("/home/eleni/Documents/ubi/empower/empower-deliverable-september/empower/")){
+
+        String user_home=System.getProperty("user.home");
+        File file_wsdl = new File(user_home+"/empower/empowerdata/wsdl");
+        File file_adminDirectory = new File(user_home+"/empower/empowerdata/adminDirectory");
+        File file_xsd = new File(user_home+"/empower/empowerdata/xsd");
+
+            this.xml_rep_path = user_home+"/empower/empowerdata";
+        System.out.println(this.xml_rep_path);
+        if(!file_wsdl.exists()) {
+            try{
+                boolean  wsdl = file_wsdl.mkdirs();
+                boolean  admin = file_adminDirectory.mkdirs();
+                boolean  xsd = file_xsd.mkdirs();
+                Runtime.getRuntime().exec("chmod -R 777 "+user_home+"/empower");
+                if (!wsdl || !admin || !xsd) throw new EmptyStackException();
+            } catch (EmptyStackException e){
+                System.out.println("Please check that for the user "+ System.getProperty("user.name")+" the "+this.xml_rep_path +" with the wsdl, xsd and adminDirectory subfolders has been created before use the Empower.");
+                this.message_code="002";
+            }
+
+
+
+        }
+
+        System.out.println("Path where empower files are saved: " +   this.xml_rep_path + " for user.name " + System.getProperty("user.name") );
+        }
+
+        System.out.println("xml_rep_path2"+this.xml_rep_path);
 
     }
 
@@ -159,11 +193,6 @@ public class DIController extends HttpServlet {
                 }
 
 
-
-
-
-
-
             }
         } catch (Throwable t) {
             t.printStackTrace();
@@ -193,15 +222,22 @@ public class DIController extends HttpServlet {
         MainControlDB mainControlDB = new MainControlDB();
         String userType = mainControlDB.isLegalUser(name, password);
 
-        if (userType != null) {
+
+        if (this.message_code=="002"){
+            String errormsg = "Please check that for the user.name "+ System.getProperty("user.name")+"  the "+this.xml_rep_path +" with the wsdl, xsd and adminDirectory subfolders has been created before use the Empower.";
+            this.forwardToPage("/error/signin_error.jsp?errormsg="+errormsg, request, response);
+        } else if (userType != null) {
             session = request.getSession(true);
             session.setAttribute("userType", userType);
             session.setAttribute("name", name);
-            String redirectionURL = new String("/" + userType + "/" + userType + "menu.jsp");
+            String message  = (userType.equalsIgnoreCase("vendor"))?"NOTE: The Path where empower files are saved is : " +   this.xml_rep_path + " for user.name " + System.getProperty("user.name"):"";
+            String redirectionURL = new String("/" + userType + "/" + userType + "menu.jsp?message="+message);
             this.forwardToPage(redirectionURL, request, response);
         } else {
             this.forwardToPage("/error/signin_error.jsp?errormsg=Error in Login. Try to Login again or create a new user.", request, response);
         }
+
+
 
 
     }
@@ -224,12 +260,17 @@ public class DIController extends HttpServlet {
         MainControlDB mainControlDB = new MainControlDB();
         int user_id = mainControlDB.insertUser(name, password, userType);
 
-        if (user_id != -1) {
+
+        if (this.message_code=="002"){
+            String errormsg = "Please check that for the user.name "+ System.getProperty("user.name")+"  the "+this.xml_rep_path +" with the wsdl, xsd and adminDirectory subfolders has been created before use the Empower.";
+            this.forwardToPage("/error/signin_error.jsp?errormsg=" + errormsg, request, response);
+        }else if (user_id != -1) {
 
             session = request.getSession(true);
             session.setAttribute("userType", userType);
             session.setAttribute("name", name);
-            String redirectionURL = new String("/" + userType + "/" + userType + "menu.jsp");
+            String message  = (userType.equalsIgnoreCase("vendor"))?"NOTE: The Path where empower files are saved is : " +   this.xml_rep_path + " for user.name " + System.getProperty("user.name"):"";
+            String redirectionURL = new String("/" + userType + "/" + userType + "menu.jsp?message="+message);
             this.forwardToPage(redirectionURL, request, response);
 
         } else {
@@ -337,7 +378,11 @@ public class DIController extends HttpServlet {
 
         MainControlDB mainControlDB = new MainControlDB();
 
-        XSDIterator = (verifyUser("vendor", session)) ? mainControlDB.getSchemas((String) request.getParameter("software_id"), false).iterator() : mainControlDB.getSchemas((String) request.getParameter("software_id"), true).iterator();
+        String organization_name = (String) session.getAttribute("name");
+        int organization_id = mainControlDB.getuserid(organization_name);
+
+
+        XSDIterator = (verifyUser("vendor", session)) ? mainControlDB.getSchemas((String) request.getParameter("software_id")).iterator() : mainControlDB.getSchemasExposed((String) request.getParameter("software_id"),organization_id).iterator();
 
         response.setContentType("text/xml; charset=UTF-8");
         PrintWriter out = response.getWriter();
@@ -347,11 +392,14 @@ public class DIController extends HttpServlet {
         while (XSDIterator.hasNext()) {
             Schema schema = (Schema) XSDIterator.next();
             //String delete_option = (verifyUser("vendor", session)) ? "<cell> Delete Schema^./VendorManager?op=delete_schema&amp;schema_id=" + schema.getSchema_id() + "^_self</cell>" : "";
-            String delete_option = (verifyUser("vendor", session)) ? "<cell> Delete Schema^javascript:deleteschema("+schema.getSchema_id()+")^_self</cell>" : "";
-            
-            out.write("<row id=\"" + schema.getSchema_id() + "\"><cell>" + schema.getName() + "</cell>"
-                    + "<cell> Annotate Operations^./presentOperationTree.jsp?schema_id=" + schema.getSchema_id() + "^_self</cell>"
-                    + "<cell> Annotate Data^./presentDataTree.jsp?schema_id=" + schema.getSchema_id() + "^_self</cell>"
+            String delete_option = (verifyUser("vendor", session)) ? "<cell> Delete Schema^javascript:deleteschema("+schema.getSchema_id()+")^_self</cell>" : "<cell>Delete^./OrganizationManager?op=cpp_delete&amp;software_id="+request.getParameter("software_id")+"&amp;cpp_id=" + schema.getCpp_id()+ "^_self</cell><cell>" + schema.getFromTo() + "</cell>";
+            String  cpp_name= (verifyUser("vendor", session)) ? "" : "<cell>" + schema.getCpp_name() + "</cell>";
+
+            out.write("<row id=\"" + schema.getSchema_id() + "\">"
+                    +"<cell>" + schema.getName() + "</cell>"
+                    + cpp_name
+                    + "<cell> Edit^./presentOperationTree.jsp?schema_id=" + schema.getSchema_id()+"&amp;cpp_id="+schema.getCpp_id()+ "^_self</cell>"
+                    + "<cell> Edit^./presentDataTree.jsp?schema_id=" + schema.getSchema_id()+"&amp;cpp_id="+schema.getCpp_id()+"^_self</cell>"
                     + delete_option
                     + "</row>");
         }
@@ -712,6 +760,7 @@ public class DIController extends HttpServlet {
         String schema_data = ((String) request.getParameter("selections")).split("--")[0];
         String inputoutput = ((String) request.getParameter("selections")).split("--")[1];
         String centralTree = request.getParameter("centraltree");
+        String cpp_id=  request.getParameter("cpp_id");
         String mapping = null;
         String xbrl_mismatch = "false";
         String map_type="";
@@ -725,8 +774,8 @@ public class DIController extends HttpServlet {
             request.setAttribute("map_type", "cvp");
             map_type="cvp";
         } else {
-            request.setAttribute("map_type", "cpp");
-            map_type="cpp";
+            request.setAttribute("map_type", "cpp$"+cpp_id);
+            map_type="cpp$"+cpp_id;
         }
 
         DataAnnotations dataannotations = mainControlDB.getMapping(schema_id, -1, inputoutput + "$" + schema_data,map_type);
@@ -737,11 +786,7 @@ public class DIController extends HttpServlet {
             //System.out.println("==== mapping=" + mapping.substring(0, 500));
         }
 
-
-
-
-
-
+        request.setAttribute("mapping", mapping);
         request.setAttribute("selections", inputoutput + "$" + schema_data);
         request.setAttribute("xbrl", centralTree);
 

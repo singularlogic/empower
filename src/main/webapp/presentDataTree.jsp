@@ -199,7 +199,7 @@
             <div id="response" style="clear: both; width: 500px;font-size: 10px;padding-top: 20px; padding-left: 50px;"></div>    
           
     </div>
-            <div class="footer"><p>Copyright &copy; 2012 Empower Consortium | All Rights Reserved</p></div>
+            <div class="footer"><p>Copyright &copy; 2011 - 2013 Empower Consortium | All Rights Reserved</p></div>
     </center>                
 </body>
 </html>

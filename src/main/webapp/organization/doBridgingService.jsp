@@ -19,7 +19,14 @@
         <script src="./js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgrid.js"></script>
         <script src="./js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgridcell.js"></script>
         <script src="./js/dhtmlxSuite/dhtmlxGrid/codebase/excells/dhtmlxgrid_excell_link.js"></script>
-        
+    <script type="text/javascript">
+        function update_serviceInputArgs()
+        {
+            $("#ajax-loader").html('<img src="./img/ajax-loader.gif" alt="Wait" />');
+            setTimeout(function() {alert('hello');},1250);
+            return true;
+        }
+    </script>
         <style type="text/css">
             div.gridbox_inverse table.hdr td {background-color:#A0D651; color:white; font-weight:bold;}
             div.gridbox_inverse table.obj td{background-color: #D9EFB9;text-align: center;}
@@ -80,13 +87,14 @@
              <%  }  }  %> 
              <tr><td><label>Insert Input XML:</label></td>
                  <td><input type="file" name="source_xml" value="" id="fileinput"/></td></tr>
-             <tr><td></td><td><input type="submit" value="Show target xml"  id="do_bridging"/></td></tr>
+             <tr><td></td><td><input type="submit" value="Show target xml"  id="do_bridging"/><div id="ajax-loader" style="width: 198px;float:right;"></div></td></tr>
              </tbody></table>
              </form>
+
                 <br>
             </div>
     </div>
-            <div class="footer"><p>Copyright &copy; 2012 Empower Consortium | All Rights Reserved</p></div>
+            <div class="footer"><p>Copyright &copy; 2011 - 2013 Empower Consortium | All Rights Reserved</p></div>
     </center>                
 </body>
 </html>

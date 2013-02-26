@@ -190,6 +190,7 @@ public class MainControlDB {
     public void specializeCVPToCPPBacic(int cvp_id,int vendor_id,int organization_id) {
         ResultSet rs;
         LinkedList<DataAnnotations> daList = new LinkedList<DataAnnotations>();
+
         try {
 
             this.dbHandler.dbOpen();
@@ -221,6 +222,40 @@ public class MainControlDB {
 
 
 
+    public void specializeCVPToCPPBacicForSchema(int schema_id , int cvp_id,int vendor_id,int organization_id) {
+        ResultSet rs;
+        LinkedList<DataAnnotations> daList = new LinkedList<DataAnnotations>();
+
+        try {
+
+            this.dbHandler.dbOpen();
+            // create cpp with the given cvp_id and organization_id
+            int cpp_id=  this.dbHandler.dbUpdate("insert into cpp(name,cvp_id,vendor_id,organization_id) values('basic'," + cvp_id + ","+vendor_id +","+ organization_id +");");
+
+
+            //get all data annotations with specific cvp and insert them adding the cpp_id
+
+            rs= this.dbHandler.dbQuery("SELECT * FROM `dataannotations` WHERE cvp_id="+cvp_id+ "  and cpp_id IS NULL");
+
+            if (rs != null) {
+                while (rs.next()) {
+                    daList.add(new DataAnnotations(rs.getInt("dataAnnotations_id"), rs.getString("xslt_annotations"), rs.getString("mapping"), rs.getString("selections"), rs.getString("xbrl")));
+                }}
+
+            for (DataAnnotations da: daList){
+
+                //this.dbHandler.dbUpdate("INSERT INTO dataannotations(xslt_annotations,mapping,selections,xbrl,cvp_id,cpp_id) VALUES ('"+da.getXslt_annotations().toString()+"','"+da.getMapping().toString()+"','"+da.getSelections().toString()+"','"+da.getXbrl().toString()+"',"+cvp_id+","+cpp_id+")");
+                int newda_id= this.dbHandler.dbUpdate("INSERT INTO dataannotations (xslt_annotations , mapping, selections,xbrl) SELECT xslt_annotations , mapping, selections,xbrl FROM dataannotations  WHERE dataAnnotations_id ="+da.getDataAnnotations_id());
+                this.dbHandler.dbUpdate("update dataannotations set cvp_id='" + cvp_id + "',cpp_id=" + cpp_id + ",schema_id="+schema_id+" where dataAnnotations_id=" + newda_id);
+            }
+
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    }
+
+
+
     /*
      * Get all schemas that belong to a software component. if cvp is true the
      * functions only returns those that have been annotated. We put that
@@ -228,7 +263,7 @@ public class MainControlDB {
      * from organization
      */
 
-    public Collection getSchemas(String software_id, boolean cvp) {
+    public Collection getSchemas(String software_id) {
         ResultSet rs;
         LinkedList<Schema> XSDList = new LinkedList<Schema>();
 
@@ -236,15 +271,11 @@ public class MainControlDB {
 
             this.dbHandler.dbOpen();
 
-            rs = (cvp) ? this.dbHandler.dbQuery("select s.schema_id as schema_id,s.name as schema_name "
-                    + "from operation o  INNER JOIN web_service ws on o.service_id=ws.service_id  INNER JOIN operation_schema os  on o.operation_id = os.operation_id "
-                    + "INNER JOIN schema_xsd  s  on os.schema_id = s.schema_id INNER JOIN cvp  cvp  on  cvp.service_id = ws.service_id "
-                    + "where ws.software_id=" + software_id + " and ws.wsdl IS NULL")
-                    : this.dbHandler.dbQuery("select s.schema_id as schema_id,s.name as schema_name from operation o INNER JOIN web_service ws on o.service_id=ws.service_id INNER JOIN operation_schema os  on o.operation_id = os.operation_id INNER JOIN schema_xsd  s  on os.schema_id = s.schema_id where ws.wsdl IS NULL and ws.software_id=" + software_id);
+            rs = this.dbHandler.dbQuery("select s.schema_id as schema_id,s.name as schema_name from operation o INNER JOIN web_service ws on o.service_id=ws.service_id INNER JOIN operation_schema os  on o.operation_id = os.operation_id INNER JOIN schema_xsd  s  on os.schema_id = s.schema_id where ws.wsdl IS NULL and ws.software_id=" + software_id);
 
             if (rs != null) {
                 while (rs.next()) {
-                    XSDList.add(new Schema(rs.getInt("schema_id"), rs.getString("schema_name")));
+                    XSDList.add(new Schema(rs.getInt("schema_id") , rs.getString("schema_name")));
                 }
             }
 
@@ -256,6 +287,88 @@ public class MainControlDB {
         }
 
         return XSDList;
+    }
+
+
+
+    public Collection getSchemasExposed(String software_id,int organization_id) {
+        ResultSet rs,rs1,rs3;
+        LinkedList<Schema> XSDList = new LinkedList<Schema>();
+        LinkedList<Schema> cppSchemaList = new LinkedList<Schema>();
+
+        try {
+
+            this.dbHandler.dbOpen();
+
+            /*
+            rs = this.dbHandler.dbQuery("select s.schema_id as schema_id,s.name as schema_name, cpp.cpp_id as cpp_id , cpp.name as cpp_name, cpp.fromTo as fromTo  "
+                    + "from operation o  INNER JOIN web_service ws on o.service_id=ws.service_id  INNER JOIN operation_schema os  on o.operation_id = os.operation_id "
+                    + " INNER JOIN schema_xsd  s  on os.schema_id = s.schema_id "
+                    + " INNER JOIN cvp  cvp  on  cvp.service_id = ws.service_id "
+                    + " INNER JOIN cpp  cpp  on  cvp.cvp_id = cpp.cvp_id "
+                    + "where ws.software_id=" + software_id + " and ws.wsdl IS NULL");
+             */
+            //get cvps of schemas
+            rs = this.dbHandler.dbQuery("select s.schema_id as schema_id,s.name as schema_name, cvp.cvp_id as cvp_id, cvp.vendor_id as vendor_id " +
+                    "from operation o " +
+                    " INNER JOIN web_service ws on o.service_id=ws.service_id " +
+                    " INNER JOIN operation_schema os  on o.operation_id = os.operation_id  " +
+                    " INNER JOIN schema_xsd  s  on os.schema_id = s.schema_id  " +
+                    " INNER JOIN cvp  cvp  on  cvp.service_id = ws.service_id" +
+                    " where ws.software_id=" + software_id + " and ws.wsdl IS NULL");
+
+            if (rs != null) {
+                while (rs.next()) {
+                    //XSDList.add(new Schema(rs.getInt("schema_id") , rs.getString("schema_name") , rs.getInt("cpp_id") , rs.getString("cpp_name") , rs.getString("fromTo")));
+                    XSDList.add(new Schema(rs.getInt("schema_id"),rs.getString("schema_name"),rs.getInt("cvp_id"),rs.getInt("vendor_id")));
+
+                }
+            }
+
+            rs.close();
+
+            //---------------------------------
+
+            for(Schema schema : XSDList){
+
+                rs1= this.dbHandler.dbQuery("SELECT * FROM cvp, cpp  WHERE cvp.cvp_id=cpp.cvp_id and  cvp.cvp_id="+schema.getCvp_id()+" and cpp.name='basic' and cpp.organization_id="+organization_id);
+
+                if (!rs1.next()) {
+                    //if the exposed web service has no cpps with the name basic we duplicate cvp (create a new cpp as specialization on cvp)
+                    System.out.println("-------duplicate cvp----------");
+                    this.specializeCVPToCPPBacicForSchema(schema.getSchema_id(),schema.getCvp_id(), schema.getVendor_id(),organization_id);
+                }
+                rs1.close();
+
+                //Always i display all cpp definitions
+                System.out.println("------Get all cpps----------");
+                rs3 = this.dbHandler.dbQuery("select s.schema_id as schema_id,s.name as schema_name, cpp.cpp_id as cpp_id , cpp.name as cpp_name, cpp.fromTo as fromTo  from operation o  INNER JOIN web_service ws on o.service_id=ws.service_id  INNER JOIN operation_schema os  on o.operation_id = os.operation_id " +
+                        " INNER JOIN schema_xsd  s  on os.schema_id = s.schema_id " +
+                        " INNER JOIN cvp  cvp  on  cvp.service_id = ws.service_id " +
+                        " INNER JOIN cpp  cpp  on  cvp.cvp_id = cpp.cvp_id " +
+                        "where ws.software_id=" + software_id + " and ws.wsdl IS NULL");
+
+
+                if (rs3 != null) {
+                    while (rs3.next()) {
+
+                        cppSchemaList.add(new Schema(rs3.getInt("schema_id") , rs3.getString("schema_name") , rs3.getInt("cpp_id") , rs3.getString("cpp_name") , rs3.getString("fromTo")));
+                    }
+                }
+            }
+
+
+            //---------------------------------
+
+
+
+
+            this.dbHandler.dbClose();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+
+        return cppSchemaList;
     }
 
     public LinkedList<Operation> getOperationsBySchema(int schema_id) {
@@ -393,10 +506,11 @@ public class MainControlDB {
 
             this.dbHandler.dbOpen();
             System.out.println("selections: " + selections);
-            rs = (service_id == -1) ? this.dbHandler.dbQuery("select da.dataAnnotations_id as dataAnnotations_id ,da.mapping as mapping, da.xbrl as xbrl from dataannotations da where schema_id=" + schema_id + " and selections='" + selections + "'")
+            rs = (service_id == -1) ? this.dbHandler.dbQuery("select da.dataAnnotations_id as dataAnnotations_id ,da.mapping as mapping, da.xbrl as xbrl from dataannotations da where schema_id=" + schema_id + " and selections='" + selections + "'  "+filtercvp_cpp)
                     : this.dbHandler.dbQuery("select da.dataAnnotations_id as dataAnnotations_id ,da.mapping as mapping , da.xbrl as xbrl from dataannotations da, cvp cvp where cvp.cvp_id=da.cvp_id and cvp.service_id=" + service_id + " and da.selections='" + selections + "'" + filtercvp_cpp);
 
-            System.out.println("Ti select kans???? select da.dataAnnotations_id as dataAnnotations_id ,da.mapping as mapping , da.xbrl as xbrl from dataannotations da, cvp cvp where cvp.cvp_id=da.cvp_id and cvp.service_id=\" + service_id + \" and da.selections='\" + selections + \"'\" + filtercvp_cpp)");
+
+            System.out.println("olele select da.dataAnnotations_id as dataAnnotations_id ,da.mapping as mapping, da.xbrl as xbrl from dataannotations da where schema_id=" + schema_id + " and selections='" + selections +"'"+ filtercvp_cpp);
 
             if (rs.next()) {
                 dataAnnotations.setDataAnnotations_id(rs.getInt("dataAnnotations_id"));

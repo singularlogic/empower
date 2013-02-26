@@ -49,7 +49,7 @@
                                 <td align="right">User type:</td>
                                 <td align="left">
                                     <input type="radio" name="user_type" value="vendor" /> Vendor <br>
-                                    <input type="radio" name="user_type" value="organization" /> Organization<br>
+                                    <input type="radio" name="user_type" value="customer" /> Organization<br>
                                 </td>
                             </tr>
                             <tr>
@@ -61,7 +61,7 @@
             </div>
             <br>
         </div>
-        <div class="footer"><p>Copyright &copy; 2012 EMPOWER Consortium | All Rights Reserved</p></div>
+        <div class="footer"><p>Copyright &copy; 2011 - 2013 EMPOWER Consortium | All Rights Reserved</p></div>
       </center>
     </body>
 </html>

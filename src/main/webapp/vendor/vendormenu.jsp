@@ -60,9 +60,10 @@
             <div class="main-content">
                <p style="text-align: justify;"><span style="font-size: small; font-family: verdana,geneva;"><br>Service-Oriented Architectures (SOAs), business process management (BPM), composite applications, and other new application requirements have become the driving force in the market. Integration of enterprise applications (EAI) is the new direction of application development. Rather than create new, separate programs, vendors are starting to integrate existing applications to better use, share and allocate resources within an organization. </span></p>
                <p style="text-align: justify;"><span style="font-size: small; font-family: verdana,geneva;"><br>The Empower project <strong>proposes an innovative framework and the enabling technologies that will allow the European Software SMEs to create their next generation, loosely-coupled, interoperable and easy-to-integrate Commercial-off-the-Shelf software products</strong>, leveraging the quality of the application software and the integration services delivered to their customers. <br><br></span></p><hr class="clear-contentunit">
+           <p class="info_message"><%=request.getParameter("message")%></p>
             </div>
         </div>
-            <div class="footer"><p>Copyright &copy; 2012 Empower Consortium | All Rights Reserved</p></div>
+            <div class="footer"><p>Copyright &copy; 2011 - 2013 Empower Consortium | All Rights Reserved</p></div>
     </center>
     </body>
 </html>

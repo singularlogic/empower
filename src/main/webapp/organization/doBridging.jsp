@@ -24,6 +24,7 @@
             div.gridbox_inverse table.obj td{background-color: #D9EFB9;text-align: center;}
             div.gridbox_inverse table.obj tr{height: 30px;}
         </style>
+
 </head>
     <body class="yui-skin-sam">
     <center>
@@ -63,14 +64,14 @@
             <div class="main-content" style="width:550px;">
                 <br>
                 <p><h2>Do Bridging</h2>
-                <form method="post" name="do_bridge" action="./OrganizationManager?op=doBridging&cpa_id=<%=request.getParameter("cpa_id")%>" enctype="multipart/form-data">
+                <form method="post" name="do_bridge" id="do_bridge" action="./OrganizationManager?op=doBridging&cpa_id=<%=request.getParameter("cpa_id")%>" enctype="multipart/form-data">
                     <input type="file" name="source_xml" value="" id="fileinput"/>
                     <input type="submit" value="Show target xml"  id="do_bridging"/>
                 </form>
                 <br>
             </div>
     </div>
-            <div class="footer"><p>Copyright &copy; 2012 Empower Consortium | All Rights Reserved</p></div>
+            <div class="footer"><p>Copyright &copy; 2011 - 2013 Empower Consortium | All Rights Reserved</p></div>
     </center>                
 </body>
 </html>

@@ -170,7 +170,7 @@ public class OrgDBConnector {
     }
         
         
-   public Map<String,Integer> insertBridging(int cvp_source , int cvp_target, String organization , String json) {
+   public Map<String,Integer> insertBridging(int cvp_source , int cvp_target, String organization , String json, int installations_source, int installation_target) {
         ResultSet rs,rs1;
         int organization_id = -1, cpa_id = -1, organization_cpa= -1;
         Map<String, Integer> data = new HashMap<String, Integer>();
@@ -191,11 +191,11 @@ public class OrgDBConnector {
             if (rs1.next()){
               cpa_id=  rs1.getInt("cpa_id");
               data.put("existing",rs1.getInt("cpa_id"));
-              this.dbHandler.dbUpdate("update cpa set cpa_info='"+ json +"'  where cpa_id="+cpa_id);
+              this.dbHandler.dbUpdate("update cpa set cpa_info='"+ json +"',url_binding_first="+installations_source+",url_binding_second="+installation_target+"  where cpa_id="+cpa_id);
             }
             else{
-                cpa_id = this.dbHandler.dbUpdate("insert into cpa(cpp_id_first,cpp_id_second,cpa_info,disabled) values('"
-                    + cvp_source + "','" + cvp_target + "','"+json+"',false)");
+                cpa_id = this.dbHandler.dbUpdate("insert into cpa(cpp_id_first,cpp_id_second,url_binding_first,url_binding_second,cpa_info,disabled) values('"
+                    + cvp_source + "','" + cvp_target + "',"+installations_source+","+installation_target+",'"+json+"',false)");
             
                 organization_cpa = this.dbHandler.dbUpdate("insert into organization_cpa(organization_id,cpa_id) values("+organization_id+","+cpa_id+")");
 
@@ -240,10 +240,12 @@ public class OrgDBConnector {
                     + " where cpp.cvp_id = cvp.cvp_id and da.cvp_id=cvp.cvp_id  and os.schema_id = da.schema_id "
                     + " and os.inputoutput='"+inputoutput+"' and cpp.cpp_id ="+cpp_id+"  and da.schema_id="+info.get("schema_id") +"  and da.selections LIKE '%"+info.get("schema_complexType")+"%'  and os.operation_id="+info.get("operation_id"));
 
-            System.out.println("ta neura mou 2  select da.xslt_annotations as xslt_annotations "
+            System.out.println("ela mou.... select da.xslt_annotations as xslt_annotations "
                     + " from dataannotations da, cvp cvp, cpp cpp ,operation_schema os  "
                     + " where cpp.cvp_id = cvp.cvp_id and da.cvp_id=cvp.cvp_id  and os.schema_id = da.schema_id "
                     + " and os.inputoutput='"+inputoutput+"' and cpp.cpp_id ="+cpp_id+"  and da.schema_id="+info.get("schema_id") +"  and da.selections LIKE '%"+info.get("schema_complexType")+"%'  and os.operation_id="+info.get("operation_id"));
+
+
 
                 if(rs.next())
                 xsltCode = new String(rs.getString("xslt_annotations"));
@@ -263,13 +265,8 @@ public class OrgDBConnector {
             this.dbHandler.dbOpen();
              rs = this.dbHandler.dbQuery("select da.xslt_annotations as xslt_annotations "
                     + " from dataannotations da, cpp cpp    "
-                    + " where cpp.cvp_id=da.cvp_id and cpp.cpp_id ="+cpp_id+"  and da.selections='"+selections+"'");
-             
-             System.out.println("select da.xslt_annotations as xslt_annotations "
-                    + " from dataannotations da, cpp cpp    "
                     + " where cpp.cpp_id=da.cpp_id and cpp.cpp_id ="+cpp_id+"  and da.selections='"+selections+"'");
-             
-             
+
             if(rs.next())
                 xsltCode = new String(rs.getString("xslt_annotations"));
 
@@ -283,7 +280,7 @@ public class OrgDBConnector {
 	{
 		t.printStackTrace(); 
 	}
-		
+
 	return xsltCode;
     }
     
@@ -682,13 +679,23 @@ public class OrgDBConnector {
 
 
     public void deleteUrlBindingID(String url_binding_id) {
+       ResultSet rs;
 
         try {
-
-
             this.dbHandler.dbOpen();
             // create cpp with the given cvp_id and organization_id
             int urlbinding_id_deleted=  this.dbHandler.dbUpdate("DELETE FROM installedbinding WHERE installedbinding_id="+url_binding_id);
+
+
+            rs= this.dbHandler.dbQuery("SELECT cpa.cpa_id  as cpa_id FROM cpa WHERE url_binding_first="+url_binding_id + " OR  url_binding_second="+ url_binding_id);
+
+            if (rs != null) {
+                while (rs.next()) {
+                    this.dbHandler.dbUpdate("update cpa set disabled=true where cpa_id=" + rs.getInt("cpa_id"));
+                    System.out.print("olele olele update cpa set disabled=true where cpa_id=" + rs.getInt("cpa_id"));
+                }}
+
+            this.dbHandler.dbClose();
 
         } catch (Throwable t) {
             t.printStackTrace();

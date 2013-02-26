@@ -60,7 +60,7 @@
                <p style="text-align: justify;"><span style="font-size: small; font-family: verdana,geneva;"><br>The Empower project <strong>proposes an innovative framework and the enabling technologies that will allow the European Software SMEs to create their next generation, loosely-coupled, interoperable and easy-to-integrate Commercial-off-the-Shelf software products</strong>, leveraging the quality of the application software and the integration services delivered to their customers. <br><br></span></p><hr class="clear-contentunit">              
           </div>
         </div>
-            <div class="footer"><p>Copyright &copy; 2012 Empower Consortium | All Rights Reserved</p></div>        
+            <div class="footer"><p>Copyright &copy; 2011 - 2013 Empower Consortium | All Rights Reserved</p></div>
     </center>
     </body>
 </html>

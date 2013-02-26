@@ -272,27 +272,21 @@ public class SOAPEnvelopeInvoker {
 
                 org.w3c.dom.Node returnode = sbstringdoc.getFirstChild().getFirstChild().getFirstChild();
 
-                //---------------------------------------------------
-                /*
-                 String returnnameToReplace = returnode.getNodeName().toString();
 
 
-                Transformer transformer1 = TransformerFactory.newInstance().newTransformer();
-                StreamResult result1;
-                result1 = new StreamResult(new StringWriter());
-                DOMSource source1 = new DOMSource(returnode);
-                transformer1.transform(source1, result1);
+                /*----------------
+                String olele = sbstringdoc.getFirstChild().getFirstChild().getFirstChild().getTextContent();
+                System.out.println("olelel gia na douem"+olele);
+                StreamResult  result1 = new StreamResult(new StringWriter());
+                DOMSource returntest = new DOMSource(returnode);
+                transformer.transform(returntest, result1);
+                String sk=result1.getWriter().toString();
+                sk = sk.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?><ns2:return>","");
+                sk = sk.replace("</ns2:return>","");
 
-                String finalreturn =   result1.getWriter().toString();
-
-                outputXML ="<"+complexType_output+"><return>";
-                finalreturn =  finalreturn.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>","");
-                finalreturn = finalreturn.replace("<"+returnnameToReplace+">","");
-                finalreturn = finalreturn.replace("</"+returnnameToReplace+">","");
-                outputXML = outputXML + finalreturn;
-                outputXML= outputXML +"</return></"+complexType_output+">";
-                 */
-                //----------------------------------------------------
+                String skatoules = "<"+complexType_output+"><return>"+sk+"</return></"+complexType_output+">";
+                System.out.println("skatoules gemistes"+skatoules);
+                ---------------*/
 
 
                 outputXML ="<"+complexType_output+"><return>";
@@ -316,6 +310,10 @@ public class SOAPEnvelopeInvoker {
 
 
                 outputXML= outputXML +"</return></"+complexType_output+">";
+
+                //----------------
+                 //outputXML = skatoules;
+                //--------------
 
 
             }
@@ -366,7 +364,9 @@ public class SOAPEnvelopeInvoker {
                          }else{
                          outputXML = outputXML +"<"+childNode.getNodeName()+">"+childNode.getValue()+"</"+childNode.getNodeName()+">";
                          //put here the foreignkeys
-                  
+                         System.out.println("pou eimai??"+"<"+childNode.getNodeName()+">"+childNode.getValue()+"</"+childNode.getNodeName()+">");
+                         System.out.println("pou eimai11??"+childNode);
+
                          }
                 }
             }

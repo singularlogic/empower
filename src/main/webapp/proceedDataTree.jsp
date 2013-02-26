@@ -77,7 +77,7 @@
         </div>
         <div class="main">
             <div class="main-navigation">
-                <div id="menu_grid" style="width:180px; height:<%=(session.getAttribute("userType").equals("organization"))?210:150%>px" class='glossymenu'>
+                <div id="menu_grid" style="width:180px; height:<%=(session.getAttribute("userType").equals("organization"))?240:150%>px" class='glossymenu'>
                     <script>
                         menu_grid = new dhtmlXGridObject("menu_grid");
                         menu_grid.setImagePath("js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");
@@ -116,7 +116,7 @@
 
             </div>
         </div>
-        <div class="footer"><p>Copyright &copy; 2012 Empower Consortium | All Rights Reserved</p></div>
+        <div class="footer"><p>Copyright &copy; 2011 - 2013 Empower Consortium | All Rights Reserved</p></div>
     </center>                
 </body>
 </html>

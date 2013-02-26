@@ -23,6 +23,10 @@ public class Schema {
     int cvp_id;
     String selections;
     String xbrl;
+    int cpp_id;
+    String cpp_name;
+    String fromTo;
+    int vendor_id;
 
   
     public Schema(int service_id , String ws_name, int operation_id,String operation_name,String op_taxonomy_id,String inputoutput,int schema_id,String schema_location, String name, int cvp_id, String selections,String xbrl) {
@@ -44,6 +48,13 @@ public class Schema {
         this.schema_id = schema_id;
         this.name = name;
     }
+
+    public Schema(int schema_id, String name, int cvp_id, int vendor_id) {
+        this.schema_id = schema_id;
+        this.name = name;
+        this.cvp_id = cvp_id;
+        this.vendor_id= vendor_id;
+    }
     
 
     public Schema() {
@@ -54,9 +65,50 @@ public class Schema {
         this.name = name;
         this.location = location;
     }
+
+    public Schema(int schema_id, String name,int cpp_id, String cpp_name, String fromTo) {
+        this.schema_id = schema_id;
+        this.name = name;
+        this.cpp_id = cpp_id;
+        this.cpp_name = cpp_name;
+        this.fromTo = fromTo;
+    }
     
      public Schema(String location) {
          this.location = location;
+    }
+
+    public int getVendor_id() {
+        return vendor_id;
+    }
+
+    public void setVendor_id(int vendor_id) {
+        this.vendor_id = vendor_id;
+    }
+
+    public String getFromTo() {
+        return fromTo;
+    }
+
+    public void setFromTo(String fromTo) {
+        this.fromTo = fromTo;
+    }
+
+
+    public int getCpp_id() {
+        return cpp_id;
+    }
+
+    public void setCpp_id(int cpp_id) {
+        this.cpp_id = cpp_id;
+    }
+
+    public String getCpp_name() {
+        return cpp_name;
+    }
+
+    public void setCpp_name(String cpp_name) {
+        this.cpp_name = cpp_name;
     }
     
     public String getXbrl() {

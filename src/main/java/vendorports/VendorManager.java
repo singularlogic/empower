@@ -46,7 +46,13 @@ public class VendorManager extends HttpServlet {
         Properties properties = new Properties();
         InputStream in =classLoader.getResourceAsStream("myproperties.properties");
         properties.load(in);
+
         this.xml_rep_path= properties.getProperty("repo.path").toString();
+        if (xml_rep_path.equalsIgnoreCase("/var/www/empower/empowerdata/")){
+        //if (xml_rep_path.equalsIgnoreCase("/home/eleni/Documents/ubi/empower/empower-deliverable-september/empower/")){
+            String user_home=System.getProperty("user.home");
+            this.xml_rep_path = user_home+"/empower/empowerdata";
+        }
     }
 
 
@@ -316,7 +322,11 @@ public class VendorManager extends HttpServlet {
   
         schema_id = vendorDBConnector.insertSchemaInfo(software_id, schemaName, schemaFilename, xml_rep_path, new_web_service_name , web_service_name, operation_name, inputoutput);
         
-        String message = "The schema has been registered successfully.";
+        String message = "";
+
+        if (schema_id==-1) message= "The schema has NOT been registered successfully.";
+        else message= "The schema has been registered successfully. You can find the registered xsd at "+this.xml_rep_path+"/xsd for the user.name: " +System.getProperty("user.name");
+
 
         this.forwardToPage("/vendor/succImportSchema.jsp?message="+message+"&schema_id="+schema_id, request, response);
     }
@@ -369,23 +379,27 @@ public class VendorManager extends HttpServlet {
                 }else if (item.getFieldName().equals("from") && item.getString().equalsIgnoreCase("service_wsdl_fromFilePath")) {
                 sourceOfWSDL =1;
                 }else if (item.getFieldName().equals("FromUrlPath") && sourceOfWSDL==2) {
-                    serviceFilename = new String(this.xml_rep_path + "/wsdl/" + software_id + "_" + service_name + "_" + ((int) (100000 * Math.random())) + ".wsdl");
-                    File uploadedFile = new File(serviceFilename);
-                    FileWriter fileWriter = new FileWriter(uploadedFile);
-                    URL wsdlurl = new URL(item.getString());
-                    BufferedReader in = new BufferedReader(new InputStreamReader(wsdlurl.openStream()));
 
-                    String inputLine;
-                    while ((inputLine = in.readLine()) != null) {
-                        fileWriter.write(inputLine+System.getProperty( "line.separator" ));
-                    }
-                    in.close();
-                    fileWriter.close();
+                 serviceFilename = new String(this.xml_rep_path + "/wsdl/" + software_id + "_" + service_name + "_" + ((int) (100000 * Math.random())) + ".wsdl");
+                 File uploadedFile = new File(serviceFilename);
+                 FileWriter fileWriter = new FileWriter(uploadedFile);
+                 URL wsdlurl = new URL(item.getString());
+                 BufferedReader in = new BufferedReader(new InputStreamReader(wsdlurl.openStream()));
+
+                 String inputLine;
+                 while ((inputLine = in.readLine()) != null) {
+                     fileWriter.write(inputLine+System.getProperty( "line.separator" ));
+                 }
+                 in.close();
+                 fileWriter.close();
+
                 }
             } else if(!item.isFormField() && sourceOfWSDL==1 ) {
+
                 serviceFilename = new String(this.xml_rep_path + "/wsdl/" + software_id + "_" + service_name + "_" + ((int) (100000 * Math.random())) + ".wsdl");
                 File uploadedFile = new File(serviceFilename);
                 item.write(uploadedFile);
+
             }
         }
 
@@ -395,7 +409,7 @@ public class VendorManager extends HttpServlet {
         service_id = vendorDBConnector.insertServiceInfo(software_id, service_name ,service_version,serviceFilename, xml_rep_path,service_namespace);
 
         if (service_id==-1)  message= "Service has NOT been succesfully registered. Please check that the service name and the namespace are the same with the ones in the .wsdl file.";
-        else message= "Service has been succesfully registered.";
+        else message= "Service has been succesfully registered. You can find the registered wsdl at "+this.xml_rep_path+"/wsdl for the user.name: " +System.getProperty("user.name");
 
         this.forwardToPage("/vendor/succ.jsp?message="+message, request, response);
 

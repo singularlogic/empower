@@ -67,6 +67,11 @@ public class OrganizationManager extends HttpServlet {
         InputStream in =classLoader.getResourceAsStream("myproperties.properties");
         properties.load(in);
         this.xml_rep_path= properties.getProperty("repo.path").toString();
+        if (xml_rep_path.equalsIgnoreCase("/var/www/empower/empowerdata/")){
+        //if (xml_rep_path.equalsIgnoreCase("/home/eleni/Documents/ubi/empower/empower-deliverable-september/empower/")){
+        String user_home=System.getProperty("user.home");
+        this.xml_rep_path = user_home+"/empower/empowerdata";
+        }
     }
 
 
@@ -467,14 +472,14 @@ public class OrganizationManager extends HttpServlet {
 
         int cpa_id = -1;
         String selections_source = request.getParameter("selections_source");
-        int installations_source = Integer.parseInt((String) request.getParameter("installations_source"));
+        int installations_source = -1;
 
         String cvp_source = selections_source.split("--")[4];
         int cpp_source = orgDBConnector.getCPP(Integer.parseInt(cvp_source), (String) session.getAttribute("name"));
         System.out.println("cpp_source: " + cpp_source);
 
         String selections_target = request.getParameter("selections_target");
-        int installations_target = Integer.parseInt((String) request.getParameter("installations_target"));
+        int installations_target = -1;
 
         String cvp_target = selections_target.split("--")[4];
         int cpp_target = orgDBConnector.getCPP(Integer.parseInt(cvp_target), (String) session.getAttribute("name"));
@@ -501,7 +506,8 @@ public class OrganizationManager extends HttpServlet {
         CPPList.put("cppinfo_second", cppinfo_second);
 
 
-        Map<String, Integer> data = orgDBConnector.insertBridging(cpp_source, cpp_target, organization_name, new Gson().toJson(CPPList));
+       // Map<String, Integer> data = orgDBConnector.insertBridging(cpp_source, cpp_target, organization_name, new Gson().toJson(CPPList));
+        Map<String, Integer> data = orgDBConnector.insertBridging(cpp_source, cpp_target, organization_name, new Gson().toJson(CPPList),installations_source,installations_target);
 
 
         if (data.containsKey("new_cpa_id")) {
@@ -571,7 +577,7 @@ public class OrganizationManager extends HttpServlet {
         CPPList.put("cppinfo_second", cppinfo_second);
 
 
-        Map<String, Integer> data = orgDBConnector.insertBridging(cpp_source, cpp_target, organization_name, new Gson().toJson(CPPList));
+        Map<String, Integer> data = orgDBConnector.insertBridging(cpp_source, cpp_target, organization_name, new Gson().toJson(CPPList),installations_source,installations_target);
 
 
         if (data.containsKey("new_cpa_id")) {
@@ -647,8 +653,8 @@ public class OrganizationManager extends HttpServlet {
         trasform_response.put("xsltRulesFirst", xsltRulesFirst);
         trasform_response.put("xsltRulesSecond", xsltRulesSecond);
 
-        System.out.println("CHECK " + xsltRulesFirst);
-        System.out.println("CHECK " + xsltRulesSecond);
+        System.out.println("CHECK input " + xsltRulesFirst);
+        System.out.println("CHECK output " + xsltRulesSecond);
 
         StringWriter stw = new StringWriter();
         StringWriter stwRes = new StringWriter();
@@ -1026,8 +1032,6 @@ public class OrganizationManager extends HttpServlet {
             CPA cpainfo = orgDBConnector.getinfocpa(cpa_id);
             int cpp_a = cpainfo.getCpp_id_first();
             int cpp_b = cpainfo.getCpp_id_second();
-
-            System.out.println("ta neura mou"+ cpp_a + "--" +cpp_b );
 
 
            //-------------------- TRANSFORM (upcasting & Downcasting) the output of the  source web service to an input of the target Web service--------------------
