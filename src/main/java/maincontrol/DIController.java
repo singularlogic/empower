@@ -70,6 +70,7 @@ public class DIController extends HttpServlet {
         if (xml_rep_path.equalsIgnoreCase("/var/www/empower/empowerdata/")){
         //if (this.xml_rep_path.equalsIgnoreCase("/home/eleni/Documents/ubi/empower/empower-deliverable-september/empower/")){
 
+
         String user_home=System.getProperty("user.home");
         File file_wsdl = new File(user_home+"/empower/empowerdata/wsdl");
         File file_adminDirectory = new File(user_home+"/empower/empowerdata/adminDirectory");
