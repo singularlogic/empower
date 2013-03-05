@@ -30,7 +30,7 @@
                lenght_var =4; 
            }else{
                split_var="--";
-               lenght_var =9; 
+               lenght_var =10;
            }
            
            if(tree.getAllChecked().split(split_var).length!=lenght_var || tree.getAllChecked()=="" || centralTree.getAllChecked().split(",").length!=1 || centralTree.getAllChecked()==""){ 
@@ -130,7 +130,7 @@
         </div>
         <div class="main">
         <div class="main-navigation">
-          <div id="menu_grid" style="width:180px; height:<%=(session.getAttribute("userType").equals("organization"))?210:150%>px" class='glossymenu'>
+          <div id="menu_grid" style="width:180px; height:<%=(session.getAttribute("userType").equals("organization"))?240:150%>px" class='glossymenu'>
            <script>
               menu_grid = new dhtmlXGridObject("menu_grid");
               menu_grid.setImagePath("js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");

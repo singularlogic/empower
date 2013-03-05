@@ -179,7 +179,7 @@ public class VendorManager extends HttpServlet {
         MainControlDB mainControlDB = new MainControlDB();
         Service service = mainControlDB.getService(service_id);
         
-        WSDLParser wsdlParser = new WSDLParser(service.getWsdl(), service.getNamespace());
+        WSDLParser wsdlParser = new WSDLParser(xml_rep_path+service.getWsdl(), service.getNamespace());
 
          wsdlParser.loadService(service.getName());
         LinkedList<String> operations =  wsdlParser.returnOperationNames("");
@@ -269,6 +269,7 @@ public class VendorManager extends HttpServlet {
         String new_web_service_name = null;
         String operation_name = null;
         String schemaFilename = null;
+        String relative_schemaFilename = null;
         String schemaName = null;
         String inputoutput = null;
         int software_id = 0;
@@ -311,7 +312,8 @@ public class VendorManager extends HttpServlet {
                 }
 
             } else {
-                schemaFilename = new String(this.xml_rep_path + "/xsd/" + software_id + "_" + schemaName + "_" + ((int) (100000 * Math.random())) + ".xsd");
+                relative_schemaFilename =  new String("/xsd/" + software_id + "_" + schemaName + "_" + ((int) (100000 * Math.random())) + ".xsd");
+                schemaFilename = this.xml_rep_path+relative_schemaFilename;
                 System.out.println("schemaFilename: " + schemaFilename);
                 File uploadedFile = new File(schemaFilename);
                 item.write(uploadedFile);
@@ -320,7 +322,7 @@ public class VendorManager extends HttpServlet {
 
         VendorDBConnector vendorDBConnector = new VendorDBConnector();
   
-        schema_id = vendorDBConnector.insertSchemaInfo(software_id, schemaName, schemaFilename, xml_rep_path, new_web_service_name , web_service_name, operation_name, inputoutput);
+        schema_id = vendorDBConnector.insertSchemaInfo(software_id, schemaName, relative_schemaFilename, xml_rep_path, new_web_service_name , web_service_name, operation_name, inputoutput);
         
         String message = "";
 
@@ -336,7 +338,8 @@ public class VendorManager extends HttpServlet {
         // Check that we have a file upload request
 
         String service_name = null; 
-        String serviceFilename = null; 
+        String serviceFilename = null;
+        String relative_serviceFilename=null;
         String service_namespace = null;
         String service_version = null;
         int sourceOfWSDL =  0;    // 0: no-source , 1: wsdl from file , 2: wsdl from url
@@ -380,7 +383,9 @@ public class VendorManager extends HttpServlet {
                 sourceOfWSDL =1;
                 }else if (item.getFieldName().equals("FromUrlPath") && sourceOfWSDL==2) {
 
-                 serviceFilename = new String(this.xml_rep_path + "/wsdl/" + software_id + "_" + service_name + "_" + ((int) (100000 * Math.random())) + ".wsdl");
+                 relative_serviceFilename =  new String("/wsdl/" + software_id + "_" + service_name + "_" + ((int) (100000 * Math.random())) + ".wsdl");
+                 serviceFilename = this.xml_rep_path + relative_serviceFilename;
+
                  File uploadedFile = new File(serviceFilename);
                  FileWriter fileWriter = new FileWriter(uploadedFile);
                  URL wsdlurl = new URL(item.getString());
@@ -396,7 +401,8 @@ public class VendorManager extends HttpServlet {
                 }
             } else if(!item.isFormField() && sourceOfWSDL==1 ) {
 
-                serviceFilename = new String(this.xml_rep_path + "/wsdl/" + software_id + "_" + service_name + "_" + ((int) (100000 * Math.random())) + ".wsdl");
+                relative_serviceFilename =  new String( "/wsdl/" + software_id + "_" + service_name + "_" + ((int) (100000 * Math.random())) + ".wsdl");
+                serviceFilename =    this.xml_rep_path +  relative_serviceFilename;
                 File uploadedFile = new File(serviceFilename);
                 item.write(uploadedFile);
 
@@ -406,7 +412,7 @@ public class VendorManager extends HttpServlet {
 
         VendorDBConnector vendorDBConnector = new VendorDBConnector();
 
-        service_id = vendorDBConnector.insertServiceInfo(software_id, service_name ,service_version,serviceFilename, xml_rep_path,service_namespace);
+        service_id = vendorDBConnector.insertServiceInfo(software_id, service_name ,service_version,relative_serviceFilename, xml_rep_path,service_namespace);
 
         if (service_id==-1)  message= "Service has NOT been succesfully registered. Please check that the service name and the namespace are the same with the ones in the .wsdl file.";
         else message= "Service has been succesfully registered. You can find the registered wsdl at "+this.xml_rep_path+"/wsdl for the user.name: " +System.getProperty("user.name");

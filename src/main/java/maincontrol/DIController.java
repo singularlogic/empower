@@ -367,6 +367,21 @@ public class DIController extends HttpServlet {
             if (xsd_num.equals("0")) {
                 this.forwardToPage("/info.jsp?message_code=1", request, response);
             } else {
+
+                //-------------Prepare the select option so as to create new CPP's------------
+                JSONObject json_cppsOfOrganization = new JSONObject();
+                OrgDBConnector orgDBConnector = new OrgDBConnector();
+                LinkedList<Service> cppsofOrg = orgDBConnector.getCPPs((String) session.getAttribute("name"),Integer.parseInt(software_id),"schema");
+
+
+                Iterator cppsofOrg_iterator = cppsofOrg.iterator();
+                while (cppsofOrg_iterator.hasNext()) {
+                    Service cpp_service = (Service) cppsofOrg_iterator.next();
+                    json_cppsOfOrganization.put(cpp_service.getCpp_id(), cpp_service.getName() + "  V." + cpp_service.getVersion() + "   CPP Name: " +cpp_service.getCpp_name() + "  ID: " +cpp_service.getCpp_id());
+                }
+                session.setAttribute("CPPsPerSoftCompPerOrg", json_cppsOfOrganization);
+
+
                 this.forwardToPage("/showSchemas.jsp?software_id=" + software_id, request, response);
             }
         }
@@ -393,10 +408,10 @@ public class DIController extends HttpServlet {
         while (XSDIterator.hasNext()) {
             Schema schema = (Schema) XSDIterator.next();
             //String delete_option = (verifyUser("vendor", session)) ? "<cell> Delete Schema^./VendorManager?op=delete_schema&amp;schema_id=" + schema.getSchema_id() + "^_self</cell>" : "";
-            String delete_option = (verifyUser("vendor", session)) ? "<cell> Delete Schema^javascript:deleteschema("+schema.getSchema_id()+")^_self</cell>" : "<cell>Delete^./OrganizationManager?op=cpp_delete&amp;software_id="+request.getParameter("software_id")+"&amp;cpp_id=" + schema.getCpp_id()+ "^_self</cell><cell>" + schema.getFromTo() + "</cell>";
+            String delete_option = (verifyUser("vendor", session)) ? "<cell> Delete Schema^javascript:deleteschema("+schema.getSchema_id()+")^_self</cell>" : "<cell>Delete^./OrganizationManager?op=cpp_delete&amp;software_id="+request.getParameter("software_id")+"&amp;cpp_id=" + schema.getCpp_id()+ "&amp;serviceORschema=schema^_self</cell><cell>" + schema.getFromTo() + "</cell>";
             String  cpp_name= (verifyUser("vendor", session)) ? "" : "<cell>" + schema.getCpp_name() + "</cell>";
 
-            out.write("<row id=\"" + schema.getSchema_id() + "\">"
+            out.write("<row id=\"" + schema.getSchema_id()+"$"+schema.getCvp_id()+"$"+schema.getCpp_id() + "\">"
                     +"<cell>" + schema.getName() + "</cell>"
                     + cpp_name
                     + "<cell> Edit^./presentOperationTree.jsp?schema_id=" + schema.getSchema_id()+"&amp;cpp_id="+schema.getCpp_id()+ "^_self</cell>"
@@ -452,7 +467,7 @@ public class DIController extends HttpServlet {
                 //-------------Prepare the select option so as to create new CPP's------------
                 JSONObject json_cppsOfOrganization = new JSONObject();
                 OrgDBConnector orgDBConnector = new OrgDBConnector();
-                LinkedList<Service> cppsofOrg = orgDBConnector.getCPPs((String) session.getAttribute("name"),Integer.parseInt(software_id));
+                LinkedList<Service> cppsofOrg = orgDBConnector.getCPPs((String) session.getAttribute("name"),Integer.parseInt(software_id),"service");
 
 
                 Iterator cppsofOrg_iterator = cppsofOrg.iterator();
@@ -507,7 +522,7 @@ public class DIController extends HttpServlet {
 
             String delete_wservice_option = (verifyUser("vendor", session)) ? "<cell>Delete^javascript:deleteservice("+service.getService_id()+")^_self</cell>" : "";
 
-            String delete_cpp_option = (verifyUser("vendor", session)) ? "<cell type=\"img\">" + img_link + "</cell>" : "<cell>Delete^./OrganizationManager?op=cpp_delete&amp;software_id="+request.getParameter("software_id")+"&amp;cpp_id=" + service.getCpp_id()+ "^_self</cell><cell>"+service.getFromTo()+"</cell>";
+            String delete_cpp_option = (verifyUser("vendor", session)) ? "<cell type=\"img\">" + img_link + "</cell>" : "<cell>Delete^./OrganizationManager?op=cpp_delete&amp;software_id="+request.getParameter("software_id")+"&amp;cpp_id=" + service.getCpp_id()+ "&amp;serviceORschema=service^_self</cell><cell>"+service.getFromTo()+"</cell>";
             //String delete_cpp_option = (verifyUser("vendor", session)) ? "<cell type=\"img\">" + img_link + "</cell>" : "<cell>Delete^javascript:deletecpp("+request.getParameter("software_id")+","+service.getCpp_id()+")^_self</cell><cell>"+service.getFromTo()+"</cell>";
 
             String cppNameID =  (verifyUser("vendor", session)) ? "": "<cell>"+service.getCpp_name()+" ID:"+service.getCpp_id()+"</cell>";
@@ -696,7 +711,9 @@ public class DIController extends HttpServlet {
         MainControlDB mainControlDB = new MainControlDB();
         Schema schema = mainControlDB.getSchema(schema_id);
 
-        System.out.println(schema_id + "schema location: " + schema.getLocation() + schema.getInputoutput() + "--" + schema.getOperation_id() + "--" + schema.getOp_taxonomy_id() + "--" + schema.getCvp_id() + "--" + schema.getService_id() + "--" + schema.getSchema_id() + "--" + schema.getSelections());
+        schema.setLocation(xml_rep_path+schema.getLocation());
+
+        System.out.println(schema_id + "schema location: " + xml_rep_path+schema.getLocation() + schema.getInputoutput() + "--" + schema.getOperation_id() + "--" + schema.getOp_taxonomy_id() + "--" + schema.getCvp_id() + "--" + schema.getService_id() + "--" + schema.getSchema_id() + "--" + schema.getSelections());
 
         XSDParser p = new XSDParser(schema);
         String xml_string = p.convertSchemaToXML();
@@ -717,7 +734,7 @@ public class DIController extends HttpServlet {
         Service service = mainControlDB.getService(serviceID);
         response.setContentType("text/xml; charset=UTF-8");
 
-        WSDLParser wsdlParser = new WSDLParser(service.getWsdl(),
+        WSDLParser wsdlParser = new WSDLParser(xml_rep_path+service.getWsdl(),
                 service.getNamespace());
         wsdlParser.loadService(service.getName());
         wsdlParser.outputToXML(response.getWriter());

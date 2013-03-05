@@ -374,7 +374,7 @@ public class VendorDBConnector {
             if (new_web_service_name.equalsIgnoreCase("")) {
                 service_id = Integer.parseInt(web_service);
             } else {
-                service_id = this.dbHandler.dbUpdate("INSERT INTO web_service(name,software_id) VALUES ('" + new_web_service_name + "'," + software_id + ")");
+                service_id = this.dbHandler.dbUpdate("INSERT INTO web_service(name,version,software_id) VALUES ('" + new_web_service_name + "','1.0'," + software_id + ")");
             }
 
 
@@ -409,7 +409,7 @@ public class VendorDBConnector {
 
             this.dbHandler.dbOpen();
 
-            WSDLParser wsdlParser = new WSDLParser(wsdlFilename, namespace);
+            WSDLParser wsdlParser = new WSDLParser(xmlRepPath+wsdlFilename, namespace);
             wsdlParser.loadService(serviceName);
             numberOperations = wsdlParser.getOperationsNumber();
             System.out.println("numberOperations: " + numberOperations);

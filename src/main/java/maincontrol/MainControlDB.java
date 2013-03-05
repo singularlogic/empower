@@ -308,8 +308,17 @@ public class MainControlDB {
                     + " INNER JOIN cpp  cpp  on  cvp.cvp_id = cpp.cvp_id "
                     + "where ws.software_id=" + software_id + " and ws.wsdl IS NULL");
              */
+
             //get cvps of schemas
             rs = this.dbHandler.dbQuery("select s.schema_id as schema_id,s.name as schema_name, cvp.cvp_id as cvp_id, cvp.vendor_id as vendor_id " +
+                    "from operation o " +
+                    " INNER JOIN web_service ws on o.service_id=ws.service_id " +
+                    " INNER JOIN operation_schema os  on o.operation_id = os.operation_id  " +
+                    " INNER JOIN schema_xsd  s  on os.schema_id = s.schema_id  " +
+                    " INNER JOIN cvp  cvp  on  cvp.service_id = ws.service_id" +
+                    " where ws.software_id=" + software_id + " and ws.wsdl IS NULL");
+
+            System.out.println("gia na do ti schemas pairnei select s.schema_id as schema_id,s.name as schema_name, cvp.cvp_id as cvp_id, cvp.vendor_id as vendor_id " +
                     "from operation o " +
                     " INNER JOIN web_service ws on o.service_id=ws.service_id " +
                     " INNER JOIN operation_schema os  on o.operation_id = os.operation_id  " +
@@ -332,6 +341,9 @@ public class MainControlDB {
             for(Schema schema : XSDList){
 
                 rs1= this.dbHandler.dbQuery("SELECT * FROM cvp, cpp  WHERE cvp.cvp_id=cpp.cvp_id and  cvp.cvp_id="+schema.getCvp_id()+" and cpp.name='basic' and cpp.organization_id="+organization_id);
+
+                System.out.println("na to dup??  SELECT * FROM cvp, cpp  WHERE cvp.cvp_id=cpp.cvp_id and  cvp.cvp_id="+schema.getCvp_id()+" and cpp.name='basic' and cpp.organization_id="+organization_id);
+
 
                 if (!rs1.next()) {
                     //if the exposed web service has no cpps with the name basic we duplicate cvp (create a new cpp as specialization on cvp)
@@ -583,10 +595,10 @@ public class MainControlDB {
             System.out.println("xbrlType: " + xbrlType);
             this.dbHandler.dbOpen();
 
-            rs = (service_id == -1) ? this.dbHandler.dbQuery("select da.dataAnnotations_id as dataAnnotations_id from dataannotations  da where da.cvp_id =" + cvp_id + " and da.schema_id=" + schema_id)
+            rs = (service_id == -1) ? this.dbHandler.dbQuery("select da.dataAnnotations_id as dataAnnotations_id from dataannotations  da where da.cvp_id =" + cvp_id + " and da.schema_id=" + schema_id + "  and da.cpp_id =" + cppID)
                     : this.dbHandler.dbQuery("select da.dataAnnotations_id as dataAnnotations_id from dataannotations  da where da.cvp_id =" + cvp_id + " and da.selections='" + selections + "' and da.cpp_id ="+cppID );
 
-            System.out.println("service_id: " + service_id + " cvp_id: " + cvp_id + " selections: " + selections + " schema_id: " + schema_id);
+            System.out.println("service_id: " + service_id + " cvp_id: " + cvp_id + "cpp_id: "+cppID +" selections: " + selections + " schema_id: " + schema_id);
             if (rs.next()) {
                 dataannotations_id = rs.getInt("dataAnnotations_id");
                 System.out.println(" dataannotations_id exists:" + dataannotations_id);

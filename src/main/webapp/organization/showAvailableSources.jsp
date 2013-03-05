@@ -8,7 +8,7 @@
             $(document).ready(function() {
                 $("#get_target_schemas").click(function() {   
                     $('#target_box_tree').empty();  
-                    if(tree.getAllChecked().split("--").length!=9) alert("You have to check only one input schema! Thank You!");
+                    if(tree.getAllChecked().split("--").length!=10) alert("You have to check only one input schema! Thank You!");
                     else{    $.getJSON('./OrganizationManager?op=showPossibleTargets&selections='+tree.getAllChecked(), function(data) {
                             target_tree = new dhtmlXTreeObject("target_box_tree", "100%", "100%", 0);
                             target_tree.setImagePath("./js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
@@ -31,7 +31,7 @@
             }
             
             function compare_schemas() {
-                if(tree.getAllChecked().split("--").length!=9 || target_tree.getAllChecked().split("--").length!=9){
+                if(tree.getAllChecked().split("--").length!=10 || target_tree.getAllChecked().split("--").length!=10){
                     alert("You have to check only one input and one output schema! Thank You!");
                     return false;  
                 }  else{          
@@ -66,7 +66,7 @@
         <script>
             function assign_selections()
             {   
-                 if(tree.getAllChecked().split("--").length!=9 || target_tree.getAllChecked().split("--").length!=9){ 
+                 if(tree.getAllChecked().split("--").length!=10 || target_tree.getAllChecked().split("--").length!=10){
                      alert("You have to check only one input and one output schema! Thank You!");
                      return false;
                  }else{
@@ -137,7 +137,7 @@
                 <div id="title"> </div>
                 <div><p class="info_message">For Every input schema you choose you get all the available output schemas that belong at the same category with the input selection and have been annotated at the same data facet of the XBRL Taxonomy.</p></div>
                 <br>
-                <div id="box_tree" style="float:left;width:200px; height:300px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;"/>
+                <div id="box_tree" style="float:left;width:240px; height:300px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;"/>
                 <script>
                     tree = new dhtmlXTreeObject("box_tree", "100%", "100%", 0);
                     tree.setImagePath("./js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
@@ -146,9 +146,9 @@
                 </script>
             </div>   
 
-            <div id="target_box_tree" style="width:200px; height:300px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;"/>
+            <div id="target_box_tree" style="width:240px; height:300px;background-color:#f5f5f5;border :1px solid Silver;; overflow:auto;"/>
         </div>
-        <div style="width: 38px; float: right; margin-top: -280px;">
+        <div style="width: 29px; float: right; margin-top: -280px;">
         <div style="float:left;margin-bottom: 20px;"><input TYPE="image" src="./img/getTargetSchemas.png" id="get_target_schemas"/></div>
         <div style="float:left;margin-bottom: 20px;"><input TYPE="image" src="./img/searchMatches.png" id="search_matches" onclick="compare_schemas();"/></div>    
         <div style="float:left;">

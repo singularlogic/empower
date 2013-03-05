@@ -78,17 +78,20 @@ public class OrgDBConnector {
 
             this.dbHandler.dbOpen();
 
-            rs = this.dbHandler.dbQuery("select ws.software_id as software_id,ws.service_id as service_id,ws.name as ws_name,o.operation_id as operation_id,o.name as operation_name,o.taxonomy_id as op_taxonomy_id,os.inputoutput as inputoutput, s.schema_id as schema_id, s.location as schema_location, s.name as schema_name, cvp.cvp_id as cvp_id , da.selections as selections, da.xbrl as xbrl  "
-                    + "from operation o "
-                    + "LEFT JOIN web_service ws on o.service_id=ws.service_id "
-                    + "LEFT JOIN operation_schema os  on o.operation_id = os.operation_id "
-                    + "LEFT JOIN schema_xsd  s  on os.schema_id = s.schema_id "
-                    + "LEFT JOIN dataannotations da on da.schema_id=s.schema_id "
-                    + "LEFT JOIN cvp cvp on cvp.cvp_id = da.cvp_id where "+ sofwareCondition +" os.inputoutput='input'  and cvp.cvp_id IS NOT NULL order by ws.service_id ");
+            rs = this.dbHandler.dbQuery(" select cpp.cpp_id as cpp_id, cpp.name as cpp_name , ws.software_id as software_id,ws.service_id as service_id,ws.name as ws_name,o.operation_id as operation_id,o.name as operation_name,o.taxonomy_id as op_taxonomy_id,os.inputoutput as inputoutput, s.schema_id as schema_id, s.location as schema_location, s.name as schema_name, cvp.cvp_id as cvp_id , da.selections as selections, da.xbrl as xbrl  "
+                    + " from operation o "
+                    + " LEFT JOIN web_service ws on o.service_id=ws.service_id "
+                    + " LEFT JOIN operation_schema os  on o.operation_id = os.operation_id "
+                    + " LEFT JOIN schema_xsd  s  on os.schema_id = s.schema_id "
+                    + " LEFT JOIN dataannotations da on da.schema_id=s.schema_id "
+                    + " LEFT JOIN cvp cvp on cvp.cvp_id = da.cvp_id  "
+                    + " LEFT JOIN cpp cpp on cpp.cvp_id = cvp.cvp_id  "
+                    + " where "+ sofwareCondition +" os.inputoutput='input'  and cvp.cvp_id IS NOT NULL and da.cpp_id IS NOT NULL  GROUP BY cpp.cpp_id  order by ws.service_id ");
 
-            if (rs != null) {
+
+             if (rs != null) {
                 while (rs.next()) {
-                    XSDList.add(new Schema(rs.getInt("service_id"), rs.getString("ws_name"),rs.getInt("operation_id"),rs.getString("operation_name"),rs.getString("op_taxonomy_id"),rs.getString("inputoutput"),rs.getInt("schema_id"),rs.getString("schema_location"), rs.getString("schema_name"), rs.getInt("cvp_id"),rs.getString("selections"),rs.getString("xbrl")));
+                    XSDList.add(new Schema(rs.getInt("service_id"), rs.getString("ws_name"),rs.getInt("operation_id"),rs.getString("operation_name"),rs.getString("op_taxonomy_id"),rs.getString("inputoutput"),rs.getInt("schema_id"),rs.getString("schema_location"), rs.getString("schema_name"), rs.getInt("cvp_id"),rs.getString("selections"),rs.getString("xbrl"),rs.getString("cpp_name"),rs.getInt("cpp_id")));
                 }
             }
 
@@ -113,17 +116,22 @@ public class OrgDBConnector {
             this.dbHandler.dbOpen();
 
            
-            rs = this.dbHandler.dbQuery("select ws.software_id as software_id,ws.service_id as service_id,ws.name as ws_name,o.operation_id as operation_id,o.name as operation_name,o.taxonomy_id as op_taxonomy_id,os.inputoutput as inputoutput, s.schema_id as schema_id, s.location as schema_location, s.name as schema_name , cvp.cvp_id as cvp_id, da.selections as selections, da.xbrl as xbrl"
+            rs = this.dbHandler.dbQuery("select cpp.cpp_id as cpp_id, cpp.name as cpp_name , ws.software_id as software_id,ws.service_id as service_id,ws.name as ws_name,o.operation_id as operation_id,o.name as operation_name,o.taxonomy_id as op_taxonomy_id,os.inputoutput as inputoutput, s.schema_id as schema_id, s.location as schema_location, s.name as schema_name , cvp.cvp_id as cvp_id, da.selections as selections, da.xbrl as xbrl"
                     + " from operation o LEFT JOIN web_service ws on o.service_id=ws.service_id "
                     + " LEFT JOIN operation_schema os  on o.operation_id =os.operation_id  "
                     + " LEFT JOIN schema_xsd  s  on os.schema_id = s.schema_id "
                     + " LEFT JOIN dataannotations da on da.schema_id = s.schema_id "
-                    + " LEFT JOIN cvp cvp on cvp.cvp_id = da.cvp_id"
-                    + " where  o.taxonomy_id = '"+taxonomy_id+"' and os.inputoutput='output' and cvp.cvp_id IS NOT NULL and da.xbrl='"+xbrl+"' order by ws.service_id ");
+                    + " LEFT JOIN cvp cvp on cvp.cvp_id = da.cvp_id "
+                    + "LEFT JOIN cpp cpp on cpp.cvp_id = cvp.cvp_id"
+                    + " where  o.taxonomy_id = '"+taxonomy_id+"' and os.inputoutput='output' and cvp.cvp_id IS NOT NULL and da.xbrl='"+xbrl+"'  GROUP BY cpp.cpp_id  order by ws.service_id ");
+
+
+
+
 
             if (rs != null) {
                 while (rs.next()) {
-                    XSDList.add(new Schema(rs.getInt("service_id"), rs.getString("ws_name"),rs.getInt("operation_id"),rs.getString("operation_name"),rs.getString("op_taxonomy_id"),rs.getString("inputoutput"),rs.getInt("schema_id"),rs.getString("schema_location"), rs.getString("schema_name"),rs.getInt("cvp_id"),rs.getString("selections"),rs.getString("xbrl")));
+                    XSDList.add(new Schema(rs.getInt("service_id"), rs.getString("ws_name"),rs.getInt("operation_id"),rs.getString("operation_name"),rs.getString("op_taxonomy_id"),rs.getString("inputoutput"),rs.getInt("schema_id"),rs.getString("schema_location"), rs.getString("schema_name"),rs.getInt("cvp_id"),rs.getString("selections"),rs.getString("xbrl"),rs.getString("cpp_name"),rs.getInt("cpp_id")));
                     System.out.println("Schema: "+ rs.getString("ws_name") + " " + rs.getInt("operation_id") + " " + rs.getString("operation_name") + " " + rs.getString("inputoutput")+ " " +rs.getInt("schema_id") + " " + rs.getString("schema_name")+ " " +rs.getInt("cvp_id") );
                 
                 }
@@ -502,17 +510,24 @@ public class OrgDBConnector {
 
 
     // Given an organization and a Soft Component we get all CPPS
-    public LinkedList<Service> getCPPs(String organization_name, int software_id){
+    public LinkedList<Service> getCPPs(String organization_name, int software_id,String serviceORschema){
         ResultSet rs;
         LinkedList<Service> cppServList = new LinkedList<Service>();
+
+        System.out.println("serviceORschema: "+serviceORschema);
+
         try{
             int organization_id = this.getUserID(organization_name);
 
             this.dbHandler.dbOpen();
 
-            rs = this.dbHandler.dbQuery("select ws.service_id as service_id, ws.name as service_name, ws.version as service_version, cpp.name as cpp_name,cpp.cpp_id as cpp_id, ws.exposed as exposed, ws.wsdl as wsdl, ws.namespace as namespace" +
-                    " from web_service ws,cvp cvp,cpp cpp where ws.service_id=cvp.service_id and cpp.cvp_id=cvp.cvp_id and ws.exposed=1 and ws.software_id="+software_id+" and cpp.organization_id="+organization_id+"  and ws.wsdl IS NOT NULL");
+            rs =(serviceORschema.equalsIgnoreCase("service"))? this.dbHandler.dbQuery("select ws.service_id as service_id, ws.name as service_name, ws.version as service_version, cpp.name as cpp_name,cpp.cpp_id as cpp_id, ws.exposed as exposed, ws.wsdl as wsdl, ws.namespace as namespace" +
+                    " from web_service ws,cvp cvp,cpp cpp where ws.service_id=cvp.service_id and cpp.cvp_id=cvp.cvp_id and ws.exposed=1 and ws.software_id="+software_id+" and cpp.organization_id="+organization_id+"  and ws.wsdl IS NOT NULL"):
+                    this.dbHandler.dbQuery("select ws.service_id as service_id, ws.name as service_name, ws.version as service_version, cpp.name as cpp_name,cpp.cpp_id as cpp_id, ws.exposed as exposed, ws.wsdl as wsdl, ws.namespace as namespace" +
+                    " from web_service ws,cvp cvp,cpp cpp where ws.service_id=cvp.service_id and cpp.cvp_id=cvp.cvp_id and ws.software_id="+software_id+" and cpp.organization_id="+organization_id+"  and cpp.cpp_id IS NOT NULL");
 
+            System.out.println("select ws.service_id as service_id, ws.name as service_name, ws.version as service_version, cpp.name as cpp_name,cpp.cpp_id as cpp_id, ws.exposed as exposed, ws.wsdl as wsdl, ws.namespace as namespace" +
+                    " from web_service ws,cvp cvp,cpp cpp where ws.service_id=cvp.service_id and cpp.cvp_id=cvp.cvp_id and ws.software_id="+software_id+" and cpp.organization_id="+organization_id+"  and cpp.cpp_id IS NOT NULL");
 
             if (rs != null) {
                 while (rs.next()) {

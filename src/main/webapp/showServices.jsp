@@ -110,7 +110,7 @@
 
             <div>
             <h2 style="border-bottom: 2px solid;">Create a New CPP:</h2>
-            <form method="POST" action="./OrganizationManager?op=cpp_reg&software_id=<%= request.getParameter("software_id") %>" name="cpp_registration"  id="cpp_registration" >
+            <form method="POST" action="./OrganizationManager?op=cpp_reg&software_id=<%= request.getParameter("software_id") %>&serviceORschema=service" name="cpp_registration"  id="cpp_registration" >
 
                 <p class="info_message">Step 1: Choose The CPP you want to specialize:</p>
 

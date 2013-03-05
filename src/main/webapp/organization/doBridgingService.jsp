@@ -23,7 +23,7 @@
         function update_serviceInputArgs()
         {
             $("#ajax-loader").html('<img src="./img/ajax-loader.gif" alt="Wait" />');
-            setTimeout(function() {alert('hello');},1250);
+            //setTimeout(function() {alert('hello');},1250);
             return true;
         }
     </script>

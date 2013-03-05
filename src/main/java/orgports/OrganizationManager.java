@@ -199,6 +199,7 @@ public class OrganizationManager extends HttpServlet {
         String organization_name = (String) session.getAttribute("name");
         String cpp_name= (String)  request.getParameter("cpp_name");
         String software_id = (String) request.getParameter("software_id");
+        String serviceORschema = (String) request.getParameter("serviceORschema");
 
         OrgDBConnector orgDBConnector = new OrgDBConnector();
 
@@ -209,7 +210,7 @@ public class OrganizationManager extends HttpServlet {
 
          //---------------------------------------------
 
-        LinkedList<Service> cppsofOrg = orgDBConnector.getCPPs((String) session.getAttribute("name"),Integer.parseInt(software_id));
+        LinkedList<Service> cppsofOrg = orgDBConnector.getCPPs((String) session.getAttribute("name"),Integer.parseInt(software_id),serviceORschema);
 
         JSONObject json_cppsOfOrganization = new JSONObject();
 
@@ -234,6 +235,7 @@ public class OrganizationManager extends HttpServlet {
 
         int cpp_id = Integer.parseInt(request.getParameter("cpp_id"));
         String software_id = (String) request.getParameter("software_id");
+        String serviceORschema = (String) request.getParameter("serviceORschema");
 
 
         OrgDBConnector orgDBConnector = new OrgDBConnector();
@@ -243,7 +245,7 @@ public class OrganizationManager extends HttpServlet {
 
         //---------------------------------------------
 
-        LinkedList<Service> cppsofOrg = orgDBConnector.getCPPs((String) session.getAttribute("name"),Integer.parseInt(software_id));
+        LinkedList<Service> cppsofOrg = orgDBConnector.getCPPs((String) session.getAttribute("name"),Integer.parseInt(software_id),serviceORschema);
 
         JSONObject json_cppsOfOrganization = new JSONObject();
 
@@ -311,6 +313,8 @@ public class OrganizationManager extends HttpServlet {
         while (schemas_it.hasNext()) {
 
             Schema schema = schemas_it.next();
+            schema.setLocation(xml_rep_path+schema.getLocation());
+
 
             XSDParser p = new XSDParser(schema);
             xml_string += p.convertSchemaToXML();
@@ -342,6 +346,7 @@ public class OrganizationManager extends HttpServlet {
         while (schemas_it.hasNext()) {
 
             Schema schema = schemas_it.next();
+            schema.setLocation(xml_rep_path+schema.getLocation());
             //System.out.println("Schema: " + schema.getService() + " " + schema.getOperation_id() + " " + schema.getOperation() + " " + schema.getInputoutput() + " " + schema.getSchema_id() + " " + schema.getName() + " " + schema.getSchema_id());
             XSDParser p = new XSDParser(schema);
             xml_string += p.convertSchemaToXML();
@@ -386,8 +391,8 @@ public class OrganizationManager extends HttpServlet {
                 Iterator serv_iterator = services.iterator();
                 while (serv_iterator.hasNext()) {
                     Service service = (Service) serv_iterator.next();
-                    System.out.println("My service id:" + service.getService_id() + " service_name: " + service.getName() + " wsdl: " + service.getWsdl() + " " + service.getNamespace());
-                    WSDLParser wsdlParser = new WSDLParser(service.getWsdl(), service.getNamespace());
+                    System.out.println("My service id:" + service.getService_id() + " service_name: " + service.getName() + " wsdl: " + xml_rep_path+service.getWsdl() + " " + service.getNamespace());
+                    WSDLParser wsdlParser = new WSDLParser(xml_rep_path+service.getWsdl(), service.getNamespace());
                     wsdlParser.loadService(service.getName());
                     wsdlParserString = wsdlParserString.concat(wsdlParser.outputFunctionsToXMLFromRoot(xml, service.getName(), service.getService_id()));
 
@@ -447,7 +452,7 @@ public class OrganizationManager extends HttpServlet {
             String xml = "";
             String wsdlParserString = "";
 
-             WSDLParser wsdlParser = new WSDLParser(service.getWsdl(), service.getNamespace());
+             WSDLParser wsdlParser = new WSDLParser(xml_rep_path+service.getWsdl(), service.getNamespace());
              wsdlParser.loadService(service.getName());
              wsdlParserString = wsdlParserString.concat(wsdlParser.outputFunctionsToXMLFromRoot(xml, service.getName(), service.getService_id()));
 
@@ -475,14 +480,16 @@ public class OrganizationManager extends HttpServlet {
         int installations_source = -1;
 
         String cvp_source = selections_source.split("--")[4];
-        int cpp_source = orgDBConnector.getCPP(Integer.parseInt(cvp_source), (String) session.getAttribute("name"));
+        //int cpp_source = orgDBConnector.getCPP(Integer.parseInt(cvp_source), (String) session.getAttribute("name"));
+        int cpp_source= Integer.parseInt(selections_source.split("--")[9]);
         System.out.println("cpp_source: " + cpp_source);
 
         String selections_target = request.getParameter("selections_target");
         int installations_target = -1;
 
         String cvp_target = selections_target.split("--")[4];
-        int cpp_target = orgDBConnector.getCPP(Integer.parseInt(cvp_target), (String) session.getAttribute("name"));
+        //int cpp_target = orgDBConnector.getCPP(Integer.parseInt(cvp_target), (String) session.getAttribute("name"));
+        int cpp_target = Integer.parseInt(selections_target.split("--")[9]);
         System.out.println("cpp_target: " + cpp_target);
 
         String organization_name = (String) session.getAttribute("name");
@@ -604,6 +611,7 @@ public class OrganizationManager extends HttpServlet {
 
         int cpp_a = cpainfo.getCpp_id_first();
         int cpp_b = cpainfo.getCpp_id_second();
+
 
         // Check that we have a file upload request
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
@@ -1001,7 +1009,7 @@ public class OrganizationManager extends HttpServlet {
 
         // Get Dao entity of web service operation if exists
         Service FirstWservice = mainControlDB.getService(first_webServiceInfo.getInt("service_id"));
-        WSDLParser firstWSDLParser = new WSDLParser(FirstWservice.getWsdl(), FirstWservice.getNamespace());
+        WSDLParser firstWSDLParser = new WSDLParser(xml_rep_path+FirstWservice.getWsdl(), FirstWservice.getNamespace());
         String firstDaoEntity = firstWSDLParser.getDaoEntity(first_webServiceInfo.getString("operation_name"));
         String firstInputXML = prepareSoapBody(xml_data,first_webServiceInfo.getString("operation_name"),firstDaoEntity);
 
@@ -1047,7 +1055,7 @@ public class OrganizationManager extends HttpServlet {
 
             //Get Dao entity of web service operation if exists
             Service SecondWservice = mainControlDB.getService(second_webServiceInfo.getInt("service_id"));
-            WSDLParser secondWSDLParser = new WSDLParser(SecondWservice.getWsdl(), SecondWservice.getNamespace());
+            WSDLParser secondWSDLParser = new WSDLParser(xml_rep_path+SecondWservice.getWsdl(), SecondWservice.getNamespace());
             String daoEntity = secondWSDLParser.getDaoEntity(second_webServiceInfo.getString("operation_name"));
             String secondInputXML = prepareSoapBody(target_xml,second_webServiceInfo.getString("operation_name"),daoEntity);
 
@@ -1090,7 +1098,7 @@ public class OrganizationManager extends HttpServlet {
         System.out.println("operation_name: " + operation_name);
 
         Service service = mainControlDB.getService(service_id);
-        WSDLParser wsdlParser = new WSDLParser(service.getWsdl(), service.getNamespace());
+        WSDLParser wsdlParser = new WSDLParser(xml_rep_path+service.getWsdl(), service.getNamespace());
         String service_name = service.getName();
         wsdlParser.loadService(service.getName());
         String service_namespace = service.getNamespace();

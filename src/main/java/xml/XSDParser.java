@@ -22,6 +22,7 @@ import javax.xml.parsers.SAXParser;
 public class XSDParser  {
     private Schema schema;
     //public Schema schema = new Schema();
+    private int numOfComplexTypes = 0;
     
     public XSDParser(Schema schema) {
         
@@ -80,18 +81,24 @@ public class XSDParser  {
         if (qName.equalsIgnoreCase("xs:schema") || qName.equalsIgnoreCase("xsd:schema") ) {
             schemafl= true;
             xmlToReturn.add("<tree id='0'>"
-                    + "<item text='"+schema.getService()+"' id='"+schema.getService()+"' nocheckbox='true'>"
-                    + "<item text='"+schema.getOperation()+"' id='"+schema.getOperation()+"' nocheckbox='true'>"
-                    + "<item text='"+schema.getName()+"' id='"+schema.getName()+"' nocheckbox='true'>");
+                   // + "<item text='"+schema.getService()+"' id='"+schema.getService()+"' nocheckbox='true'>"
+                    //+ "<item text='"+schema.getOperation()+"' id='"+schema.getOperation()+"' nocheckbox='true'>"
+                    //+ "<item text='"+schema.getName()+"' id='"+schema.getName()+"' nocheckbox='true'>");
+                    + "<item text='"+schema.getService()+"' id='Service"+schema.getService_id()+"' nocheckbox='true'>"
+                    + "<item text='"+schema.getOperation()+"' id='Operation"+schema.getOperation()+"' nocheckbox='true'>"
+                    + "<item text='"+schema.getName()+"' id='Schema"+schema.getName()+"' nocheckbox='true'>");
         }
 
         if (qName.equalsIgnoreCase("xs:complexType") || qName.equalsIgnoreCase("xsd:complexType")) {
             complexTypefl = true;
-
             if (attributes != null) {
                 for (int i = 0; i < attributes.getLength(); i++) {
-                    xmlToReturn.add("<item text='" + attributes.getValue(i)+"("+schema.getInputoutput()+")" + "' id='" + attributes.getValue(i) +"--"+schema.getInputoutput()+"--"+ schema.getOperation_id()+"--"+schema.getOp_taxonomy_id()+"--"+schema.getCvp_id()+"--"+schema.getService_id()+"--"+schema.getSchema_id()+"--"+schema.getSelections()+"--"+schema.getXbrl()+"' >");
-                    System.out.println("' id='" + attributes.getValue(i) +"--"+schema.getInputoutput()+"--"+ schema.getOperation_id()+"--"+schema.getOp_taxonomy_id()+"--"+schema.getCvp_id()+"--"+schema.getService_id()+"--"+schema.getSchema_id()+"--"+schema.getSelections());
+                    numOfComplexTypes =   attributes.getLength();
+                    //xmlToReturn.add("<item text='" + attributes.getValue(i)+"("+schema.getInputoutput()+")"  + "' id='" + attributes.getValue(i) +"--"+schema.getInputoutput()+"--"+ schema.getOperation_id()+"--"+schema.getOp_taxonomy_id()+"--"+schema.getCvp_id()+"--"+schema.getService_id()+"--"+schema.getSchema_id()+"--"+schema.getSelections()+"--"+schema.getXbrl()+"--"+schema.getCpp_id()+"' >");
+                    xmlToReturn.add("<item text='" + schema.getCpp_name()+"("+schema.getInputoutput()+")"+attributes.getValue(i)  + "' id='" + attributes.getValue(i) +"--"+schema.getInputoutput()+"--"+ schema.getOperation_id()+"--"+schema.getOp_taxonomy_id()+"--"+schema.getCvp_id()+"--"+schema.getService_id()+"--"+schema.getSchema_id()+"--"+schema.getSelections()+"--"+schema.getXbrl()+"--"+schema.getCpp_id()+"' >");
+
+
+                    System.out.println("' id='" + attributes.getValue(i) +"--"+schema.getInputoutput()+"--"+ schema.getOperation_id()+"--"+schema.getOp_taxonomy_id()+"--"+schema.getCvp_id()+"--"+schema.getService_id()+"--"+schema.getSchema_id()+"--"+schema.getSelections()+"--"+schema.getCpp_id());
                 }
             }
         }
@@ -112,8 +119,14 @@ public class XSDParser  {
 
     public void endElement(String uri, String localName, String qName) throws SAXException {
 
+
         if (qName.equals("xs:complexType") || qName.equals("xsd:complexType")) {
+            System.out.println("numOfComplexTypes"+numOfComplexTypes);
+            if (numOfComplexTypes >0) {
             xmlToReturn.add("</item>");
+                numOfComplexTypes -=1;
+            }
+
         }
         if (qName.equals("xs:schema") || qName.equals("xsd:schema")) {
             xmlToReturn.add("</item></item></item></tree>");

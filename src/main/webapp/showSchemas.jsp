@@ -1,3 +1,4 @@
+<%@ page import="net.sf.json.JSONObject" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@include file="timedoutRedirect.jsp" %>
 <!DOCTYPE html>
@@ -51,7 +52,7 @@
         </div>
         <div class="main">
         <div class="main-navigation">
-            <div id="menu_grid" style="width:180px; height:<%=(session.getAttribute("userType").equals("organization"))?180:150%>px" class='glossymenu'>
+            <div id="menu_grid" style="width:180px; height:<%=(session.getAttribute("userType").equals("organization"))?240:150%>px" class='glossymenu'>
                     <script>
                         menu_grid = new dhtmlXGridObject("menu_grid");
                         menu_grid.setImagePath("js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");
@@ -85,7 +86,36 @@
                 <br>
                 <% if (session.getAttribute("userType").equals("vendor")){ %>
                 <p><a href='./vendor/SchemaReg.jsp?software_id=<%= request.getParameter("software_id")%>&jsp=true'>Add new schema to the current Software Component</a>
-                <%}%>
+                <%}else{ %>
+
+            <div>
+                <h2 style="border-bottom: 2px solid;">Create a New CPP:</h2>
+                <form method="POST" action="./OrganizationManager?op=cpp_reg&software_id=<%= request.getParameter("software_id") %>&serviceORschema=schema" name="cpp_registration"  id="cpp_registration" >
+
+                    <p class="info_message">Step 1: Choose The CPP you want to specialize:</p>
+
+                    <select name="CPPid" id="CPPsPerSoftCompPerOrg" style="margin:10px;">
+                        <%
+                            if (session.getAttribute("CPPsPerSoftCompPerOrg") != "") {
+                                JSONObject cpps = (JSONObject) session.getAttribute("CPPsPerSoftCompPerOrg");
+                                for (Object o : cpps.keySet()) {
+                                    String key = (String) o;
+                                    String value = cpps.getString(key);
+                                    System.out.println("key: " + key + " value: " + value);
+                        %> <option value="<%=key%>"><%=value%></option><%
+                            }
+                        }
+                    %>
+                    </select>
+                    <p class="info_message">Step 2: Name the New CPP:</p>
+                    <input type="text" name="cpp_name" size="20">
+                    <input type="submit" value="Create CPP" name="submit_button"></td>
+                </form>
+            </div>
+            <br><br>
+            <div id="createDeleteCppMessage"><p class="info_message"  style="margin: 10px; border:2px solid;"><%=request.getParameter("message")%></p></div>
+
+            <% }%>
         </div>
         </div>
             <div class="footer"><p>Copyright &copy; 2011 - 2013 Empower Consortium | All Rights Reserved</p></div>
