@@ -870,7 +870,7 @@ public class DIController extends HttpServlet {
 
         Service service = mainControlDB.getService(service_id);
 
-        WSDLParser wsdlParser = new WSDLParser(service.getWsdl(), service.getNamespace());
+        WSDLParser wsdlParser = new WSDLParser(xml_rep_path+service.getWsdl(), service.getNamespace());
         choice = selections.split("\\$")[1];
         //choice[1] = selections.split("\\$")[2];
         String inputoutput = selections.split("\\$")[0];

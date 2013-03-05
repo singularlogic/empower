@@ -6,7 +6,7 @@
     <groupId>eu.empower.sal</groupId>
     <artifactId>eu.empower.sal</artifactId>
     <packaging>war</packaging>
-    <version>0.9.0-20130305.1535-SNAPSHOT</version>
+    <version>0.9.0-20130305.1635-SNAPSHOT</version>
     <name>Empower SAL</name>
 
     <url>http://maven.apache.org</url>
