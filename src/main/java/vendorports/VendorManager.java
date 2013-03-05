@@ -181,6 +181,7 @@ public class VendorManager extends HttpServlet {
         
         WSDLParser wsdlParser = new WSDLParser(xml_rep_path+service.getWsdl(), service.getNamespace());
 
+
          wsdlParser.loadService(service.getName());
         LinkedList<String> operations =  wsdlParser.returnOperationNames("");
         JSONObject operationsToDelete = new  JSONObject();
