@@ -89,6 +89,7 @@ public class XSDParser  {
                     + "<item text='"+schema.getName()+"' id='Schema"+schema.getName()+"' nocheckbox='true'>");
         }
 
+
         if (qName.equalsIgnoreCase("xs:complexType") || qName.equalsIgnoreCase("xsd:complexType")) {
             complexTypefl = true;
             if (attributes != null) {
