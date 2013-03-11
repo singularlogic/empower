@@ -6,7 +6,7 @@
     <groupId>eu.empower.sal</groupId>
     <artifactId>eu.empower.sal</artifactId>
     <packaging>war</packaging>
-    <version>0.9.1-SNAPSHOT</version>
+    <version>0.9.3-SNAPSHOT</version>
     <name>Empower SAL</name>
 
     <url>http://maven.apache.org</url>
@@ -309,6 +309,32 @@
                 <db.password>!empower!</db.password>
                 <repo.path>/var/www/empower/empowerdata/</repo.path>
             </properties>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jboss.as.plugins</groupId>
+                        <artifactId>jboss-as-maven-plugin</artifactId>
+                        <version>7.1.1.Final</version>
+                        <executions>
+                            <execution>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>deploy</goal>
+                                </goals>
+                                <configuration>
+                                    <hostname>192.168.1.202</hostname>
+                                    <port>9999</port>
+                                    <username>admin</username>
+                                    <password>jboss</password>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+
+            </build>
+
 
             <distributionManagement>
                 <repository>

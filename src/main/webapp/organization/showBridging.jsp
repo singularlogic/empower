@@ -142,13 +142,7 @@
         
         <div style="clear:both;"></div>
 
-        <%if (request.getParameter("type").equalsIgnoreCase("schema")) {%>
-        <form method="post" name="do_bridge" style="margin-top: 25px;" action="./OrganizationManager?op=doBridging&cpa_id=<%=request.getParameter("cpa_id")%>" enctype="multipart/form-data">
-            <input type="file" name="source_xml" value="" id="fileinput"/>
-            <input type="submit" value="Show target xml"  id="do_bridging"/>
-        </form>
-        <br>
-        <%}%>
+
         <div class="st_title"><h2>Info about the Process</h2></div>
         <%
             if (session.getAttribute("infoBridgingProcess") != "") {

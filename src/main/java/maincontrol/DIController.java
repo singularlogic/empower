@@ -191,7 +191,10 @@ public class DIController extends HttpServlet {
                     this.createCPA(request, response, session);
                 } else if (operation.equals("showCPAs")) {
                     this.showCPAs(request, response, session);
+                } else if (operation.equals("show_functional_annotation")) {
+                    this.show_functional_annotation(request, response, session);
                 }
+
 
 
             }
@@ -382,7 +385,7 @@ public class DIController extends HttpServlet {
                 session.setAttribute("CPPsPerSoftCompPerOrg", json_cppsOfOrganization);
 
 
-                this.forwardToPage("/showSchemas.jsp?software_id=" + software_id, request, response);
+                this.forwardToPage("/showSchemas.jsp?software_id=" + software_id+"&message=", request, response);
             }
         }
     }
@@ -391,6 +394,7 @@ public class DIController extends HttpServlet {
             throws IOException, ServletException {
         Iterator XSDIterator;
         int rowID = 1;
+        String EditOrView="";
 
         MainControlDB mainControlDB = new MainControlDB();
 
@@ -399,6 +403,8 @@ public class DIController extends HttpServlet {
 
 
         XSDIterator = (verifyUser("vendor", session)) ? mainControlDB.getSchemas((String) request.getParameter("software_id")).iterator() : mainControlDB.getSchemasExposed((String) request.getParameter("software_id"),organization_id).iterator();
+
+        EditOrView = (verifyUser("vendor", session)) ? "Edit":"View";
 
         response.setContentType("text/xml; charset=UTF-8");
         PrintWriter out = response.getWriter();
@@ -414,7 +420,7 @@ public class DIController extends HttpServlet {
             out.write("<row id=\"" + schema.getSchema_id()+"$"+schema.getCvp_id()+"$"+schema.getCpp_id() + "\">"
                     +"<cell>" + schema.getName() + "</cell>"
                     + cpp_name
-                    + "<cell> Edit^./presentOperationTree.jsp?schema_id=" + schema.getSchema_id()+"&amp;cpp_id="+schema.getCpp_id()+ "^_self</cell>"
+                    + "<cell> "+EditOrView+"^./presentOperationTree.jsp?schema_id=" + schema.getSchema_id()+"&amp;cpp_id="+schema.getCpp_id()+ "^_self</cell>"
                     + "<cell> Edit^./presentDataTree.jsp?schema_id=" + schema.getSchema_id()+"&amp;cpp_id="+schema.getCpp_id()+"^_self</cell>"
                     + delete_option
                     + "</row>");
@@ -487,6 +493,7 @@ public class DIController extends HttpServlet {
             throws IOException, ServletException {
         Iterator servIterator;
         String img_link = "";
+        String editOrView="";
 
 
         MainControlDB mainControlDB = new MainControlDB();
@@ -496,12 +503,13 @@ public class DIController extends HttpServlet {
         if (verifyUser("vendor", session)) {
 
             servIterator =  mainControlDB.getServices((String) request.getParameter("software_id"), false, "IS NOT NULL").iterator();
+            editOrView= "Edit";
         } else{
             String organization_name = (String) session.getAttribute("name");
             int organization_id = mainControlDB.getuserid(organization_name);
             // get all the CPPs the currend organization user paricipates
             servIterator =  mainControlDB.getExposedServices((String) request.getParameter("software_id"), "IS NOT NULL",organization_id).iterator();
-
+            editOrView= "View";
         }
 
         /*
@@ -532,7 +540,7 @@ public class DIController extends HttpServlet {
             out.write("<row id=\"" + service.getService_id() +"$"+service.getCpp_id()+ "\">"
                     + "<cell>" + service.getName()+" -- V."+service.getVersion() + "</cell>"
                     + cppNameID
-                    + "<cell>Edit^./presentOperationTree.jsp?service_id=" + service.getService_id()+ "^_self</cell>"
+                    + "<cell>"+editOrView+"^./presentOperationTree.jsp?service_id=" + service.getService_id()+ "^_self</cell>"
                     + "<cell>Edit^./presentDataTree.jsp?service_id=" + service.getService_id()+"&amp;cpp_id="+service.getCpp_id()+"^_self</cell>"
                     + delete_cpp_option
                     + delete_wservice_option
@@ -549,6 +557,40 @@ public class DIController extends HttpServlet {
 
 
 
+    protected void show_functional_annotation (HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException {
+        Iterator opIterator;
+        int schema_id = Integer.parseInt((String)request.getParameter("schema_id"));
+        int service_id = Integer.parseInt((String)request.getParameter("service_id"));
+
+        MainControlDB mainControlDB = new MainControlDB();
+        if (schema_id!=-1){
+          service_id = mainControlDB.getserviceIDofSchema(schema_id);
+        }
+
+        opIterator =  mainControlDB.getFunctionalAnnotation(service_id).iterator();
+
+        response.setContentType("text/xml; charset=UTF-8");
+        PrintWriter out = response.getWriter();
+        out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+        out.write("<rows>");
+
+
+        while (opIterator.hasNext()) {
+            Operation operation = (Operation) opIterator.next();
+            out.write("<row id=\"" + operation.getOperation_id()+"\">"
+                    + "<cell>" + operation.getWeb_service_name() + " -- V." + operation.getService_version() + "</cell>"
+                    + "<cell>" + operation.getOperation_name()+"</cell>"
+                    + "<cell>"+ operation.getTaxonomy() +"</cell>"
+                    + "</row>");
+        }
+
+        out.write("</rows>");
+        out.flush();
+
+        return;
+
+    }
+
     protected void presentServiceOperationsTree(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws IOException, ServletException, WSDLException {
 
@@ -564,7 +606,7 @@ public class DIController extends HttpServlet {
         if (request.getParameter("service_id") != null) {
             int service_id = Integer.parseInt(request.getParameter("service_id"));
             Service service = mainControlDB.getService(service_id);
-            WSDLParser wsdlParser = new WSDLParser(service.getWsdl(), service.getNamespace());
+            WSDLParser wsdlParser = new WSDLParser(xml_rep_path+service.getWsdl(), service.getNamespace());
             wsdlParser.loadService(service.getName());
             wsdlParser.outputFunctionsToXML(response.getWriter());
         }
@@ -828,7 +870,42 @@ public class DIController extends HttpServlet {
         if (!centralTree.equalsIgnoreCase(dataannotations.getXbrl()) && dataannotations.getXbrl() != null) {
             xbrl_mismatch = dataannotations.getXbrl() + "$" + centralTree;
         }
-        this.forwardToPage("/proceedDataTree.jsp?schema_id=" + schema_id + "&service_id=-1&xbrl_mismatch=" + xbrl_mismatch + "&data=" + new JSONObject(), request, response);
+
+
+
+
+        schema.setLocation(xml_rep_path+schema.getLocation());
+        String file = schema.getLocation();
+        String xml_string="";
+
+        try {
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+            String line;
+            while ((line = br.readLine()) != null) {
+
+                xml_string +=line;
+
+            }
+            br.close();
+
+        } catch (IOException e) {
+            System.out.println("ERROR: unable to read file " + file);
+            e.printStackTrace();
+        }
+
+
+
+        // Prepare JSON so as to import the xsd of the web service to mediator Portal
+        JSONObject o = new JSONObject();
+        o.put("modelId", schema_id+"_"+schema.getName());
+        o.put("description",  schema_id+"_"+schema.getName());
+        o.put("format", "XSD");
+        o.put("content", xml_string);
+
+
+
+        this.forwardToPage("/proceedDataTree.jsp?schema_id=" + schema_id + "&service_id=-1&xbrl_mismatch=" + xbrl_mismatch + "&data=" + o.toString(), request, response);
 
     }
 
@@ -1130,9 +1207,15 @@ public class DIController extends HttpServlet {
     */
     protected void showcurrentwebservice(HttpServletRequest request, HttpServletResponse response, HttpSession session)
             throws ServletException, IOException {
+        int service_id=  Integer.parseInt(request.getParameter("service_id"));
+        int schema_id =  Integer.parseInt(request.getParameter("schema_id"));
         MainControlDB mainControlDB = new MainControlDB();
 
-        Service service = mainControlDB.getService(Integer.parseInt(request.getParameter("service_id")));
+        if (schema_id!=-1)   {
+            service_id = mainControlDB.getserviceIDofSchema(schema_id);
+        }
+
+        Service service = mainControlDB.getService(service_id);
 
         response.setContentType("text/xml; charset=UTF-8");
         PrintWriter out = response.getWriter();

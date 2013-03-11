@@ -17,6 +17,8 @@ public class Operation {
     int service_id = -1, operation_id = -1, schema_id =-1;
     String web_service_name= null;
     String operation_name = null;
+    String service_version= null;
+    String taxonomy=null;
 
     public Operation(int operation_id ,String operation_name,int service_id ,String web_service_name , int schema_id) {
     
@@ -26,9 +28,33 @@ public class Operation {
         this.web_service_name = web_service_name;
         this.schema_id = schema_id;
     }
-    
-    
-      
+
+
+    public Operation(String operation_name,int operation_id,String web_service_name, String service_version, String taxonomy) {
+
+        this.web_service_name = web_service_name;
+        this.service_version  = service_version;
+        this.operation_name = operation_name;
+        this.operation_id = operation_id;
+        this.taxonomy = taxonomy;
+    }
+
+
+    public String getService_version() {
+        return service_version;
+    }
+
+    public void setService_version(String service_version) {
+        this.service_version = service_version;
+    }
+
+    public String getTaxonomy() {
+        return taxonomy;
+    }
+
+    public void setTaxonomy(String taxonomy) {
+        this.taxonomy = taxonomy;
+    }
     public int getOperation_id() {
         return operation_id;
     }

@@ -18,7 +18,9 @@
                     }
                 });
                 if(<%=request.getParameter("service_id")%>){
-                dhtmlxAjax.get("./DIController?op=showcurrentwebservice&service_id=<%=request.getParameter("service_id")%>", putSubTitle);
+                dhtmlxAjax.get("./DIController?op=showcurrentwebservice&service_id=<%=request.getParameter("service_id")%>&schema_id=-1", putSubTitle);
+                }else{
+                dhtmlxAjax.get("./DIController?op=showcurrentwebservice&schema_id=<%=request.getParameter("schema_id")%>&service_id=-1", putSubTitle);
                 }
             });
 
@@ -52,6 +54,11 @@
                     document.forms['annotationf'].elements['funcselections'].value = treeFunc.getAllChecked(); 
                     return true;
                 }
+            }
+
+            function goBack()
+            {
+                window.history.back()
             }
         </script>
         <title>Presenting service in tree form</title>
@@ -97,7 +104,7 @@
         </div>
         <div class="main">
             <div class="main-navigation">
-                <div id="menu_grid" style="width:180px; height:<%=(session.getAttribute("userType").equals("organization")) ? 210 : 150%>px" class='glossymenu'>
+                <div id="menu_grid" style="width:180px; height:<%=(session.getAttribute("userType").equals("organization")) ? 240 : 150%>px" class='glossymenu'>
                     <script>
                         menu_grid = new dhtmlXGridObject("menu_grid");
                         menu_grid.setImagePath("js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");
@@ -111,7 +118,29 @@
                 </div>
             </div>    
             <div class="main-content" style="width: 650px;">
-                <h2 id="subPageTitle" style="width: 488px; float: left;"></h2><br><br>
+                <h2 id="subPageTitle" style="width: 623px; float: left;"></h2><br><br>
+
+                <% if(session.getAttribute("userType").equals("organization")) {%>
+
+
+                <div id="box_grid" style="width:572px; height:110px;border-width: 0px;"/>
+                <script>
+                    grid = new dhtmlXGridObject("box_grid");
+                    grid.setImagePath("/js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");
+                    grid.setHeader("Service Name,Operation Name,Taxonomy Name");
+                    grid.setColTypes("ro,ro,ro");
+                    grid.setSkin("light");//set grid skin
+                    grid.init();//initialize grid
+                    if(<%=request.getParameter("service_id")%>){
+                    grid.loadXML("./DIController?op=show_functional_annotation&service_id=<%=request.getParameter("service_id")%>&schema_id=-1");
+                    }else if(<%=request.getParameter("schema_id")%>){
+                    grid.loadXML("./DIController?op=show_functional_annotation&service_id=-1&schema_id=<%=request.getParameter("schema_id")%>");
+                    }
+                </script>
+            </div>
+
+
+                <% }else{%>
                 <p class="info_message" style="width: 488px; float: left;">Functional Annotation of the operations of the web service. Please select the  operation from the left side and
                     the Functional Taxonomy category from the right side. In order to see the existing functional annotation of an operation
                     click on "See existing Annotation" link.</p><br><br>
@@ -162,6 +191,12 @@
             </form>
             <a id="get_previousfuncannotation">See existing Annotation</a>
         </div>
+        <% }%>
+
+
+        <div style="margin-top: 10px;"><a id="returnback" onclick="goBack()">Return Back</a>  </div>
+
+
     </div>
 </div>
 <div class="footer"><p>Copyright &copy; 2011 - 2013 EMPOWER Consortium | All Rights Reserved</p></div>

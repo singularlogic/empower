@@ -976,4 +976,60 @@ public class MainControlDB {
 
         return taxonomiesList;
     }
+
+    public int getserviceIDofSchema(int schema_id) {
+         ResultSet rs;
+         int service_id=-1;
+
+        try {
+
+            this.dbHandler.dbOpen();
+            rs = this.dbHandler.dbQuery("select o.service_id from operation_schema os, operation o  where os.operation_id= o.operation_id and os.schema_id=" + schema_id);
+
+            if (rs != null) {
+                rs.next();
+                service_id = rs.getInt("service_id");
+            }
+
+            rs.close();
+
+            this.dbHandler.dbClose();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+
+        return service_id;
+    }
+
+
+    public  LinkedList<Operation>  getFunctionalAnnotation(int service_id) {
+        ResultSet rs;
+        LinkedList<Operation> opList = new LinkedList<Operation>();
+
+
+        try {
+
+            this.dbHandler.dbOpen();
+            rs = this.dbHandler.dbQuery("select ws.name as service_name, ws.version as service_version, o.name as operation_name,o.operation_id as operation_id, o.taxonomy_id as operation_taxonomy " +
+                    " from operation o , web_service ws " +
+                    " where o.service_id=ws.service_id and ws.service_id=" +service_id);
+
+            if (rs != null) {
+                while (rs.next()) {
+                opList.add( new Operation(rs.getString("operation_name"),rs.getInt("operation_id"),rs.getString("service_name"), rs.getString("service_version"), rs.getString("operation_taxonomy")));
+                }
+            }
+
+            rs.close();
+
+            this.dbHandler.dbClose();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+
+        return opList;
+    }
+
+
+
 }

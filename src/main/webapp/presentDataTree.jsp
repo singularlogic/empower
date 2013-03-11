@@ -7,9 +7,15 @@
     <script type="text/javascript" src="./js/jquery.js"></script> 
 <script>
     $(document).ready(function() {
+
         if(<%=request.getParameter("service_id")%>){
-            dhtmlxAjax.get("./DIController?op=showcurrentwebservice&service_id=<%=request.getParameter("service_id")%>", putSubTitle);
+            dhtmlxAjax.get("./DIController?op=showcurrentwebservice&service_id=<%=request.getParameter("service_id")%>&schema_id=-1", putSubTitle);
+        }else{
+            dhtmlxAjax.get("./DIController?op=showcurrentwebservice&schema_id=<%=request.getParameter("schema_id")%>&service_id=-1", putSubTitle);
         }
+
+
+
     });
 
     window.onload = function () {
@@ -51,7 +57,7 @@
                lenght_var =4; 
            }else{
                split_var="--";
-               lenght_var =9; 
+               lenght_var =10;
            }
              
            if(tree.getAllChecked().split(split_var).length!=lenght_var || tree.getAllChecked()=="" || centralTree.getAllChecked().split(",").length!=1 || centralTree.getAllChecked()==""){
