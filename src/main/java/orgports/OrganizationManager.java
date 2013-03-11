@@ -201,6 +201,7 @@ public class OrganizationManager extends HttpServlet {
         String software_id = (String) request.getParameter("software_id");
         String serviceORschema = (String) request.getParameter("serviceORschema");
 
+
         OrgDBConnector orgDBConnector = new OrgDBConnector();
 
         orgDBConnector.insertNewCPP(cpp_id,organization_name,cpp_name,-1);
@@ -226,8 +227,11 @@ public class OrganizationManager extends HttpServlet {
 
         //---------------------------------------------
 
-
+        if (serviceORschema.equalsIgnoreCase("service")){
         this.forwardToPage("/showServices.jsp?software_id=" + software_id+"&message="+message, request, response);
+        } else {
+        this.forwardToPage("/showSchemas.jsp?software_id=" + software_id+"&message="+message, request, response);
+        }
 
     }
 
@@ -264,7 +268,11 @@ public class OrganizationManager extends HttpServlet {
         //Desactivate Bridge
         orgDBConnector.desactivateBridge(cpp_id);
 
+        if (serviceORschema.equalsIgnoreCase("service")){
         this.forwardToPage("/showServices.jsp?software_id=" + software_id+"&message="+message, request, response);
+        } else {
+         this.forwardToPage("/showSchemas.jsp?software_id=" + software_id+"&message="+message, request, response);
+        }
 
     }
 
@@ -304,10 +312,11 @@ public class OrganizationManager extends HttpServlet {
         String software_id = (String) request.getParameter("software_id");
         String xml_string = "";
         int service_id = -1;
+        String organization_name = (String) session.getAttribute("name");
 
         OrgDBConnector orgDBConnector = new OrgDBConnector();
 
-        LinkedList<Schema> schemas = (LinkedList<Schema>) orgDBConnector.getSchemas(software_id);
+        LinkedList<Schema> schemas = (LinkedList<Schema>) orgDBConnector.getSchemas(software_id, organization_name);
 
         Iterator<Schema> schemas_it = schemas.iterator();
         while (schemas_it.hasNext()) {
@@ -337,10 +346,11 @@ public class OrganizationManager extends HttpServlet {
         String taxonomy_id = selections.split("--")[3];
         String xbrl_taxonomy = selections.split("--")[8];
         String xml_string = "";
+        String organization_name = (String) session.getAttribute("name");
 
         OrgDBConnector orgDBConnector = new OrgDBConnector();
 
-        LinkedList<Schema> schemas = (LinkedList<Schema>) orgDBConnector.getTargetSchemas(inputoutput, taxonomy_id, xbrl_taxonomy);
+        LinkedList<Schema> schemas = (LinkedList<Schema>) orgDBConnector.getTargetSchemas(inputoutput, taxonomy_id, xbrl_taxonomy,organization_name);
 
         Iterator<Schema> schemas_it = schemas.iterator();
         while (schemas_it.hasNext()) {
@@ -654,6 +664,9 @@ public class OrganizationManager extends HttpServlet {
         OrgDBConnector orgDBConnector = new OrgDBConnector();
         String finalxmloutput = "";
         String finalxmlAllUpcastedXML="";
+
+
+        System.out.println("elaaaaaaaa kai thelo na teleiono..."+cpp_a+"  "+cpp_b);
 
         String xsltRulesFirst = orgDBConnector.retrieveXLST(cpp_a, "input", cpa_info, service_selections);//input
         String xsltRulesSecond = orgDBConnector.retrieveXLST(cpp_b, "output", cpa_info, service_selections);//output

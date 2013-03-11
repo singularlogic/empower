@@ -68,9 +68,11 @@ public class OrgDBConnector {
         return compList;
     }
     
-     public Collection getSchemas(String software_id) {
+     public Collection getSchemas(String software_id,  String organization_name) {
         ResultSet rs;
         LinkedList<Schema> XSDList = new LinkedList<Schema>();
+
+        int user_id= this.getUserID(organization_name);
 
        String sofwareCondition = (software_id.equalsIgnoreCase("-1"))?"":" ws.software_id="+software_id+" and ";
 
@@ -86,7 +88,8 @@ public class OrgDBConnector {
                     + " LEFT JOIN dataannotations da on da.schema_id=s.schema_id "
                     + " LEFT JOIN cvp cvp on cvp.cvp_id = da.cvp_id  "
                     + " LEFT JOIN cpp cpp on cpp.cvp_id = cvp.cvp_id  "
-                    + " where "+ sofwareCondition +" os.inputoutput='input'  and cvp.cvp_id IS NOT NULL and da.cpp_id IS NOT NULL  GROUP BY cpp.cpp_id  order by ws.service_id ");
+                    + " where "+ sofwareCondition +" os.inputoutput='input'  and cvp.cvp_id IS NOT NULL and da.cpp_id IS NOT NULL  and cpp.organization_id="+user_id+ "  GROUP BY cpp.cpp_id  order by ws.service_id ");
+
 
 
              if (rs != null) {
@@ -105,11 +108,11 @@ public class OrgDBConnector {
         return XSDList;
     }
      
-        public Collection getTargetSchemas(String inputoutput, String taxonomy_id,String xbrl_taxonomy) {
+        public Collection getTargetSchemas(String inputoutput, String taxonomy_id,String xbrl_taxonomy, String organization_name) {
         ResultSet rs;
         LinkedList<Schema> XSDList = new LinkedList<Schema>();
         String xbrl = xbrl_taxonomy;
-      
+        int user_id= this.getUserID(organization_name);
 
         try {
 
@@ -123,7 +126,7 @@ public class OrgDBConnector {
                     + " LEFT JOIN dataannotations da on da.schema_id = s.schema_id "
                     + " LEFT JOIN cvp cvp on cvp.cvp_id = da.cvp_id "
                     + "LEFT JOIN cpp cpp on cpp.cvp_id = cvp.cvp_id"
-                    + " where  o.taxonomy_id = '"+taxonomy_id+"' and os.inputoutput='output' and cvp.cvp_id IS NOT NULL and da.xbrl='"+xbrl+"'  GROUP BY cpp.cpp_id  order by ws.service_id ");
+                    + " where  o.taxonomy_id = '"+taxonomy_id+"' and os.inputoutput='output' and cvp.cvp_id IS NOT NULL and da.xbrl='"+xbrl+"'  and cpp.organization_id="+user_id+ "  GROUP BY cpp.cpp_id  order by ws.service_id ");
 
 
 
@@ -245,12 +248,7 @@ public class OrgDBConnector {
             //rs = this.dbHandler.dbQuery("select da.xslt_annotations as xslt_annotations from dataannotations da, cvp cvp, cpp cpp  where cpp.cpp_id =" +cpp_id+ " and cpp.cvp_id = cvp.cvp_id and da.cvp_id=cvp.cvp_id ");
             rs = this.dbHandler.dbQuery("select da.xslt_annotations as xslt_annotations "
                     + " from dataannotations da, cvp cvp, cpp cpp ,operation_schema os  "
-                    + " where cpp.cvp_id = cvp.cvp_id and da.cvp_id=cvp.cvp_id  and os.schema_id = da.schema_id "
-                    + " and os.inputoutput='"+inputoutput+"' and cpp.cpp_id ="+cpp_id+"  and da.schema_id="+info.get("schema_id") +"  and da.selections LIKE '%"+info.get("schema_complexType")+"%'  and os.operation_id="+info.get("operation_id"));
-
-            System.out.println("ela mou.... select da.xslt_annotations as xslt_annotations "
-                    + " from dataannotations da, cvp cvp, cpp cpp ,operation_schema os  "
-                    + " where cpp.cvp_id = cvp.cvp_id and da.cvp_id=cvp.cvp_id  and os.schema_id = da.schema_id "
+                    + " where cpp.cvp_id = cvp.cvp_id and da.cvp_id=cvp.cvp_id  and os.schema_id = da.schema_id and da.cpp_id = cpp.cpp_id "
                     + " and os.inputoutput='"+inputoutput+"' and cpp.cpp_id ="+cpp_id+"  and da.schema_id="+info.get("schema_id") +"  and da.selections LIKE '%"+info.get("schema_complexType")+"%'  and os.operation_id="+info.get("operation_id"));
 
 
@@ -524,7 +522,7 @@ public class OrgDBConnector {
             rs =(serviceORschema.equalsIgnoreCase("service"))? this.dbHandler.dbQuery("select ws.service_id as service_id, ws.name as service_name, ws.version as service_version, cpp.name as cpp_name,cpp.cpp_id as cpp_id, ws.exposed as exposed, ws.wsdl as wsdl, ws.namespace as namespace" +
                     " from web_service ws,cvp cvp,cpp cpp where ws.service_id=cvp.service_id and cpp.cvp_id=cvp.cvp_id and ws.exposed=1 and ws.software_id="+software_id+" and cpp.organization_id="+organization_id+"  and ws.wsdl IS NOT NULL"):
                     this.dbHandler.dbQuery("select ws.service_id as service_id, ws.name as service_name, ws.version as service_version, cpp.name as cpp_name,cpp.cpp_id as cpp_id, ws.exposed as exposed, ws.wsdl as wsdl, ws.namespace as namespace" +
-                    " from web_service ws,cvp cvp,cpp cpp where ws.service_id=cvp.service_id and cpp.cvp_id=cvp.cvp_id and ws.software_id="+software_id+" and cpp.organization_id="+organization_id+"  and cpp.cpp_id IS NOT NULL");
+                    " from web_service ws,cvp cvp,cpp cpp where ws.service_id=cvp.service_id and cpp.cvp_id=cvp.cvp_id and ws.software_id="+software_id+" and cpp.organization_id="+organization_id+"  and cpp.cpp_id IS NOT NULL and ws.wsdl IS NULL");
 
             System.out.println("select ws.service_id as service_id, ws.name as service_name, ws.version as service_version, cpp.name as cpp_name,cpp.cpp_id as cpp_id, ws.exposed as exposed, ws.wsdl as wsdl, ws.namespace as namespace" +
                     " from web_service ws,cvp cvp,cpp cpp where ws.service_id=cvp.service_id and cpp.cvp_id=cvp.cvp_id and ws.software_id="+software_id+" and cpp.organization_id="+organization_id+"  and cpp.cpp_id IS NOT NULL");
@@ -632,6 +630,7 @@ public class OrgDBConnector {
         ResultSet rs;
         int cvp_id = 0;
         int vendor_id = 0;
+
         LinkedList<DataAnnotations> daList = new LinkedList<DataAnnotations>();
         try {
 
@@ -643,9 +642,10 @@ public class OrgDBConnector {
             //get all data annotations with specific cvp and insert them adding the cpp_id
             rs= this.dbHandler.dbQuery("SELECT * FROM dataannotations da, cpp cpp WHERE da.cpp_id=cpp.cpp_id and da.cpp_id="+father_cpp_id);
 
+            System.out.println("axxx baxxx SELECT * FROM dataannotations da, cpp cpp WHERE da.cpp_id=cpp.cpp_id and da.cpp_id="+father_cpp_id);
             if (rs != null) {
                 while (rs.next()) {
-                    daList.add(new DataAnnotations(rs.getInt("dataAnnotations_id"), rs.getString("xslt_annotations"), rs.getString("mapping"), rs.getString("selections"), rs.getString("xbrl")));
+                    daList.add(new DataAnnotations(rs.getInt("dataAnnotations_id"),rs.getInt("da.schema_id"), rs.getString("xslt_annotations"), rs.getString("mapping"), rs.getString("selections"), rs.getString("xbrl")));
                     cvp_id= rs.getInt("cvp_id");
                     vendor_id = rs.getInt("vendor_id");
                 }}
@@ -660,14 +660,20 @@ public class OrgDBConnector {
 
             System.out.println("new_cpp_id"+new_cpp_id);
 
+            String putSchemaIDToDataannotationsTuple="";
             for (DataAnnotations da: daList){
 
                 int newda_id= this.dbHandler.dbUpdate("INSERT INTO dataannotations (xslt_annotations , mapping, selections,xbrl) SELECT xslt_annotations , mapping, selections,xbrl FROM dataannotations  WHERE dataAnnotations_id ="+da.getDataAnnotations_id());
 
+                System.out.println("da.getSchema_id()"+ da.getSchema_id());
+                putSchemaIDToDataannotationsTuple = (da.getSchema_id()!=0) ?  " schema_id="+da.getSchema_id()+", " : "";
+
                 if(cpa_id==-1){
-                this.dbHandler.dbUpdate("update dataannotations set cvp_id='" + cvp_id + "',cpp_id=" + new_cpp_id + " where dataAnnotations_id=" + newda_id);
+                this.dbHandler.dbUpdate("update dataannotations set "+putSchemaIDToDataannotationsTuple+" cvp_id='" + cvp_id + "',cpp_id=" + new_cpp_id + " where dataAnnotations_id=" + newda_id);
+
                 } else{
-                this.dbHandler.dbUpdate("update dataannotations set cvp_id='" + cvp_id + "',cpp_id=" + new_cpp_id +", cpa_id=" + cpa_id + " where dataAnnotations_id=" + newda_id);
+                this.dbHandler.dbUpdate("update dataannotations set "+putSchemaIDToDataannotationsTuple+" cvp_id='" + cvp_id + "',cpp_id=" + new_cpp_id +", cpa_id=" + cpa_id + " where dataAnnotations_id=" + newda_id);
+
                 }
              }
 

@@ -237,9 +237,12 @@ public class MainControlDB {
 
             rs= this.dbHandler.dbQuery("SELECT * FROM `dataannotations` WHERE cvp_id="+cvp_id+ "  and cpp_id IS NULL");
 
+
             if (rs != null) {
                 while (rs.next()) {
                     daList.add(new DataAnnotations(rs.getInt("dataAnnotations_id"), rs.getString("xslt_annotations"), rs.getString("mapping"), rs.getString("selections"), rs.getString("xbrl")));
+
+
                 }}
 
             for (DataAnnotations da: daList){
@@ -358,7 +361,7 @@ public class MainControlDB {
                         " INNER JOIN schema_xsd  s  on os.schema_id = s.schema_id " +
                         " INNER JOIN cvp  cvp  on  cvp.service_id = ws.service_id " +
                         " INNER JOIN cpp  cpp  on  cvp.cvp_id = cpp.cvp_id " +
-                        "where ws.software_id=" + software_id + " and ws.wsdl IS NULL");
+                        "where ws.software_id=" + software_id + " and ws.wsdl IS NULL and cpp.organization_id ="+organization_id);
 
 
                 if (rs3 != null) {

@@ -9,7 +9,7 @@
                 $("#get_target_schemas").click(function() {   
                     $('#target_box_tree').empty();  
                     if(tree.getAllChecked().split("--").length!=10) alert("You have to check only one input schema! Thank You!");
-                    else{    $.getJSON('./OrganizationManager?op=showPossibleTargets&selections='+tree.getAllChecked(), function(data) {
+                    else{    $.getJSON('./OrganizationManager?op=showPossibleTargets&selections='+tree.getAllChecked()+'&user_name=<%=session.getAttribute("name")%>', function(data) {
                             target_tree = new dhtmlXTreeObject("target_box_tree", "100%", "100%", 0);
                             target_tree.setImagePath("./js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
                             target_tree.enableCheckBoxes(true, false);
@@ -142,7 +142,7 @@
                     tree = new dhtmlXTreeObject("box_tree", "100%", "100%", 0);
                     tree.setImagePath("./js/dhtmlxSuite/dhtmlxTree/codebase/imgs/");
                     tree.enableCheckBoxes(true, false);
-                    tree.loadXML('./OrganizationManager?op=show_bridging_schemas&software_id=<%=request.getParameter("software_id")%>', null);
+                    tree.loadXML('./OrganizationManager?op=show_bridging_schemas&software_id=<%=request.getParameter("software_id")%>&user_name=<%=session.getAttribute("name")%>', null);
                 </script>
             </div>   
 
