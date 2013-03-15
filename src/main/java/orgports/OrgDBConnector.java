@@ -755,8 +755,9 @@ public class OrgDBConnector {
             String software_id_restriction=(!software_id.toString().equalsIgnoreCase("-1"))?" and ws.software_id="+software_id:"";
             this.dbHandler.dbOpen();
 
-            rs = this.dbHandler.dbQuery("select ws.software_id as software_id, sc.name  as software_name ,sc.version as software_version ,ws.service_id as service_id, ws.name as service_name, ws.version as service_version,ib.installedbinding_id,ib.url_binding " +
-                    " from web_service ws, softwarecomponent sc, installedbinding ib where ws.software_id=sc.software_id and  ws.service_id=ib.service_id and  ws.exposed=1  and ws.wsdl IS NOT NULL "+ software_id_restriction +"  order by sc.software_id, ws.service_id ");
+            rs = this.dbHandler.dbQuery("SELECT ws.software_id AS software_id, sc.name AS software_name, sc.version AS software_version, ws.service_id AS service_id, ws.name AS service_name, ws.version AS service_version, ib.installedbinding_id, ib.url_binding " +
+                    " FROM softwarecomponent sc LEFT JOIN web_service ws ON ws.software_id = sc.software_id LEFT JOIN installedbinding ib ON ws.service_id = ib.service_id " +
+                    " WHERE  ws.exposed =1 AND ws.wsdl IS NOT NULL "+ software_id_restriction +"  ORDER BY sc.software_id, ws.service_id");
 
 
             if (rs != null) {

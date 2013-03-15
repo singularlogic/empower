@@ -143,6 +143,8 @@ public class OrganizationManager extends HttpServlet {
                     this.getCPPsInstallations(request, response, session);
                 } else if (operation.equals("showCppsForBridging")) {
                     this.showCppsForBridging(request, response, session);
+                }  else if (operation.equals("getCPPsPerSoftCompPerOrg")) {
+                    this.getCPPsPerSoftCompPerOrg(request, response, session);
                 }
 
 
@@ -1289,6 +1291,37 @@ public class OrganizationManager extends HttpServlet {
          response.getWriter().write(new Gson().toJson(schemasToCompare));
     }
 
+    protected void getCPPsPerSoftCompPerOrg(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws IOException, ServletException, WSDLException {
+
+        String serviceORschema = (String) request.getParameter("serviceORschema");
+
+        //-------------Prepare the select option so as to create new CPP's------------
+        JSONObject json_cppsOfOrganization = new JSONObject();
+        OrgDBConnector orgDBConnector = new OrgDBConnector();
+        LinkedList<Service> cppsofOrg = orgDBConnector.getCPPs((String) session.getAttribute("name"),Integer.parseInt(request.getParameter("software_id")),serviceORschema);
+
+
+        Iterator cppsofOrg_iterator = cppsofOrg.iterator();
+        while (cppsofOrg_iterator.hasNext()) {
+            Service cpp_service = (Service) cppsofOrg_iterator.next();
+            json_cppsOfOrganization.put(cpp_service.getCpp_id(), cpp_service.getName() + "  V." + cpp_service.getVersion() + "   CPP Name: " +cpp_service.getCpp_name() + "  ID: " +cpp_service.getCpp_id());
+        }
+        //session.setAttribute("CPPsPerSoftCompPerOrg", json_cppsOfOrganization);
+
+        //-------------------------------------------------------------------------
+
+
+
+
+
+
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(new Gson().toJson(json_cppsOfOrganization));
+    }
+
 
 
     public String prepareSoapBody(String xml,String operation, String complexType) throws TransformerException, ParserConfigurationException, IOException, SAXException {
@@ -1396,7 +1429,9 @@ public class OrganizationManager extends HttpServlet {
                         for(Service service:services){
                             if(webservice_id==service.getService_id())
                             {
-                                xml +="<item text='"+service.getUrl_binding()+"' id='IB"+service.getInstalledbinding_id()+"'></item>";
+                                try {
+                                xml +="<item text='"+service.getUrl_binding().toString()+"' id='IB"+service.getInstalledbinding_id()+"'></item>";
+                                }  catch(NullPointerException e){ }
                             }
                         }
                         xml +="</item>";
@@ -1446,7 +1481,10 @@ public class OrganizationManager extends HttpServlet {
                         for(Service service:services){
                             if(webservice_id==service.getService_id())
                             {
-                                out.write("<item text='"+service.getUrl_binding()+"' id='IB"+service.getInstalledbinding_id()+"'></item>");
+                                try {
+                                  out.write("<item text='"+service.getUrl_binding().toString()+"' id='IB"+service.getInstalledbinding_id()+"'></item>");
+                                 }
+                                catch(NullPointerException e){ }
                             }
                         }
                         out.write("</item>");

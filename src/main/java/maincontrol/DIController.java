@@ -495,10 +495,7 @@ public class DIController extends HttpServlet {
         String img_link = "";
         String editOrView="";
 
-
         MainControlDB mainControlDB = new MainControlDB();
-
-
 
         if (verifyUser("vendor", session)) {
 
@@ -510,6 +507,7 @@ public class DIController extends HttpServlet {
             // get all the CPPs the currend organization user paricipates
             servIterator =  mainControlDB.getExposedServices((String) request.getParameter("software_id"), "IS NOT NULL",organization_id).iterator();
             editOrView= "View";
+
         }
 
         /*

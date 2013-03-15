@@ -13,6 +13,7 @@
 	<script src="./js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgrid.js"></script>
         <script src="./js/dhtmlxSuite/dhtmlxGrid/codebase/dhtmlxgridcell.js"></script>
         <script src="./js/dhtmlxSuite/dhtmlxGrid/codebase/excells/dhtmlxgrid_excell_link.js"></script>
+        <script type="text/javascript" src="./js/jquery.js"></script>
         <style type="text/css">
             div.gridbox_inverse table.hdr td {background-color:#A0D651; color:white; font-weight:bold;}
             div.gridbox_inverse table.obj td{background-color: #D9EFB9;text-align: center;}
@@ -20,7 +21,19 @@
         </style>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">        
         <title>C Show Schemas</title>
-        <script type="text/javascript">                                          
+        <script type="text/javascript">
+            jQuery(document).ready(function(){
+            $("#createANewCPP").click(function() {
+                $("#createCPPDIV").show();
+
+                $.getJSON('./OrganizationManager?op=getCPPsPerSoftCompPerOrg&software_id=<%= request.getParameter("software_id") %>&serviceORschema=schema', function(data) {
+                    for (var cpp in data) {
+                        $('#CPPsPerSoftCompPerOrg').append('<option value="'+cpp+'" >'+data[cpp]+'</option>');
+                    }
+                });
+            });
+            });
+
             function deleteschema(schema_id){
                 var r=confirm("Are you sure you want to delete?");
                 if (r==true)
@@ -89,22 +102,23 @@
                 <%}else{ %>
 
             <div>
-                <h2 style="border-bottom: 2px solid;">Create a New CPP:</h2>
-                <form method="POST" action="./OrganizationManager?op=cpp_reg&software_id=<%= request.getParameter("software_id") %>&serviceORschema=schema" name="cpp_registration"  id="cpp_registration" >
+                <h2><a id="createANewCPP">Create a New CPP</a></h2>
+            <div id="createCPPDIV" style="display: none;border-bottom: 2px solid;">
+            <form method="POST" action="./OrganizationManager?op=cpp_reg&software_id=<%= request.getParameter("software_id") %>&serviceORschema=schema" name="cpp_registration"  id="cpp_registration" >
 
                     <p class="info_message">Step 1: Choose The CPP you want to specialize:</p>
 
                     <select name="CPPid" id="CPPsPerSoftCompPerOrg" style="margin:10px;">
                         <%
-                            if (session.getAttribute("CPPsPerSoftCompPerOrg") != "") {
-                                JSONObject cpps = (JSONObject) session.getAttribute("CPPsPerSoftCompPerOrg");
-                                for (Object o : cpps.keySet()) {
-                                    String key = (String) o;
-                                    String value = cpps.getString(key);
-                                    System.out.println("key: " + key + " value: " + value);
-                        %> <option value="<%=key%>"><%=value%></option><%
-                            }
-                        }
+                         //      if (session.getAttribute("CPPsPerSoftCompPerOrg") != "") {
+                            //       JSONObject cpps = (JSONObject) session.getAttribute("CPPsPerSoftCompPerOrg");
+                            //       for (Object o : cpps.keySet()) {
+                            //            String key = (String) o;
+                            //           String value = cpps.getString(key);
+                            //            System.out.println("key: " + key + " value: " + value);
+                        //% > <option value="< %=//key% >">< %=//value% >< /option> <%
+                            //   }
+                        // }
                     %>
                     </select>
                     <p class="info_message">Step 2: Name the New CPP:</p>

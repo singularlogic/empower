@@ -24,6 +24,18 @@
         <script type="text/javascript">
             jQuery(document).ready(function(){
         dhtmlxAjax.get("./DIController?op=showcurrentsoftcomp&software_id=<%=request.getParameter("software_id")%>", putTitle);
+
+
+                $("#createANewCPP").click(function() {
+                    $("#createCPPDIV").show();
+
+                    $.getJSON('./OrganizationManager?op=getCPPsPerSoftCompPerOrg&software_id=<%= request.getParameter("software_id") %>&serviceORschema=service', function(data) {
+                        for (var cpp in data) {
+                            $('#CPPsPerSoftCompPerOrg').append('<option value="'+cpp+'" >'+data[cpp]+'</option>');
+                        }
+                    });
+                });
+
             });
 
             function putTitle(loader) {
@@ -109,23 +121,13 @@
                 <%}else{ %>
 
             <div>
-            <h2 style="border-bottom: 2px solid;">Create a New CPP:</h2>
+            <h2><a id="createANewCPP">Create a New CPP</a></h2>
+            <div id="createCPPDIV" style="display: none;border-bottom: 2px solid;">
             <form method="POST" action="./OrganizationManager?op=cpp_reg&software_id=<%= request.getParameter("software_id") %>&serviceORschema=service" name="cpp_registration"  id="cpp_registration" >
 
                 <p class="info_message">Step 1: Choose The CPP you want to specialize:</p>
 
-                <select name="CPPid" id="CPPsPerSoftCompPerOrg" style="margin:10px;">
-               <%
-                    if (session.getAttribute("CPPsPerSoftCompPerOrg") != "") {
-                        JSONObject cpps = (JSONObject) session.getAttribute("CPPsPerSoftCompPerOrg");
-                        for (Object o : cpps.keySet()) {
-                            String key = (String) o;
-                            String value = cpps.getString(key);
-                            System.out.println("key: " + key + " value: " + value);
-                %> <option value="<%=key%>"><%=value%></option><%
-                    }
-                }
-            %>
+            <select name="CPPid" id="CPPsPerSoftCompPerOrg" style="margin:10px;">
             </select>
             <p class="info_message">Step 2: Name the New CPP:</p>
             <input type="text" name="cpp_name" size="20">
@@ -134,9 +136,9 @@
             </div>
             <br><br>
             <div id="createDeleteCppMessage"><p class="info_message"  style="margin: 10px; border:2px solid;"><%=request.getParameter("message")%></p></div>
-
+            </div>
             <% }%>
-        </div>
+
         </div>
             <div class="footer"><p>Copyright &copy; 2011 - 2013 Empower Consortium | All Rights Reserved</p></div>
     </center>

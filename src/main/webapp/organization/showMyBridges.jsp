@@ -66,10 +66,10 @@
                     </script>
                 </div>
             </div>    
-            <div class="main-content">
+            <div class="main-content" style="width: 650px;">
                 <p><h2>See My Bridges</h2>
-                <p class="info_message">In this page you can see your bridges and use them.</br> 
-                    Please delete the disabled bridges by yourself because the bridged web services are not available any more. 
+                <p class="info_message">In this page you can see your bridges and use them.</br>
+                    Please note that if a Vendor deletes a web service, an installation of a web service (binding url) or a schema that participates at a bridge then the bridge is automatically disabled so as to be deleted behalf of the customer.
                 </p>
                 <br>                  
                 <div id="box_grid" style="width:650px; height:500px"/>

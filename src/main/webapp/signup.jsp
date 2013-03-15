@@ -49,7 +49,7 @@
                                 <td align="right">User type:</td>
                                 <td align="left">
                                     <input type="radio" name="user_type" value="vendor" /> Vendor <br>
-                                    <input type="radio" name="user_type" value="customer" /> Organization<br>
+                                    <input type="radio" name="user_type" value="organization" /> Customer<br>
                                 </td>
                             </tr>
                             <tr>
