@@ -69,6 +69,8 @@ public class WSDLParser
         this.WSDL_URL = new String(WSDL_URL);
         WSDLFactory factory = WSDLFactory.newInstance();
         WSDLReader reader = factory.newWSDLReader();
+
+        System.out.println("WSDL_URL  "+this.WSDL_URL);
         definitionEntity = reader.readWSDL(this.WSDL_URL);
         this.messageNumber = 0;
         this.operationsNumber = 0;

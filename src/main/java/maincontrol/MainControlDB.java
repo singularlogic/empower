@@ -778,6 +778,7 @@ public class MainControlDB {
 
             this.dbHandler.dbClose();
         } catch (Throwable t) {
+            System.out.println("print exception: " + t.toString());
         }
         System.out.println("user_id: " + user_id);
         return user_id;

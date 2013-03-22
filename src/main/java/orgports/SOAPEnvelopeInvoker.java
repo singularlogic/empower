@@ -18,7 +18,7 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.rpc.ServiceException;
+//import javax.xml.rpc.ServiceException;
 import javax.xml.soap.*;
 import javax.xml.soap.Node;
 import javax.xml.transform.Transformer;
@@ -69,6 +69,7 @@ public class SOAPEnvelopeInvoker {
      * http://ws.eleni.com/getInvoice
      */
     public SOAPEnvelopeInvoker(String SoapAdressURL, String source_operation_name, String complexType_input, String complexType_output, String namespace, String xmldata) throws ParserConfigurationException, IOException, SAXException, TransformerException {
+
         this.SoapAdressURL = SoapAdressURL;
         this.source_operation_name = source_operation_name;
         this.complexType_input = complexType_input;
@@ -390,10 +391,12 @@ public class SOAPEnvelopeInvoker {
         } catch (AxisFault ex) {
             System.out.println(ex.getMessage());
             SOAPEnvelopeInvokerResponse.put("ErrorMessage", "SOAP Request to "+HOST_ADDRESS+"  "+ ex.getMessage());
-        } catch (ServiceException ex) {
-            System.out.println(ex.getMessage());
-              SOAPEnvelopeInvokerResponse.put("ErrorMessage","SOAP Request to "+HOST_ADDRESS+"  "+ ex.getMessage());
-        } catch (SOAPException ex) {
+        }
+        //catch (ServiceException ex) {
+          //  System.out.println(ex.getMessage());
+            //  SOAPEnvelopeInvokerResponse.put("ErrorMessage","SOAP Request to "+HOST_ADDRESS+"  "+ ex.getMessage());
+        //}
+        catch (SOAPException ex) {
             System.out.println(ex.getMessage());
             SOAPEnvelopeInvokerResponse.put("ErrorMessage","SOAP Request to "+HOST_ADDRESS+"  "+ ex.getMessage());
         }catch (Exception ex) {
