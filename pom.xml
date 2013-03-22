@@ -6,10 +6,17 @@
     <groupId>eu.empower.sal</groupId>
     <artifactId>eu.empower.sal</artifactId>
     <packaging>war</packaging>
-    <version>0.9.5-SNAPSHOT</version>
+    <version>0.9.6-SNAPSHOT</version>
     <name>Empower SAL</name>
 
     <url>http://maven.apache.org</url>
+    <!--
+    <packaging>pom</packaging>
+    <modules>
+        <module>Bridgemodule</module>
+    </modules>
+    -->
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -184,11 +191,20 @@
             <artifactId>httpmime</artifactId>
             <version>4.2.1</version>
         </dependency>
+
         <dependency>
             <groupId>xalan</groupId>
             <artifactId>xalan</artifactId>
             <version>2.7.1</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.sun.xml.ws</groupId>
+            <artifactId>jaxws-rt</artifactId>
+            <version>2.1.4</version>
+        </dependency>
+
+
     </dependencies>
 
     <build>
