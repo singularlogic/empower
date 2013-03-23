@@ -15,7 +15,6 @@ import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 
 /**
- *
  * @author eleni
  */
 public class OrgDBConnector {
