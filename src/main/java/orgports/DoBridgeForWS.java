@@ -65,8 +65,7 @@ public class DoBridgeForWS {
     public JSONObject doBridgingService(int cpa_id, String xml_data) throws IOException, ParserConfigurationException, SAXException, XPathExpressionException, TransformerException, WSDLException, DocumentException {
 
         try{
-            System.out.println("333");
-            JSONObject infoBridgingProcess = new JSONObject();
+        JSONObject infoBridgingProcess = new JSONObject();
         MainControlDB mainControlDB = new MainControlDB();
 
 
@@ -194,6 +193,22 @@ public class DoBridgeForWS {
         }
 
         return    jsonToReturn;
+
+    }
+
+
+
+    public JSONObject doBridgeAtSchemaLevel(int cpa_id, String data){
+
+        OrgDBConnector orgDBConnector = new OrgDBConnector();
+        CPA cpainfo = orgDBConnector.getinfocpa(cpa_id);
+        int cpp_a = cpainfo.getCpp_id_first();
+        int cpp_b = cpainfo.getCpp_id_second();
+        JSONObject transform_response = this.transform(cpp_a, cpp_b, data, cpainfo.getCpa_info(), new LinkedList<String>());
+
+        //String target_xml = transform_response.getString("xml");
+
+        return transform_response;
 
     }
 
@@ -338,9 +353,6 @@ public class DoBridgeForWS {
         OrgDBConnector orgDBConnector = new OrgDBConnector();
         String finalxmloutput = "";
         String finalxmlAllUpcastedXML="";
-
-
-        System.out.println("elaaaaaaaa kai thelo na teleiono..."+cpp_a+"  "+cpp_b);
 
         String xsltRulesFirst = orgDBConnector.retrieveXLST(cpp_a, "input", cpa_info, service_selections);//input
         String xsltRulesSecond = orgDBConnector.retrieveXLST(cpp_b, "output", cpa_info, service_selections);//output
