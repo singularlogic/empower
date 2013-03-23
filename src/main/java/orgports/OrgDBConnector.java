@@ -67,6 +67,27 @@ public class OrgDBConnector {
 
         return compList;
     }
+
+
+    public String getSoftwareComponent(int service_id)
+    {
+        ResultSet rs;
+        String softcomp="";
+        try{
+            this.dbHandler.dbOpen();
+            rs = this.dbHandler.dbQuery("SELECT sc.name as  software_name,sc.version as software_version FROM web_service ws, softwarecomponent sc WHERE ws.software_id=sc.software_id and  ws.service_id=" + service_id );
+
+            if(rs.next())
+                softcomp = rs.getString("software_name")+" V. "+ rs.getString("software_version");
+
+            this.dbHandler.dbClose();
+        }
+        catch(Throwable t)
+        {
+            t.printStackTrace();
+        }
+        return softcomp;
+    }
     
      public Collection getSchemas(String software_id,  String organization_name) {
         ResultSet rs;
@@ -676,6 +697,7 @@ public class OrgDBConnector {
 
                 }
              }
+            this.dbHandler.dbClose();
 
         } catch (Throwable t) {
             t.printStackTrace();
@@ -691,7 +713,7 @@ public class OrgDBConnector {
             this.dbHandler.dbOpen();
             // create cpp with the given cvp_id and organization_id
             int new_cpp_id=  this.dbHandler.dbUpdate("insert into installedbinding(service_id,url_binding) values("+service_id+",'"+url_binding +"');");
-
+            this.dbHandler.dbClose();
         } catch (Throwable t) {
             t.printStackTrace();
         }
@@ -737,6 +759,8 @@ public class OrgDBConnector {
             this.dbHandler.dbUpdate("DELETE FROM dataannotations WHERE cpp_id="+cpp_id);
 
             this.dbHandler.dbUpdate("DELETE FROM cpp WHERE cpp_id="+cpp_id);
+
+            this.dbHandler.dbClose();
 
         } catch (Throwable t) {
             t.printStackTrace();
@@ -845,6 +869,8 @@ public class OrgDBConnector {
             this.dbHandler.dbUpdate("DELETE FROM dataannotations WHERE cpp_id="+cpp_id);
 
             this.dbHandler.dbUpdate("DELETE FROM cpp WHERE cpp_id="+cpp_id);
+
+            this.dbHandler.dbClose();
 
         } catch (Throwable t) {
             t.printStackTrace();

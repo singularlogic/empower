@@ -214,6 +214,8 @@ public class MainControlDB {
                this.dbHandler.dbUpdate("update dataannotations set cvp_id='" + cvp_id + "',cpp_id=" + cpp_id + " where dataAnnotations_id=" + newda_id);
             }
 
+            this.dbHandler.dbClose();
+
         } catch (Throwable t) {
             t.printStackTrace();
         }
@@ -251,6 +253,8 @@ public class MainControlDB {
                 int newda_id= this.dbHandler.dbUpdate("INSERT INTO dataannotations (xslt_annotations , mapping, selections,xbrl) SELECT xslt_annotations , mapping, selections,xbrl FROM dataannotations  WHERE dataAnnotations_id ="+da.getDataAnnotations_id());
                 this.dbHandler.dbUpdate("update dataannotations set cvp_id='" + cvp_id + "',cpp_id=" + cpp_id + ",schema_id="+schema_id+" where dataAnnotations_id=" + newda_id);
             }
+
+            this.dbHandler.dbClose();
 
         } catch (Throwable t) {
             t.printStackTrace();
@@ -886,8 +890,7 @@ public class MainControlDB {
     public boolean isFullyMatched(int cpp, int service_id, int cvpID) {
         ResultSet rs, tmpSet, funcSet,isexposedSet;
         int numberMessages, numberOperations, funcMessages, dataMessages;
-        String serviceName = null;
-        String operationName = null;
+        System.out.println("hello deja el show");
 
         try {
 
@@ -901,7 +904,7 @@ public class MainControlDB {
                 numberOperations = rs.getInt("operation_number");
                 funcMessages = 0;
                 dataMessages = 0;
-                serviceName = new String(rs.getString("name"));
+
 
                 System.out.println(numberMessages + " " + numberOperations);
                 dbConnector dbHandler2 = new dbConnector();
@@ -922,6 +925,8 @@ public class MainControlDB {
                 if (funcSet.next()) {
                     funcMessages = funcSet.getInt("cnt");
                 }
+                funcSet.close();
+                dbHandler2.dbClose();
                 System.out.println(funcMessages);
                 if (dataMessages == numberMessages && funcMessages == numberOperations) {
                     System.out.println("dataMessages==numberMessages" + dataMessages + numberMessages + "&& funcMessages==numberOperations " + funcMessages + numberOperations);
@@ -931,18 +936,17 @@ public class MainControlDB {
                         if (isexposedSet.getInt("exposed")==0){
                             this.dbHandler.dbUpdate("update web_service set exposed=1 where service_id=" + service_id);
                         }
-                        rs.close();
-
-                        this.dbHandler.dbClose();
+                        isexposedSet.close();
                     }
-
+                    rs.close();
                     return true;
                 } else {
+                    rs.close();
                     return false;
                 }
             }
 
-
+            this.dbHandler.dbClose();
         } catch (Throwable t) {
             t.printStackTrace();
         }

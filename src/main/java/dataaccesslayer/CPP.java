@@ -4,6 +4,7 @@
  */
 package dataaccesslayer;
 
+
 import orgports.OrgDBConnector;
 
 /**
@@ -24,6 +25,8 @@ public class CPP {
     private String schema_complexType;
     private String urlbinding;
     private int urlbinding_id;
+    private String cpp_name;
+    private String softcomp;
 
 
     public CPP(int cppID, String dataAnnotations,int vendor_id) {
@@ -35,7 +38,9 @@ public class CPP {
     public CPP(int cppID, int service_id, int operation_id, int schema_id, String schema_complexType ) {
         OrgDBConnector orgDBConnector = new OrgDBConnector();
         this.cppID = cppID;
+        this.cpp_name = orgDBConnector.getCPPName(cppID);
         this.service = orgDBConnector.getServiceName(service_id);
+        this.softcomp = orgDBConnector.getSoftwareComponent(service_id);
         this.service_id = service_id;
         this.operation = orgDBConnector.getOperationName(operation_id);
         this.operation_id = operation_id;
@@ -43,16 +48,27 @@ public class CPP {
         this.schema_id = schema_id;
         this.schema_complexType = schema_complexType;
     }
+
     
-     public CPP(int cppID, int service_id, String operation_name,int urlbinding_id){
+     public CPP(int cppID, int service_id, String operation_name,int urlbinding_id,String softcomp){
         OrgDBConnector orgDBConnector = new OrgDBConnector();
         this.cppID = cppID;
+        this.cpp_name = orgDBConnector.getCPPName(cppID);
         this.service = orgDBConnector.getServiceName(service_id);
         this.service_id = service_id;
         this.operation = operation_name;
         this.urlbinding = orgDBConnector.getUrlBindingAddress(urlbinding_id);
         this.urlbinding_id = urlbinding_id;
+        this.softcomp =  softcomp;
 
+    }
+
+    public String getSoftcomp() {
+        return softcomp;
+    }
+
+    public void setSoftcomp(String softcomp) {
+        this.softcomp = softcomp;
     }
 
     public String getUrlbinding() {
@@ -151,8 +167,12 @@ public class CPP {
         this.service_id = service_id;
     }
 
-    
-    
+    public String getCpp_name() {
+        return cpp_name;
+    }
 
+    public void setCpp_name(String cpp_name) {
+        this.cpp_name = cpp_name;
+    }
     
 }

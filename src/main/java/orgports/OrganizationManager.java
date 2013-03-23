@@ -588,8 +588,8 @@ public class OrganizationManager extends HttpServlet {
 
 
         Map<String, CPP> CPPList = new HashMap<String, CPP>();
-        CPP cppinfo_first = new CPP(cpp_source, service_id_source, operation_name_source,installations_source);
-        CPP cppinfo_second = new CPP(cpp_target, service_id_target, operation_name_target,installations_target);
+        CPP cppinfo_first = new CPP(cpp_source, service_id_source, operation_name_source,installations_source, request.getParameter("softcomp_source"));
+        CPP cppinfo_second = new CPP(cpp_target, service_id_target, operation_name_target,installations_target,request.getParameter("softcomp_target"));
 
 
         CPPList.put("cppinfo_first", cppinfo_first);
@@ -815,6 +815,7 @@ public class OrganizationManager extends HttpServlet {
 
         String name = (String) request.getSession().getAttribute("name");
         String additional_schema_info = "";
+        String additional_service_info = "";
         String dobridging_url = "";
 
         OrgDBConnector orgDBConnector = new OrgDBConnector();
@@ -862,6 +863,18 @@ public class OrganizationManager extends HttpServlet {
                     + "</row>";
 
 
+
+            additional_service_info  =    (o_first.get("schema") == null) ?  "<row id=\"" + cpa.getCpa_id() + "3\">"
+                    + "<cell>Installation WS:</cell>"
+                    + "<cell>" + o_first.get("urlbinding")
+                    + "</cell>"
+                    + "<cell>" + o_second.get("urlbinding")
+                    + "</cell>"
+                    + "<cell> </cell>"
+                    + "<cell> </cell>"
+                    + "</row>"
+                    :"";
+
             String active_bridge = (cpa.isDisabled()) ? "<cell>Disabled</cell>"
                     : "<cell type=\"img\">./js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/usebridge.png^Use Bridge^./OrganizationManager?op=doBridgingServicePrepare&amp;cpa_id=" + cpa.getCpa_id() + "^_self</cell>";
 
@@ -875,7 +888,29 @@ public class OrganizationManager extends HttpServlet {
                     : "<cell></cell>"
                     + "<cell></cell>";
 
-            out.write("<row id=\"" + cpa.getCpa_id() + "ws1\">"
+            out.write("<row id=\"" + cpa.getCpa_id() + "ID\">"
+                    + "<cell> CPA ID:  " +  cpa.getCpa_id() + "</cell>"
+                    + "<cell></cell>"
+                    + "<cell></cell>"
+                    + "<cell> </cell>"
+                    + "<cell> </cell>"
+                    + "</row>"
+                    + "<row id=\"" + cpa.getCpa_id() + "softcomp\">"
+                    + "<cell> Software : </cell>"
+                    + "<cell>" +   o_first.get("softcomp")  + "</cell>"
+                    + "<cell>"+o_second.get("softcomp")+"</cell>"
+                    + "<cell> </cell>"
+                    + "<cell> </cell>"
+                    + "</row>"
+                    + "<row id=\"" + cpa.getCpa_id() + "cpp_name\">"
+                    + "<cell> CPP Name: </cell>"
+                    + "<cell>"+   o_first.get("cpp_name") +"</cell>"
+                    + "<cell>"+ o_second.get("cpp_name")+"</cell>"
+                    + "<cell> </cell>"
+                    + "<cell> </cell>"
+                    + "</row>"
+                    + additional_service_info
+                    +"<row id=\"" + cpa.getCpa_id() + "ws1\">"
                     + "<cell> Web Service:</cell>"
                     + "<cell>" + o_first.get("service")
                     + "</cell>"
@@ -893,12 +928,12 @@ public class OrganizationManager extends HttpServlet {
                     + dobridging_url
                     + "</row>"
                     + additional_schema_info
-                    + "<row id=\"" + cpa.getCpa_id() + "6\">"
-                    + "<cell></cell>"
-                    + "<cell></cell>"
-                    + "<cell></cell>"
-                    + "<cell></cell>"
-                    + "<cell></cell>"
+                    +"<row id=\"" + cpa.getCpa_id() + "greenBorder\">"
+                    + "<cell type=\"cp\">#bbe87c</cell>"
+                    + "<cell type=\"cp\">#bbe87c</cell>"
+                    + "<cell type=\"cp\">#bbe87c</cell>"
+                    + "<cell type=\"cp\">#bbe87c</cell>"
+                    + "<cell type=\"cp\">#bbe87c</cell>"
                     + "</row>");
 
         }

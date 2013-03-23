@@ -172,6 +172,10 @@
                 document.forms['create_bridge'].elements['installations_source'].value = $("select[name='installations_source'] option:selected").val();
                 document.forms['create_bridge'].elements['installations_target'].value = $("select[name='installations_target'] option:selected").val();
 
+                document.forms['create_bridge'].elements['softcomp_source'].value = $("select[name='sourceSoftComp'] option:selected").html();
+                document.forms['create_bridge'].elements['softcomp_target'].value = $("select[name='targetSoftComp'] option:selected").html();
+
+
                 document.forms['create_bridge'].elements['CPPs_source'].value = $("select[name='CPPs_source'] option:selected").val();
                 document.forms['create_bridge'].elements['CPPs_target'].value = $("select[name='CPPs_target'] option:selected").val();
 
@@ -370,6 +374,9 @@
             <form method="post" name="create_bridge" action="./OrganizationManager?op=createBridgingServices" onSubmit=" return assign_selections();">
                 <input type='hidden' name='selections_source'  value='null'>
                 <input type='hidden' name='selections_target'  value='null'>
+
+                <input type='hidden' name='softcomp_source'  value='null'>
+                <input type='hidden' name='softcomp_target'  value='null'>
 
                 <input type='hidden' name='installations_source'  value='null'>
                 <input type='hidden' name='installations_target'  value='null'>
