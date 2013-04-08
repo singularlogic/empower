@@ -332,14 +332,82 @@ public class WSDLParser
         return null;
     }
 
-    public String extractXSD(String element)
+    public String extractXSDOLD(String element)
             throws FileNotFoundException, IOException, ParserConfigurationException,
             SAXException, XPathExpressionException, DocumentException, TransformerException {
         String xsdTypes = new String("");
 
 
         xsdTypes += "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\""
-                    +  " elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">";
+                + " elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">";
+
+        xsdTypes += getElementfromXSD(element);
+
+        xsdTypes += "</xs:schema>";
+
+        // get the entity type so as to add it to xsdTypes
+        Parser parser = new Parser();
+
+        JSONObject daoEntity = parser.getTypes(xsdTypes);
+
+        // in case that element is different from daoEntity parse again wsdl so as to get the entity complexType
+        if (!daoEntity.getString("entity").equalsIgnoreCase(element))
+        {
+            String daoNodeStructure = getElementfromXSD(daoEntity.getString("entity").toString());
+
+            //Treat daoNodeStructure so fix foreign keys
+            String mainEntityStructure = "";
+            if (!daoNodeStructure.equalsIgnoreCase("null")) {
+                /*
+                //put foreign keys as attributes
+                Document dom =stringToDocumentW3C(daoNodeStructure);
+
+                NodeList list = dom.getElementsByTagName("xs:element");
+
+                for (int i = 0; i < list.getLength(); i++) {
+                Element el = (Element) list.item(i);
+                //if(!el.getAttribute("type").split(":")[0].equalsIgnoreCase("xs") && el.getAttribute("name").contains("Id")){
+                if( !parser.isbaseDataType(el.getAttribute("type")) && !el.hasAttribute("maxOccurs")){
+                String ForeignKeyXSDTypes = getForeignKeyElementfromXSD(el.getAttribute("type").split(":")[1]);
+                el.setAttribute("fk",ForeignKeyXSDTypes);
+                }
+
+                }
+
+                daoNodeStructure = tranformStringToDocumentW3C(dom);
+
+                daoNodeStructure = daoNodeStructure.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>","");
+
+                Parser parserEntity = new Parser();
+                */
+                mainEntityStructure = parser.alterFKsOLD(daoNodeStructure);
+                mainEntityStructure = mainEntityStructure.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>","");
+            }
+
+            // add the daoNodeStructure to xsdTypes
+            xsdTypes = xsdTypes.replace("</xs:schema>","");
+            xsdTypes= xsdTypes.replace("ns1:","");
+            xsdTypes += mainEntityStructure;
+            xsdTypes += "</xs:schema>";
+        }
+
+        return xsdTypes;
+
+    }
+
+    /*
+    * Extract XSD from WSDL for a specific element
+    * */
+    public String extractXSD(String element)
+            throws IOException, ParserConfigurationException,
+            SAXException, XPathExpressionException, DocumentException, TransformerException {
+        String xsdTypes = new String("");
+        String myForeignkeys= "";
+
+        System.out.println("element "+element);
+
+        xsdTypes += "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\""
+                +  " elementFormDefault=\"qualified\" attributeFormDefault=\"unqualified\">";
 
         xsdTypes +=  getElementfromXSD(element);
 
@@ -350,15 +418,15 @@ public class WSDLParser
 
         JSONObject daoEntity = parser.getTypes(xsdTypes);
 
-       // in case that element is different from daoEntity parse again wsdl so as to get the entity complexType
+        // in case that element is different from daoEntity parse again wsdl so as to get the entity complexType
         if (!daoEntity.getString("entity").equalsIgnoreCase(element))
         {
             String daoNodeStructure = getElementfromXSD(daoEntity.getString("entity").toString());
 
             //Treat daoNodeStructure so fix foreign keys
-              String  mainEntityStructure = "";
+            String  mainEntityStructure = "";
             if (!daoNodeStructure.equalsIgnoreCase("null"))  {
-                 /*
+
                 //put foreign keys as attributes
                 Document dom =stringToDocumentW3C(daoNodeStructure);
 
@@ -366,28 +434,29 @@ public class WSDLParser
 
                 for (int i = 0; i < list.getLength(); i++) {
                     Element el = (Element) list.item(i);
-                    //if(!el.getAttribute("type").split(":")[0].equalsIgnoreCase("xs") && el.getAttribute("name").contains("Id")){
-                    if(  !parser.isbaseDataType(el.getAttribute("type"))  && !el.hasAttribute("maxOccurs")){
-                      String ForeignKeyXSDTypes = getForeignKeyElementfromXSD(el.getAttribute("type").split(":")[1]);
-                      el.setAttribute("fk",ForeignKeyXSDTypes);
-                    }
 
+                    if(  !parser.isbaseDataType(el.getAttribute("type"))  && !el.hasAttribute("maxOccurs")){
+
+                        String FKToAddToXSD = el.getAttribute("type").split(":")[1];
+                        el.setAttribute("type",FKToAddToXSD);
+
+                        String currentForeignKey =   getElementfromXSD(FKToAddToXSD);
+                        String currentForeignKeyWithoutUnboundedMaxOccurs =    parser.alterFKs(currentForeignKey,true);
+                        myForeignkeys +=   currentForeignKeyWithoutUnboundedMaxOccurs ;
+
+                    }
                 }
 
                 daoNodeStructure = tranformStringToDocumentW3C(dom);
-
                 daoNodeStructure = daoNodeStructure.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>","");
-
-                Parser parserEntity = new Parser();
-                */
-                mainEntityStructure = parser.alterFKs(daoNodeStructure);
-                mainEntityStructure = mainEntityStructure.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>","");
+                mainEntityStructure = parser.alterFKs(daoNodeStructure,false);
             }
 
             // add the daoNodeStructure to xsdTypes
             xsdTypes = xsdTypes.replace("</xs:schema>","");
             xsdTypes= xsdTypes.replace("ns1:","");
             xsdTypes += mainEntityStructure;
+            xsdTypes += myForeignkeys;
             xsdTypes += "</xs:schema>";
         }
 

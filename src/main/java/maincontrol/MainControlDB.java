@@ -214,7 +214,7 @@ public class MainControlDB {
                this.dbHandler.dbUpdate("update dataannotations set cvp_id='" + cvp_id + "',cpp_id=" + cpp_id + " where dataAnnotations_id=" + newda_id);
             }
 
-            this.dbHandler.dbClose();
+            //this.dbHandler.dbClose();
 
         } catch (Throwable t) {
             t.printStackTrace();

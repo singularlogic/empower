@@ -1107,6 +1107,7 @@ public class OrganizationManager extends HttpServlet {
             Service SecondWservice = mainControlDB.getService(second_webServiceInfo.getInt("service_id"));
             WSDLParser secondWSDLParser = new WSDLParser(xml_rep_path+SecondWservice.getWsdl(), SecondWservice.getNamespace());
             String daoEntity = secondWSDLParser.getDaoEntity(second_webServiceInfo.getString("operation_name"));
+
             String secondInputXML = prepareSoapBody(target_xml,second_webServiceInfo.getString("operation_name"),daoEntity);
 
             //-------------------DO INVOCATION OF SECOND WEB SERVICE-------------------------------

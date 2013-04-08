@@ -454,6 +454,17 @@ public class OrganizationManagerTest {
 
        }
 
+    @Test
+    public void  testRegex()  {
+
+        String str = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ns3:return>" ;
+        str = str.replaceAll("ns[0-9]:", "");
+
+        System.out.println(str);
+
+    }
+
+
 
 
 

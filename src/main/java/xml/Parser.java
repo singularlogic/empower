@@ -37,7 +37,7 @@ import static java.util.Arrays.asList;
 public class Parser {
 
 
-    List<String> dataTypes = asList("string","int","datetime","decimal");
+    List<String> dataTypes = asList("string","int","datetime","decimal","dateTime","float");
 
 
 
@@ -232,10 +232,76 @@ public class Parser {
 
     }
 
+
+
+    /*
+    Given an xsd structure it removes the unbounded elements of the structure (one to Many Keys). If the structure is a FK it also
+    removes the second foreign keys elements.
+    */
+    public String alterFKs(String nodeStructure, boolean secondForeingKeys) throws TransformerException {
+
+        //get the factory
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        StreamResult result = null;
+        Node parentNode = null;
+        Document dom = null;
+        Parser parser = new Parser();
+        String ComplexTypeToReturn="";
+
+        try {
+            //Using factory get an instance of document builder
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            //parse using builder to get DOM representation of the XML file
+            dom = db.parse(new InputSource(new StringReader(nodeStructure)));
+
+
+            // Get a list of all elements in the document
+            NodeList list = dom.getElementsByTagName("xs:element");
+            ArrayList<Element> elLis = new ArrayList<Element>();
+
+            for (int i = 0; i < list.getLength(); i++) {
+                // Get element
+                Element element = (Element) list.item(i);
+
+                 //select secondForeing keys so as to remove
+                if( secondForeingKeys &&  !parser.isbaseDataType(element.getAttribute("type"))  && !element.hasAttribute("maxOccurs")){
+                   elLis.add(element);
+                }
+                parentNode = element.getParentNode();
+                //select one to Many Keys  so as to remove
+                if(  !parser.isbaseDataType(element.getAttribute("type"))  && element.hasAttribute("maxOccurs") && element.getAttribute("maxOccurs").equalsIgnoreCase("unbounded")){
+                    elLis.add(element);
+                }
+            }
+
+            for (Element el : elLis) {
+                parentNode.removeChild(el);
+            }
+
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            result = new StreamResult(new StringWriter());
+            DOMSource source = new DOMSource(dom);
+            transformer.transform(source, result);
+
+
+        } catch (ParserConfigurationException pce) {
+            pce.printStackTrace();
+        } catch (SAXException se) {
+            se.printStackTrace();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+
+        ComplexTypeToReturn = result.getWriter().toString();
+        ComplexTypeToReturn= ComplexTypeToReturn.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>","");
+
+        return ComplexTypeToReturn;
+    }
+
     /*
    Given an xsd structure it replaces the foreign keys as xs:int and  removes one to Many Keys
     */
-    public String alterFKs(String nodeStructure) throws TransformerConfigurationException, TransformerException {
+    public String alterFKsOLD(String nodeStructure) throws TransformerConfigurationException, TransformerException {
         //get the factory
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         StreamResult result = null;
