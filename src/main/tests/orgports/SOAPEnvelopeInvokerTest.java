@@ -56,7 +56,6 @@ public class SOAPEnvelopeInvokerTest {
     String SOAP_REQUEST = "";
     String HOST_ADDRESS = "";
     String SOAPACTION_URI = "";
-
     /*
      * Example of a SOAP_REQUEST
      *
