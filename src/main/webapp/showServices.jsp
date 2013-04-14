@@ -91,9 +91,9 @@
             <div style="width:600px">
                 <h2 id="pageTitle"></h2>
                 <br><br>
-                <p class="info_message">List of all the registered Web services for the aformentioned Software Component.
-                Please note that a web service has to be fully annotated at functional and data level in order to be available for bridging and
-                that when deleting a web service,the bridges this web service participates are automatically disabled</p>
+                <p class="info_message">In the following list, are presented all the registered Web services for the selected Software Component.
+                Please note that a web service has to be fully annotated at functional and data level in order to be available for bridging. Also note that
+                upon the web service removal the associated bridges are automatically disabled</p>
             </div>
             <br>
             <div id="box_grid" style="width:600px; height:200px"></div>

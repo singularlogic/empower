@@ -67,7 +67,7 @@
                 <% if (request.getParameter("bridging").equalsIgnoreCase("true")){%>
                 <p id="title"><h2>Create My Bridges at Schema or Service Level</h2></p>
                 <%}else{%>
-                <p id="title"><h2>Do Data and Functional Annotation at a Schema or Service Level</h2></p>
+                <p id="title"><h2>Perform Data and Functional Annotation at a Schema or Service Level</h2></p>
                 <%}%>
                 <div id="box_grid" style="width:580px; height:600px"/>
                 <script>

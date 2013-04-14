@@ -72,7 +72,7 @@
                 <script>
                         grid = new dhtmlXGridObject("box_grid");
                         grid.setImagePath("js/dhtmlxSuite/dhtmlxGrid/codebase/imgs/");
-                        grid.setHeader("Component name,Version,Delete Software Component,Examine Schemas,Examine Services");//set column names
+                        grid.setHeader("Component name,Version,Delete Software Component,Manage Schemas,Manage Services");//set column names
 //                        grid.attachEvent("onRowSelect", doOnRowSelected);
                         grid.setColTypes("ro,ro,link,link,link,link");
                         //grid.enableCollSpan("true");

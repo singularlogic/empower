@@ -156,10 +156,10 @@
             </script>
         </div>
         <div style="border: 2px solid;border-color: #77A631;width:170px; float: right;margin: 20px 0px; padding-top: 20px; padding-bottom: 20px;">
-            <p class="info_message">In order to add ground a web service: 1)Please choose a web service 2) Add at the input field the specific url binding you wish to ground 3) and then press the "Add Url Binding" option so as to add a new soap location to an existing version of a web service.</p>
+            <p class="info_message">In order to ground a web service: 1)Please choose a web service 2) Add at the input field the specific url binding you wish to ground 3) and then press the "Add Url Binding" option so as to add a new soap location to an existing version of a web service.</p>
 
             <form method="post" name="add_url_binding" action="./OrganizationManager?op=addUrlBinding" onSubmit=" return validate_ws();">
-            <input type='text' name='url' id="url"  value='put here the url' style="width:150px;margin-top: 10px;margin-bottom: 10px;">
+            <input type='text' name='url' id="url"  value='please provide a url' style="width:150px;margin-top: 10px;margin-bottom: 10px;">
             <input type='hidden' name='add_url'  value='null'>
            <input TYPE="image" src="./img/addurl.png" id="addUrlBinding"/>
            <br>
